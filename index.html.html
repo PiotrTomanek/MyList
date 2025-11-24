@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyList - Focus View ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        }
+
+        .wisp {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ripple-expand 6s ease-out forwards;
+        }
+
+        @keyframes ripple-expand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.6;
+                border-width: 3px;
+            }
+            50% {
+                opacity: 0.3;
+                border-width: 2px;
+            }
+            100% {
+                width: 600px;
+                height: 600px;
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 182, 193, 0.2);
+            padding: 15px 30px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFB6C1, #FFDAB9, #D8BFD8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-left .tagline {
+            font-size: 0.85rem;
+            color: #D8BFD8;
+            opacity: 0.8;
+        }
+
+        /* Carousel Container */
+        .carousel-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 120px;
+            perspective: 2000px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Card States */
+        .category-card {
+            position: absolute;
+            width: 80%;
+            max-width: 900px;
+            height: 85%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar styling */
+        .category-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .category-card::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .category-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+        }
+
+        .category-card::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 182, 193, 0.5);
+        }
+
+        /* Active Card */
+        .category-card.active {
+            z-index: 10;
+            opacity: 1;
+            transform: translateX(0) translateZ(0) scale(1) rotateY(0deg);
+            pointer-events: auto;
+            filter: blur(0);
+        }
+
+        /* Previous Card */
+        .category-card.prev {
+            z-index: 5;
+            opacity: 0.3;
+            transform: translateX(-45%) translateZ(-400px) scale(0.7) rotateY(15deg);
+            pointer-events: none;
+            filter: blur(3px);
+        }
+
+        /* Next Card */
+        .category-card.next {
+            z-index: 5;
+            opacity: 0.3;
+            transform: translateX(45%) translateZ(-400px) scale(0.7) rotateY(-15deg);
+            pointer-events: none;
+            filter: blur(3px);
+        }
+
+        /* Hidden Cards */
+        .category-card.hidden {
+            opacity: 0;
+            transform: translateX(0) translateZ(-600px) scale(0.5);
+            pointer-events: none;
+            filter: blur(5px);
+        }
+
+        /* Overview Mode (Zoomed Out) */
+        body.overview-mode .carousel-container {
+            perspective: none;
+        }
+
+        body.overview-mode .category-card {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin: 20px;
+            padding: 40px;
+            opacity: 1 !important;
+            transform: none !important;
+            filter: none !important;
+            pointer-events: auto !important;
+            transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        body.overview-mode .category-card:hover {
+            transform: scale(1.05) rotate(3deg) !important;
+            box-shadow: 0 20px 60px rgba(255, 182, 193, 0.4);
+        }
+
+        body.overview-mode .carousel-track {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        body.overview-mode .category-header {
+            flex-direction: column;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body.overview-mode .category-icon {
+            font-size: 6rem !important;
+        }
+
+        body.overview-mode .category-title {
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        body.overview-mode .task-list,
+        body.overview-mode .subcategory,
+        body.overview-mode .category-summary {
+            display: none !important;
+        }
+
+        /* Card Header */
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 182, 193, 0.3);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            color: #FFDAB9;
+            font-weight: 600;
+            flex-grow: 1;
+            cursor: text;
+            padding: 4px 8px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .category-title:hover {
+            background: rgba(255, 182, 193, 0.1);
+        }
+
+        .category-title:focus {
+            background: rgba(255, 182, 193, 0.15);
+            box-shadow: 0 0 0 2px #FFB6C1;
+        }
+
+        .category-count {
+            background: rgba(255, 182, 193, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #FFB6C1;
+        }
+
+        .category-summary {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 182, 193, 0.05);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            color: #D8BFD8;
+            line-height: 1.8;
+        }
+
+        /* Task List */
+        .task-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .task-item {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item:hover {
+            padding-left: 12px;
+            background: rgba(255, 182, 193, 0.05);
+            border-radius: 10px;
+        }
+
+        .task-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            border: 2px solid #FFB6C1;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            margin-top: 2px;
+        }
+
+        .task-checkbox:hover {
+            background: rgba(255, 182, 193, 0.2);
+            transform: scale(1.1);
+        }
+
+        .task-checkbox.checked {
+            background: rgba(255, 182, 193, 0.6);
+        }
+
+        .task-content {
+            flex-grow: 1;
+        }
+
+        .task-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #ffffff;
+            cursor: text;
+            padding: 4px 8px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .task-text:hover {
+            background: rgba(255, 182, 193, 0.1);
+        }
+
+        .task-text:focus {
+            background: rgba(255, 182, 193, 0.15);
+            box-shadow: 0 0 0 2px #FFB6C1;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-urgent {
+            background: rgba(255, 107, 157, 0.3);
+            color: #FF6B9D;
+            border: 1px solid #FF6B9D;
+        }
+
+        .priority-high {
+            background: rgba(255, 107, 157, 0.2);
+            color: #FF6B9D;
+            border: 1px solid #FF6B9D;
+        }
+
+        .priority-medium {
+            background: rgba(255, 218, 185, 0.2);
+            color: #FFDAB9;
+            border: 1px solid #FFDAB9;
+        }
+
+        .time-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: rgba(216, 191, 216, 0.2);
+            color: #D8BFD8;
+            border: 1px solid #D8BFD8;
+        }
+
+        .subtask-toggle {
+            margin-top: 12px;
+            color: #D8BFD8;
+            font-size: 0.9rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .subtask-toggle:hover {
+            opacity: 1;
+            color: #FFB6C1;
+        }
+
+        .subtask-list {
+            margin-top: 15px;
+            margin-left: 35px;
+            padding-left: 20px;
+            border-left: 3px solid rgba(255, 182, 193, 0.3);
+        }
+
+        .subtask-item {
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #D8BFD8;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .subtask-number {
+            min-width: 28px;
+            height: 28px;
+            background: rgba(255, 182, 193, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #FFB6C1;
+            flex-shrink: 0;
+            font-weight: 600;
+        }
+
+        .subtask-text {
+            cursor: text;
+            padding: 4px 8px;
+            border-radius: 6px;
+            outline: none;
+            flex-grow: 1;
+        }
+
+        .subtask-text:hover {
+            background: rgba(255, 182, 193, 0.1);
+        }
+
+        .subtask-text:focus {
+            background: rgba(255, 182, 193, 0.15);
+            box-shadow: 0 0 0 2px #FFB6C1;
+        }
+
+        .subcategory {
+            margin-left: 30px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 182, 193, 0.05);
+            border-left: 4px solid rgba(255, 182, 193, 0.4);
+            border-radius: 10px;
+        }
+
+        .subcategory-title {
+            font-size: 1.2rem;
+            color: #FFE4C4;
+            margin-bottom: 15px;
+            font-weight: 600;
+            cursor: text;
+            padding: 4px 8px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .subcategory-title:hover {
+            background: rgba(255, 182, 193, 0.1);
+        }
+
+        .subcategory-title:focus {
+            background: rgba(255, 182, 193, 0.15);
+            box-shadow: 0 0 0 2px #FFB6C1;
+        }
+
+        /* Navigation */
+        .carousel-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            width: 70px;
+            height: 70px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 3px solid rgba(255, 182, 193, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 3.5rem;
+            color: rgba(255, 182, 193, 0.85);
+            user-select: none;
+            line-height: 0.85;
+            padding-bottom: 8px;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        .carousel-nav.prev-btn {
+            left: 30px;
+        }
+
+        .carousel-nav.next-btn {
+            right: 30px;
+        }
+
+        body.overview-mode .carousel-nav {
+            display: none;
+        }
+
+        /* Indicator Dots */
+        .carousel-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .carousel-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 182, 193, 0.3);
+            border: 2px solid rgba(255, 182, 193, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: #FFB6C1;
+            transform: scale(1.4);
+            box-shadow: 0 0 15px rgba(255, 182, 193, 0.6);
+        }
+
+        .carousel-dot:hover {
+            background: rgba(255, 182, 193, 0.6);
+            transform: scale(1.2);
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .zoom-btn {
+            width: 55px;
+            height: 55px;
+            border: 3px solid rgba(255, 182, 193, 0.4);
+            border-radius: 50%;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            color: #FFB6C1;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+            transform: scale(1.15);
+        }
+
+        .zoom-level-indicator {
+            text-align: center;
+            color: #D8BFD8;
+            font-size: 0.75rem;
+            background: rgba(10, 14, 39, 0.95);
+            padding: 10px 14px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            line-height: 1.4;
+        }
+
+        .save-indicator {
+            position: fixed;
+            top: 90px;
+            right: 40px;
+            padding: 10px 20px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid rgba(144, 238, 144, 0.5);
+            border-radius: 25px;
+            color: lightgreen;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+            font-weight: 600;
+        }
+
+        .save-indicator.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .category-card {
+                width: 95%;
+                padding: 25px;
+            }
+
+            .carousel-nav {
+                width: 55px;
+                height: 55px;
+                font-size: 2rem;
+            }
+
+            .carousel-nav.prev-btn {
+                left: 15px;
+            }
+
+            .carousel-nav.next-btn {
+                right: 15px;
+            }
+
+            body.overview-mode .category-card {
+                width: 250px;
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background" id="background"></div>
+
+    <div class="save-indicator" id="saveIndicator">✓ Saved</div>
+
+    <header>
+        <div class="header-left">
+            <h1>MyList</h1>
+            <div class="tagline">Organize your life with ease ✨</div>
+        </div>
+    </header>
+
+    <div class="carousel-container">
+        <div class="carousel-track" id="carouselTrack"></div>
+    </div>
+
+    <div class="carousel-nav prev-btn" id="prevBtn">‹</div>
+    <div class="carousel-nav next-btn" id="nextBtn">›</div>
+
+    <div class="carousel-indicator" id="carouselIndicator"></div>
+
+    <div class="zoom-controls">
+        <button class="zoom-btn" id="zoomOutBtn">−</button>
+        <button class="zoom-btn" id="zoomInBtn">+</button>
+        <div class="zoom-level-indicator" id="zoomLevelText">
+            Focus View
+        </div>
+    </div>
+
+    <script>
+        // Data structure (same generic data)
+        const defaultData = {
+            categories: {
+                urgent: {
+                    id: 'urgent',
+                    name: '🔥 Urgent',
+                    icon: '⚡',
+                    summary: 'High-priority items that need immediate attention',
+                    tasks: [], // Will be populated dynamically
+                    isVirtual: true // Flag to indicate this is auto-generated
+                },
+                work: {
+                    id: 'work',
+                    name: 'Work & Career',
+                    icon: '💼',
+                    summary: 'Project deadlines, meetings, and professional development goals',
+                    tasks: [
+                        { 
+                            id: 1, 
+                            text: 'Finish quarterly report', 
+                            priority: 'high',
+                            timeframe: 'this-week',
+                            completed: false,
+                            subtasks: ['Gather data from all departments', 'Create charts and visualizations', 'Write executive summary', 'Review with manager', 'Submit final version']
+                        },
+                        { 
+                            id: 2, 
+                            text: 'Prepare presentation for client meeting', 
+                            priority: 'urgent',
+                            timeframe: 'today',
+                            completed: false,
+                            subtasks: ['Outline key talking points', 'Design slides', 'Rehearse pitch', 'Print handouts']
+                        },
+                        { id: 3, text: 'Update LinkedIn profile', timeframe: 'this-month', completed: false },
+                        { id: 4, text: 'Schedule 1-on-1 with team', timeframe: 'this-week', completed: false }
+                    ],
+                    subcategories: [
+                        {
+                            id: 'skills',
+                            name: 'Skill Development',
+                            icon: '📚',
+                            tasks: [
+                                { id: 5, text: 'Complete online course on data analysis', completed: false },
+                                { id: 6, text: 'Attend industry webinar', completed: false },
+                                { id: 7, text: 'Read professional development book', completed: false }
+                            ]
+                        }
+                    ]
+                },
+                home: {
+                    id: 'home',
+                    name: 'Home & Living',
+                    icon: '🏠',
+                    summary: 'Household chores, maintenance, and home improvement projects',
+                    subcategories: [
+                        {
+                            id: 'cleaning',
+                            name: 'Cleaning & Maintenance',
+                            icon: '🧹',
+                            tasks: [
+                                { id: 8, text: 'Deep clean kitchen', priority: 'medium', completed: false },
+                                { id: 9, text: 'Organize garage', completed: false },
+                                { id: 10, text: 'Change air filters', timeframe: 'this-week', completed: false }
+                            ]
+                        },
+                        {
+                            id: 'repairs',
+                            name: 'Repairs & Upgrades',
+                            icon: '🔧',
+                            tasks: [
+                                { 
+                                    id: 11, 
+                                    text: 'Fix leaky faucet', 
+                                    priority: 'high',
+                                    completed: false,
+                                    subtasks: ['Buy replacement parts', 'Watch tutorial video', 'Turn off water supply', 'Replace washers']
+                                },
+                                { id: 12, text: 'Paint bedroom', completed: false },
+                                { id: 13, text: 'Install smart thermostat', completed: false }
+                            ]
+                        }
+                    ]
+                },
+                health: {
+                    id: 'health',
+                    name: 'Health & Fitness',
+                    icon: '💪',
+                    summary: 'Exercise routines, meal planning, and wellness appointments',
+                    tasks: [
+                        { id: 14, text: 'Morning jog (3 miles)', timeframe: 'today', completed: false },
+                        { 
+                            id: 15, 
+                            text: 'Meal prep for the week', 
+                            priority: 'medium',
+                            timeframe: 'this-week',
+                            completed: false,
+                            subtasks: ['Plan healthy recipes', 'Make grocery list', 'Buy ingredients', 'Prep and portion meals']
+                        },
+                        { id: 16, text: 'Schedule annual checkup', priority: 'high', completed: false },
+                        { id: 17, text: 'Refill prescriptions', completed: false }
+                    ],
+                    subcategories: [
+                        {
+                            id: 'fitness-goals',
+                            name: 'Fitness Goals',
+                            icon: '🎯',
+                            tasks: [
+                                { id: 18, text: 'Run 5K in under 30 minutes', completed: false },
+                                { id: 19, text: 'Join yoga class', completed: false },
+                                { id: 20, text: 'Track daily water intake', completed: false }
+                            ]
+                        }
+                    ]
+                },
+                personal: {
+                    id: 'personal',
+                    name: 'Personal Growth',
+                    icon: '🌱',
+                    summary: 'Learning, hobbies, and self-improvement activities',
+                    tasks: [
+                        { 
+                            id: 21, 
+                            text: 'Learn to play guitar', 
+                            completed: false,
+                            subtasks: ['Buy beginner guitar', 'Find online lessons', 'Practice 30 min daily', 'Learn first song']
+                        },
+                        { id: 22, text: 'Start journaling habit', timeframe: 'today', completed: false },
+                        { id: 23, text: 'Meditation (10 minutes)', timeframe: 'today', completed: false }
+                    ],
+                    subcategories: [
+                        {
+                            id: 'reading',
+                            name: 'Reading List',
+                            icon: '📖',
+                            tasks: [
+                                { id: 24, text: 'Finish current novel', completed: false },
+                                { id: 25, text: 'Read 2 chapters before bed', timeframe: 'today', completed: false },
+                                { id: 26, text: 'Join book club', completed: false }
+                            ]
+                        }
+                    ]
+                },
+                social: {
+                    id: 'social',
+                    name: 'Social & Events',
+                    icon: '🎉',
+                    summary: 'Social plans, celebrations, and staying connected with loved ones',
+                    tasks: [
+                        { id: 27, text: 'Call mom', priority: 'high', timeframe: 'today', completed: false },
+                        { 
+                            id: 28, 
+                            text: 'Plan birthday party', 
+                            priority: 'medium',
+                            timeframe: 'this-week',
+                            completed: false,
+                            subtasks: ['Choose venue or location', 'Create guest list', 'Send invitations', 'Order cake', 'Plan activities']
+                        },
+                        { id: 29, text: 'Coffee with Sarah', timeframe: 'this-week', completed: false }
+                    ],
+                    subcategories: [
+                        {
+                            id: 'gifts',
+                            name: 'Gift Ideas',
+                            icon: '🎁',
+                            tasks: [
+                                { id: 30, text: 'Anniversary gift for partner', priority: 'high', completed: false },
+                                { id: 31, text: 'Birthday gifts for upcoming celebrations', completed: false }
+                            ]
+                        }
+                    ]
+                },
+                finance: {
+                    id: 'finance',
+                    name: 'Finance & Admin',
+                    icon: '💰',
+                    summary: 'Bills, budgeting, and financial planning',
+                    tasks: [
+                        { 
+                            id: 32, 
+                            text: 'Review monthly budget', 
+                            priority: 'high',
+                            timeframe: 'this-week',
+                            completed: false,
+                            subtasks: ['Track all expenses', 'Review spending categories', 'Adjust budget as needed', 'Set savings goals']
+                        },
+                        { id: 33, text: 'Pay utility bills', priority: 'urgent', timeframe: 'today', completed: false },
+                        { id: 34, text: 'File tax documents', completed: false }
+                    ],
+                    subcategories: [
+                        {
+                            id: 'savings',
+                            name: 'Savings Goals',
+                            icon: '🏦',
+                            tasks: [
+                                { id: 35, text: 'Emergency fund: Save $5000', completed: false },
+                                { id: 36, text: 'Vacation fund', completed: false },
+                                { id: 37, text: 'Research investment options', completed: false }
+                            ]
+                        }
+                    ]
+                }
+            },
+            categoryOrder: ['urgent', 'work', 'home', 'health', 'personal', 'social', 'finance']
+        };
+
+        // State
+        let categories = defaultData.categories;
+        let categoryOrder = defaultData.categoryOrder;
+        let currentIndex = 0;
+        let overviewMode = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        // Storage
+        function saveToStorage() {
+            const data = {
+                categories,
+                categoryOrder,
+                currentIndex,
+                overviewMode
+            };
+            localStorage.setItem('myListData', JSON.stringify(data));
+            showSaveIndicator();
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('myListData');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    categories = data.categories || categories;
+                    categoryOrder = data.categoryOrder || categoryOrder;
+                    currentIndex = data.currentIndex || 0;
+                    overviewMode = data.overviewMode || false;
+                } catch (e) {}
+            }
+        }
+
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+
+        // Helpers
+        function populateUrgentCategory() {
+            // Collect all urgent and high priority tasks from all categories
+            const urgentTasks = [];
+            
+            categoryOrder.forEach(catId => {
+                if (catId === 'urgent') return; // Skip the urgent category itself
+                const cat = categories[catId];
+                if (!cat) return;
+                
+                // Check main tasks
+                if (cat.tasks) {
+                    cat.tasks.forEach(task => {
+                        if (task.priority === 'urgent' || task.priority === 'high') {
+                            urgentTasks.push({
+                                ...task,
+                                sourceCategory: cat.name,
+                                sourceCategoryId: cat.id,
+                                sourceCategoryIcon: cat.icon,
+                                sourceSubcatId: null
+                            });
+                        }
+                    });
+                }
+                
+                // Check subcategory tasks
+                if (cat.subcategories) {
+                    cat.subcategories.forEach(subcat => {
+                        subcat.tasks.forEach(task => {
+                            if (task.priority === 'urgent' || task.priority === 'high') {
+                                urgentTasks.push({
+                                    ...task,
+                                    sourceCategory: `${cat.name} → ${subcat.name}`,
+                                    sourceCategoryId: cat.id,
+                                    sourceCategoryIcon: cat.icon,
+                                    sourceSubcatId: subcat.id
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+            
+            // Sort by priority (urgent first, then high)
+            urgentTasks.sort((a, b) => {
+                if (a.priority === 'urgent' && b.priority === 'high') return -1;
+                if (a.priority === 'high' && b.priority === 'urgent') return 1;
+                return 0;
+            });
+            
+            categories.urgent.tasks = urgentTasks;
+        }
+
+        function countVisibleTasks(category) {
+            if (category.id === 'urgent') {
+                populateUrgentCategory();
+                return category.tasks.length;
+            }
+            
+            let count = 0;
+            if (category.tasks) count += category.tasks.length;
+            if (category.subcategories) {
+                category.subcategories.forEach(sub => {
+                    count += sub.tasks.length;
+                });
+            }
+            return count;
+        }
+
+        function findTask(taskId, categoryId, subcatId) {
+            const category = categories[categoryId];
+            if (!category) return null;
+            if (subcatId) {
+                const subcat = category.subcategories?.find(s => s.id === subcatId);
+                return subcat?.tasks.find(t => t.id === taskId);
+            }
+            return category.tasks?.find(t => t.id === taskId);
+        }
+
+        // Render
+        function renderCarousel() {
+            // Update urgent category before rendering
+            populateUrgentCategory();
+            
+            const track = document.getElementById('carouselTrack');
+            const indicator = document.getElementById('carouselIndicator');
+            track.innerHTML = '';
+            indicator.innerHTML = '';
+
+            categoryOrder.forEach((catId, index) => {
+                const cat = categories[catId];
+                if (!cat) return;
+
+                const card = createCategoryCard(cat);
+                updateCardPosition(card, index);
+                
+                if (overviewMode) {
+                    card.onclick = () => {
+                        overviewMode = false;
+                        currentIndex = index;
+                        document.body.classList.remove('overview-mode');
+                        document.getElementById('zoomLevelText').textContent = 'Focus View';
+                        renderCarousel();
+                        saveToStorage();
+                    };
+                }
+                
+                track.appendChild(card);
+
+                // Indicator dot
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot';
+                if (index === currentIndex) dot.classList.add('active');
+                dot.onclick = () => goToSlide(index);
+                indicator.appendChild(dot);
+            });
+
+            attachEventListeners();
+        }
+
+        function createCategoryCard(category) {
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            card.dataset.categoryId = category.id;
+
+            const taskCount = countVisibleTasks(category);
+
+            let html = `
+                <div class="category-header">
+                    <span class="category-icon">${category.icon}</span>
+                    <span class="category-title" contenteditable="${!category.isVirtual}" data-category-id="${category.id}">${category.name}</span>
+                    <span class="category-count">${taskCount} tasks</span>
+                </div>
+            `;
+
+            if (category.summary) {
+                html += `<div class="category-summary">${category.summary}</div>`;
+            }
+
+            if (category.tasks && category.tasks.length > 0) {
+                html += '<ul class="task-list">';
+                category.tasks.forEach(task => {
+                    html += renderTask(task, category.id, null);
+                });
+                html += '</ul>';
+            }
+
+            if (category.subcategories && !category.isVirtual) {
+                category.subcategories.forEach(subcat => {
+                    html += renderSubcategory(subcat, category.id);
+                });
+            }
+
+            card.innerHTML = html;
+            return card;
+        }
+
+        function renderSubcategory(subcat, parentCatId) {
+            let html = `<div class="subcategory">
+                <div class="subcategory-title" contenteditable="true" data-subcat-id="${subcat.id}" data-parent-id="${parentCatId}">${subcat.icon} ${subcat.name}</div>
+                <ul class="task-list">`;
+            
+            subcat.tasks.forEach(task => {
+                html += renderTask(task, parentCatId, subcat.id);
+            });
+            
+            html += '</ul></div>';
+            return html;
+        }
+
+        function renderTask(task, categoryId, subcatId) {
+            const completedClass = task.completed ? 'completed' : '';
+            const checkedClass = task.completed ? 'checked' : '';
+            const priorityBadge = task.priority ? `<span class="priority-badge priority-${task.priority}">${task.priority.toUpperCase()}</span>` : '';
+            const timeBadge = task.timeframe ? `<span class="time-badge">${task.timeframe}</span>` : '';
+            
+            // Show source category for urgent tasks
+            const sourceBadge = task.sourceCategory ? `<span class="time-badge">${task.sourceCategoryIcon} ${task.sourceCategory}</span>` : '';
+            
+            let subtasksHtml = '';
+            if (task.subtasks) {
+                subtasksHtml = `
+                    <div class="subtask-toggle" data-task-id="${task.id}">
+                        → ${task.subtasks.length} steps
+                    </div>
+                    <div class="subtask-list" id="subtasks-${task.id}" style="display: none;">
+                        ${task.subtasks.map((st, i) => `
+                            <div class="subtask-item">
+                                <div class="subtask-number">${i + 1}</div>
+                                <div class="subtask-text" contenteditable="true" data-task-id="${task.id}" data-subtask-index="${i}">${st}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            return `
+                <li class="task-item ${completedClass}">
+                    <div class="task-main">
+                        <div class="task-checkbox ${checkedClass}" data-task-id="${task.id}" data-category-id="${task.sourceCategoryId || categoryId}" data-subcat-id="${task.sourceSubcatId || subcatId || ''}"></div>
+                        <div class="task-content">
+                            <span class="task-text" contenteditable="true" data-task-id="${task.id}" data-category-id="${task.sourceCategoryId || categoryId}" data-subcat-id="${task.sourceSubcatId || subcatId || ''}">${task.text}</span>
+                            <div class="task-meta">
+                                ${priorityBadge}
+                                ${timeBadge}
+                                ${sourceBadge}
+                            </div>
+                        </div>
+                    </div>
+                    ${subtasksHtml}
+                </li>
+            `;
+        }
+
+        function updateCardPosition(card, index) {
+            const total = categoryOrder.length;
+            const diff = (index - currentIndex + total) % total;
+            
+            card.classList.remove('active', 'prev', 'next', 'hidden');
+            
+            if (diff === 0) {
+                card.classList.add('active');
+            } else if (diff === 1 || diff === -(total - 1)) {
+                card.classList.add('next');
+            } else if (diff === total - 1 || diff === -1) {
+                card.classList.add('prev');
+            } else {
+                card.classList.add('hidden');
+            }
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            const cards = document.querySelectorAll('.category-card');
+            cards.forEach((card, i) => updateCardPosition(card, i));
+            
+            document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            
+            saveToStorage();
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % categoryOrder.length;
+            goToSlide(currentIndex);
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + categoryOrder.length) % categoryOrder.length;
+            goToSlide(currentIndex);
+        }
+
+        function toggleOverview() {
+            overviewMode = !overviewMode;
+            document.body.classList.toggle('overview-mode', overviewMode);
+            document.getElementById('zoomLevelText').textContent = overviewMode ? 'Overview' : 'Focus View';
+            renderCarousel();
+            saveToStorage();
+        }
+
+        // Event Listeners
+        function attachEventListeners() {
+            // Checkboxes
+            document.querySelectorAll('.task-checkbox').forEach(box => {
+                box.onclick = function(e) {
+                    e.stopPropagation();
+                    const categoryId = this.dataset.categoryId;
+                    const subcatId = this.dataset.subcatId;
+                    const task = findTask(parseInt(this.dataset.taskId), categoryId, subcatId);
+                    if (task) {
+                        task.completed = !task.completed;
+                        renderCarousel();
+                        saveToStorage();
+                    }
+                };
+            });
+
+            // Subtask toggles
+            document.querySelectorAll('.subtask-toggle').forEach(toggle => {
+                toggle.onclick = function(e) {
+                    e.stopPropagation();
+                    const subtasks = document.getElementById(`subtasks-${this.dataset.taskId}`);
+                    if (subtasks) {
+                        subtasks.style.display = subtasks.style.display === 'none' ? 'block' : 'none';
+                    }
+                };
+            });
+
+            // Editable fields
+            document.querySelectorAll('.category-title').forEach(title => {
+                title.onblur = function() {
+                    const catId = this.dataset.categoryId;
+                    if (categories[catId] && !categories[catId].isVirtual) {
+                        categories[catId].name = this.textContent.trim();
+                        saveToStorage();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.task-text').forEach(text => {
+                text.onblur = function() {
+                    const task = findTask(parseInt(this.dataset.taskId), this.dataset.categoryId, this.dataset.subcatId);
+                    if (task) {
+                        task.text = this.textContent.trim();
+                        saveToStorage();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.subcategory-title').forEach(title => {
+                title.onblur = function() {
+                    const cat = categories[this.dataset.parentId];
+                    const subcat = cat?.subcategories?.find(s => s.id === this.dataset.subcatId);
+                    if (subcat) {
+                        const newText = this.textContent.trim();
+                        const match = newText.match(/^(.) (.+)$/);
+                        if (match) {
+                            subcat.icon = match[1];
+                            subcat.name = match[2];
+                        } else {
+                            subcat.name = newText;
+                        }
+                        saveToStorage();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.subtask-text').forEach(text => {
+                text.onblur = function() {
+                    const categoryId = this.closest('.category-card').dataset.categoryId;
+                    const subcatId = this.closest('.subcategory')?.querySelector('.subcategory-title')?.dataset?.subcatId || '';
+                    const task = findTask(parseInt(this.dataset.taskId), categoryId, subcatId);
+                    if (task && task.subtasks) {
+                        task.subtasks[parseInt(this.dataset.subtaskIndex)] = this.textContent.trim();
+                        saveToStorage();
+                    }
+                };
+            });
+        }
+
+        // Navigation
+        document.getElementById('prevBtn').onclick = prevSlide;
+        document.getElementById('nextBtn').onclick = nextSlide;
+        document.getElementById('zoomInBtn').onclick = () => {
+            if (overviewMode) toggleOverview();
+        };
+        document.getElementById('zoomOutBtn').onclick = toggleOverview;
+
+        // Touch/swipe
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (overviewMode) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0) prevSlide();
+                else nextSlide();
+            }
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.target.closest('[contenteditable]')) return;
+            if (overviewMode) return;
+
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextSlide();
+            }
+        });
+
+        // Particles
+        class Particle {
+            constructor(x, y, vx, vy, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.radius = radius;
+                this.color = color;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.element = document.createElement('div');
+                this.element.className = 'wisp';
+                this.element.style.width = (radius * 2) + 'px';
+                this.element.style.height = (radius * 2) + 'px';
+                this.element.style.background = `radial-gradient(circle, ${color} 0%, transparent 70%)`;
+                this.element.style.filter = `blur(${radius}px)`;
+                this.element.style.opacity = '0.25';
+                document.getElementById('background').appendChild(this.element);
+            }
+
+            update(time) {
+                this.pulsePhase += 0.02;
+                this.element.style.transform = `scale(${Math.sin(this.pulsePhase) * 0.15 + 0.85})`;
+
+                this.vx += (Math.random() - 0.5) * 0.02;
+                this.vy += (Math.random() - 0.5) * 0.02;
+                this.vx += Math.sin(this.y * 0.003 + time * 0.0005) * 0.015;
+                this.vy += Math.cos(this.x * 0.003 + time * 0.0005) * 0.015;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+
+                if (this.x < this.radius) {
+                    this.x = this.radius;
+                    this.vx = Math.abs(this.vx) * 0.4;
+                } else if (this.x > width - this.radius) {
+                    this.x = width - this.radius;
+                    this.vx = -Math.abs(this.vx) * 0.4;
+                }
+
+                if (this.y < this.radius) {
+                    this.y = this.radius;
+                    this.vy = Math.abs(this.vy) * 0.4;
+                } else if (this.y > height - this.radius) {
+                    this.y = height - this.radius;
+                    this.vy = -Math.abs(this.vy) * 0.4;
+                }
+
+                this.vx *= 0.95;
+                this.vy *= 0.95;
+
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > 0.8) {
+                    this.vx = (this.vx / speed) * 0.8;
+                    this.vy = (this.vy / speed) * 0.8;
+                }
+                if (speed < 0.1 && speed > 0) {
+                    this.vx = (this.vx / speed) * 0.1;
+                    this.vy = (this.vy / speed) * 0.1;
+                }
+
+                this.element.style.left = (this.x - this.radius) + 'px';
+                this.element.style.top = (this.y - this.radius) + 'px';
+            }
+        }
+
+        // Ripple effect
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = (x - 0) + 'px';
+            ripple.style.top = (y - 0) + 'px';
+            document.getElementById('background').appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 6000);
+        }
+
+        // Create ambient ripples periodically
+        function createAmbientRipple() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            createRipple(x, y);
+        }
+
+        const particles = [];
+        const colors = ['rgba(255,182,193,1)', 'rgba(255,218,185,1)', 'rgba(216,191,216,1)', 'rgba(255,228,196,1)', 'rgba(255,192,203,1)', 'rgba(230,190,255,1)', 'rgba(255,200,180,1)', 'rgba(200,220,255,1)'];
+
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2;
+            const spreadRadius = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+            const x = window.innerWidth / 2 + Math.cos(angle) * spreadRadius + (Math.random() - 0.5) * 200;
+            const y = window.innerHeight / 2 + Math.sin(angle) * spreadRadius + (Math.random() - 0.5) * 200;
+            particles.push(new Particle(x, y, (Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3, 35 + Math.random() * 25, colors[i % colors.length]));
+        }
+
+        let time = 0;
+        function animate() {
+            time++;
+            particles.forEach(p => p.update(time));
+            
+            // Random ambient ripples (0.1% chance per frame = ~1 every 16 seconds at 60fps)
+            if (Math.random() < 0.001) {
+                createAmbientRipple();
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize
+        loadFromStorage();
+        if (overviewMode) {
+            document.body.classList.add('overview-mode');
+            document.getElementById('zoomLevelText').textContent = 'Overview';
+        }
+        renderCarousel();
+        animate();
+        
+        // Start with a few initial ripples for peaceful effect
+        setTimeout(() => createAmbientRipple(), 500);
+        setTimeout(() => createAmbientRipple(), 1500);
+        setTimeout(() => createAmbientRipple(), 2500);
+    </script>
+</body>
+</html>
