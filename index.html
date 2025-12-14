@@ -92,6 +92,222 @@
             opacity: 0.8;
         }
 
+        /* Photo Import Button */
+        .photo-import-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(216, 191, 216, 0.2));
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            border-radius: 12px;
+            color: #FFB6C1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-import-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.3), rgba(216, 191, 216, 0.3));
+            border-color: #FFB6C1;
+            transform: scale(1.05);
+        }
+
+        .photo-import-btn .camera-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Photo Import Modal */
+        .modal-photo {
+            max-width: 500px;
+        }
+
+        .api-key-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 182, 193, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+        }
+
+        .api-key-section label {
+            display: block;
+            color: #D8BFD8;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .api-key-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .api-key-input::placeholder {
+            color: rgba(216, 191, 216, 0.5);
+        }
+
+        .api-key-saved {
+            color: #90EE90;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .photo-upload-area {
+            border: 2px dashed rgba(255, 182, 193, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .photo-upload-area:hover {
+            border-color: #FFB6C1;
+            background: rgba(255, 182, 193, 0.05);
+        }
+
+        .photo-upload-area.has-image {
+            padding: 10px;
+        }
+
+        .photo-upload-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .photo-upload-text {
+            color: #D8BFD8;
+            font-size: 0.95rem;
+        }
+
+        .photo-upload-hint {
+            color: rgba(216, 191, 216, 0.6);
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .photo-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .photo-preview.show {
+            display: block;
+        }
+
+        .processing-indicator {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .processing-indicator.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 182, 193, 0.2);
+            border-top-color: #FFB6C1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .processing-text {
+            color: #D8BFD8;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        /* Import Preview */
+        .import-preview {
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .import-preview.show {
+            display: block;
+        }
+
+        .import-category {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 182, 193, 0.08);
+            border-radius: 10px;
+            border-left: 3px solid #FFB6C1;
+        }
+
+        .import-category-title {
+            font-weight: 600;
+            color: #FFB6C1;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .import-task-list {
+            list-style: none;
+        }
+
+        .import-task-item {
+            padding: 6px 0;
+            color: #fff;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .import-task-item::before {
+            content: '→';
+            color: #D8BFD8;
+        }
+
+        .import-error {
+            color: #FF6B6B;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .import-error.show {
+            display: block;
+        }
+
+        .import-success {
+            color: #90EE90;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .import-success.show {
+            display: block;
+        }
+
+        .import-success-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
         /* Carousel Container */
         .carousel-container {
             position: fixed;
@@ -1347,6 +1563,25 @@
                 font-size: 0.75rem;
             }
             
+            .photo-import-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .photo-import-btn .btn-text {
+                display: none;
+            }
+            
+            .photo-import-btn .camera-icon {
+                font-size: 1.3rem;
+            }
+            
+            .modal-photo {
+                width: 95%;
+                max-width: none;
+                padding: 20px;
+            }
+            
             .carousel-container {
                 top: 70px;
             }
@@ -1495,6 +1730,10 @@
             <h1>MyList</h1>
             <div class="tagline">Organize your life with ease ✨</div>
         </div>
+        <button class="photo-import-btn" onclick="openPhotoModal()">
+            <span class="camera-icon">📷</span>
+            <span class="btn-text">Import</span>
+        </button>
     </header>
 
     <div class="carousel-container">
@@ -1562,6 +1801,53 @@
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closeStepsModal()">Cancel</button>
                 <button class="modal-btn primary" onclick="saveStepsFromModal()">Save Steps</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Import Modal -->
+    <div class="modal-overlay" id="photoImportModal">
+        <div class="modal modal-photo">
+            <h2>📷 Import from Photo</h2>
+            
+            <!-- API Key Section -->
+            <div class="api-key-section">
+                <label>Claude API Key (stored locally in your browser)</label>
+                <input type="password" class="api-key-input" id="claudeApiKey" placeholder="sk-ant-api03-...">
+                <div class="api-key-saved" id="apiKeySaved" style="display: none;">✓ API key saved</div>
+            </div>
+            
+            <!-- Upload Area -->
+            <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
+                <div class="photo-upload-icon">📝</div>
+                <div class="photo-upload-text">Click to upload a photo of your handwritten notes</div>
+                <div class="photo-upload-hint">Supports JPG, PNG • Works best with clear handwriting</div>
+                <img class="photo-preview" id="photoPreview" alt="Preview">
+            </div>
+            <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)">
+            
+            <!-- Processing Indicator -->
+            <div class="processing-indicator" id="processingIndicator">
+                <div class="spinner"></div>
+                <div class="processing-text">Reading your notes with Claude AI...</div>
+            </div>
+            
+            <!-- Error Message -->
+            <div class="import-error" id="importError"></div>
+            
+            <!-- Import Preview -->
+            <div class="import-preview" id="importPreview"></div>
+            
+            <!-- Success Message -->
+            <div class="import-success" id="importSuccess">
+                <div class="import-success-icon">✨</div>
+                <div>Tasks imported successfully!</div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closePhotoModal()">Cancel</button>
+                <button class="modal-btn primary" id="processPhotoBtn" onclick="processPhoto()" style="display: none;">Process Photo</button>
+                <button class="modal-btn primary" id="confirmImportBtn" onclick="confirmImport()" style="display: none;">Import Tasks</button>
             </div>
         </div>
     </div>
@@ -2852,6 +3138,350 @@
         setTimeout(() => createAmbientRipple(), 500);
         setTimeout(() => createAmbientRipple(), 1500);
         setTimeout(() => createAmbientRipple(), 2500);
+        
+        // Load saved API key
+        const savedApiKey = localStorage.getItem('claude_api_key');
+        if (savedApiKey) {
+            document.getElementById('claudeApiKey').value = savedApiKey;
+        }
+
+        // ==========================================
+        // PHOTO IMPORT FUNCTIONALITY
+        // ==========================================
+        
+        let selectedPhotoBase64 = null;
+        let parsedImportData = null;
+        
+        function openPhotoModal() {
+            document.getElementById('photoImportModal').classList.add('show');
+            resetPhotoModal();
+            
+            // Show saved indicator if key exists
+            const savedKey = localStorage.getItem('claude_api_key');
+            if (savedKey) {
+                document.getElementById('claudeApiKey').value = savedKey;
+                document.getElementById('apiKeySaved').style.display = 'block';
+            }
+        }
+        
+        function closePhotoModal() {
+            document.getElementById('photoImportModal').classList.remove('show');
+            resetPhotoModal();
+        }
+        
+        function resetPhotoModal() {
+            selectedPhotoBase64 = null;
+            parsedImportData = null;
+            
+            document.getElementById('photoPreview').classList.remove('show');
+            document.getElementById('photoPreview').src = '';
+            document.getElementById('photoUploadArea').classList.remove('has-image');
+            document.getElementById('photoUploadArea').querySelector('.photo-upload-icon').style.display = 'block';
+            document.getElementById('photoUploadArea').querySelector('.photo-upload-text').style.display = 'block';
+            document.getElementById('photoUploadArea').querySelector('.photo-upload-hint').style.display = 'block';
+            
+            document.getElementById('processingIndicator').classList.remove('show');
+            document.getElementById('importError').classList.remove('show');
+            document.getElementById('importPreview').classList.remove('show');
+            document.getElementById('importSuccess').classList.remove('show');
+            
+            document.getElementById('processPhotoBtn').style.display = 'none';
+            document.getElementById('confirmImportBtn').style.display = 'none';
+            document.getElementById('photoInput').value = '';
+        }
+        
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                showImportError('Please select an image file.');
+                return;
+            }
+            
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showImportError('Image too large. Please use an image under 10MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                selectedPhotoBase64 = base64;
+                
+                // Show preview
+                const preview = document.getElementById('photoPreview');
+                preview.src = base64;
+                preview.classList.add('show');
+                
+                // Update upload area
+                const uploadArea = document.getElementById('photoUploadArea');
+                uploadArea.classList.add('has-image');
+                uploadArea.querySelector('.photo-upload-icon').style.display = 'none';
+                uploadArea.querySelector('.photo-upload-text').style.display = 'none';
+                uploadArea.querySelector('.photo-upload-hint').style.display = 'none';
+                
+                // Show process button
+                document.getElementById('processPhotoBtn').style.display = 'inline-block';
+                document.getElementById('importError').classList.remove('show');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function showImportError(message) {
+            const errorEl = document.getElementById('importError');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+        
+        async function processPhoto() {
+            const apiKey = document.getElementById('claudeApiKey').value.trim();
+            
+            if (!apiKey) {
+                showImportError('Please enter your Claude API key.');
+                return;
+            }
+            
+            if (!selectedPhotoBase64) {
+                showImportError('Please select a photo first.');
+                return;
+            }
+            
+            // Save API key
+            localStorage.setItem('claude_api_key', apiKey);
+            document.getElementById('apiKeySaved').style.display = 'block';
+            
+            // Show processing
+            document.getElementById('processingIndicator').classList.add('show');
+            document.getElementById('processPhotoBtn').style.display = 'none';
+            document.getElementById('importError').classList.remove('show');
+            
+            // Build category context for Claude
+            const categoryContext = buildCategoryContext();
+            
+            // Extract base64 data (remove data URL prefix)
+            const base64Data = selectedPhotoBase64.split(',')[1];
+            const mediaType = selectedPhotoBase64.split(';')[0].split(':')[1];
+            
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: mediaType,
+                                        data: base64Data
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: `You are a task extraction assistant. Look at this handwritten note and extract all tasks/items from it.
+
+Here are the existing categories and groups in the user's task app:
+${categoryContext}
+
+Please analyze the handwritten notes and:
+1. Extract each task/item you can read
+2. Assign each task to the most appropriate existing category or subcategory/group
+3. If a task doesn't fit any category, assign it to "work" as default
+4. Try to infer priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
+
+Respond ONLY with valid JSON in this exact format (no other text):
+{
+  "tasks": [
+    {
+      "text": "task description",
+      "categoryId": "work",
+      "subcategoryId": null,
+      "priority": null
+    }
+  ]
+}
+
+categoryId must be one of: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
+subcategoryId should be the subcategory/group id if applicable, or null
+priority should be "urgent", "high", "medium", or null`
+                                }
+                            ]
+                        }]
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || 'API request failed');
+                }
+                
+                const data = await response.json();
+                const content = data.content[0].text;
+                
+                // Parse the JSON response
+                try {
+                    // Extract JSON from response (in case there's any extra text)
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (!jsonMatch) {
+                        throw new Error('No valid JSON found in response');
+                    }
+                    
+                    parsedImportData = JSON.parse(jsonMatch[0]);
+                    
+                    if (!parsedImportData.tasks || parsedImportData.tasks.length === 0) {
+                        throw new Error('No tasks found in the image');
+                    }
+                    
+                    // Show preview
+                    showImportPreview(parsedImportData.tasks);
+                    
+                } catch (parseError) {
+                    throw new Error('Could not parse tasks from image. Try a clearer photo.');
+                }
+                
+            } catch (error) {
+                console.error('Photo processing error:', error);
+                showImportError(error.message || 'Failed to process photo. Please try again.');
+                document.getElementById('processPhotoBtn').style.display = 'inline-block';
+            } finally {
+                document.getElementById('processingIndicator').classList.remove('show');
+            }
+        }
+        
+        function buildCategoryContext() {
+            let context = '';
+            categoryOrder.forEach(catId => {
+                if (catId === 'urgent') return;
+                const cat = categories[catId];
+                if (!cat) return;
+                
+                context += `\nCategory: "${cat.name}" (id: ${catId})`;
+                
+                if (cat.subcategories && cat.subcategories.length > 0) {
+                    cat.subcategories.forEach(sub => {
+                        context += `\n  - Group: "${sub.name}" (id: ${sub.id})`;
+                    });
+                }
+            });
+            return context;
+        }
+        
+        function showImportPreview(tasks) {
+            const previewEl = document.getElementById('importPreview');
+            
+            // Group tasks by category
+            const grouped = {};
+            tasks.forEach(task => {
+                const catId = task.categoryId || 'work';
+                const cat = categories[catId];
+                const catName = cat ? cat.name : catId;
+                const key = task.subcategoryId ? `${catId}/${task.subcategoryId}` : catId;
+                
+                if (!grouped[key]) {
+                    let displayName = catName;
+                    if (task.subcategoryId && cat?.subcategories) {
+                        const sub = cat.subcategories.find(s => s.id === task.subcategoryId);
+                        if (sub) displayName = `${catName} → ${sub.name}`;
+                    }
+                    grouped[key] = { name: displayName, tasks: [] };
+                }
+                grouped[key].tasks.push(task);
+            });
+            
+            // Build HTML
+            let html = '';
+            Object.values(grouped).forEach(group => {
+                html += `<div class="import-category">
+                    <div class="import-category-title">${group.name}</div>
+                    <ul class="import-task-list">
+                        ${group.tasks.map(t => `
+                            <li class="import-task-item">
+                                ${t.text}
+                                ${t.priority ? `<span class="priority-badge priority-${t.priority}">${t.priority.toUpperCase()}</span>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>`;
+            });
+            
+            previewEl.innerHTML = html;
+            previewEl.classList.add('show');
+            document.getElementById('confirmImportBtn').style.display = 'inline-block';
+        }
+        
+        function confirmImport() {
+            if (!parsedImportData || !parsedImportData.tasks) return;
+            
+            parsedImportData.tasks.forEach(task => {
+                const catId = task.categoryId || 'work';
+                const cat = categories[catId];
+                if (!cat) return;
+                
+                const newTask = {
+                    id: nextTaskId++,
+                    text: task.text,
+                    completed: false
+                };
+                
+                if (task.priority) {
+                    newTask.priority = task.priority;
+                }
+                
+                if (task.subcategoryId) {
+                    const sub = cat.subcategories?.find(s => s.id === task.subcategoryId);
+                    if (sub) {
+                        sub.tasks.push(newTask);
+                    } else {
+                        // Fallback to main category
+                        if (!cat.tasks) cat.tasks = [];
+                        cat.tasks.push(newTask);
+                    }
+                } else {
+                    if (!cat.tasks) cat.tasks = [];
+                    cat.tasks.push(newTask);
+                }
+            });
+            
+            // Show success
+            document.getElementById('importPreview').classList.remove('show');
+            document.getElementById('confirmImportBtn').style.display = 'none';
+            document.getElementById('importSuccess').classList.add('show');
+            
+            // Save and re-render
+            saveToStorage();
+            renderCarousel();
+            
+            // Close modal after delay
+            setTimeout(() => {
+                closePhotoModal();
+            }, 1500);
+        }
+        
+        // Close photo modal on overlay click
+        document.getElementById('photoImportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'photoImportModal') {
+                closePhotoModal();
+            }
+        });
+        
+        // Escape to close photo modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('photoImportModal').classList.contains('show')) {
+                closePhotoModal();
+            }
+        });
     </script>
 </body>
 </html>
