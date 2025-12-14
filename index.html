@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyList - Focus View ✨</title>
+    <title>MyList ✨</title>
     <style>
         * {
             margin: 0;
@@ -157,6 +157,26 @@
             pointer-events: auto;
             filter: blur(0);
         }
+        
+        /* Swipe hint animation - plays once on first load */
+        .category-card.active.swipe-hint {
+            animation: swipe-hint-anim 1.5s ease-in-out 1s 1;
+        }
+        
+        @keyframes swipe-hint-anim {
+            0%, 100% {
+                transform: translateX(0) translateZ(0) scale(1) rotateY(0deg);
+            }
+            25% {
+                transform: translateX(-15px) translateZ(0) scale(1) rotateY(2deg);
+            }
+            50% {
+                transform: translateX(15px) translateZ(0) scale(1) rotateY(-2deg);
+            }
+            75% {
+                transform: translateX(-8px) translateZ(0) scale(1) rotateY(1deg);
+            }
+        }
 
         /* Previous Card */
         .category-card.prev {
@@ -184,64 +204,169 @@
             filter: blur(5px);
         }
 
-        /* Overview Mode (Zoomed Out) */
+        /* Overview Mode (Zoomed Out) - iPhone App Grid Style */
         body.overview-mode .carousel-container {
             perspective: none;
+            animation: zoom-out-container 0.6s ease-out forwards;
+        }
+
+        body:not(.overview-mode) .carousel-container {
+            animation: zoom-in-container 0.6s ease-out forwards;
+        }
+
+        @keyframes zoom-out-container {
+            0% {
+                opacity: 0.5;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes zoom-in-container {
+            0% {
+                opacity: 0.5;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         body.overview-mode .category-card {
             position: relative;
-            width: 300px;
-            height: 400px;
-            margin: 20px;
-            padding: 40px;
+            width: auto;
+            min-width: 85px;
+            max-width: 140px;
+            height: auto;
+            min-height: 100px;
+            margin: 0;
+            padding: 12px 8px 10px;
             opacity: 1 !important;
             transform: none !important;
             filter: none !important;
             pointer-events: auto !important;
-            transition: all 0.5s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             cursor: pointer;
+            animation: card-appear 0.4s ease-out backwards;
+            background: rgba(255, 182, 193, 0.08);
+            border: 1px solid rgba(255, 182, 193, 0.15);
+            border-radius: 20px;
+        }
+
+        body.overview-mode .category-card:nth-child(1) { animation-delay: 0.02s; }
+        body.overview-mode .category-card:nth-child(2) { animation-delay: 0.04s; }
+        body.overview-mode .category-card:nth-child(3) { animation-delay: 0.06s; }
+        body.overview-mode .category-card:nth-child(4) { animation-delay: 0.08s; }
+        body.overview-mode .category-card:nth-child(5) { animation-delay: 0.10s; }
+        body.overview-mode .category-card:nth-child(6) { animation-delay: 0.12s; }
+        body.overview-mode .category-card:nth-child(7) { animation-delay: 0.14s; }
+
+        @keyframes card-appear {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         body.overview-mode .category-card:hover {
-            transform: scale(1.05) rotate(3deg) !important;
-            box-shadow: 0 20px 60px rgba(255, 182, 193, 0.4);
+            transform: scale(1.08) !important;
+            background: rgba(255, 182, 193, 0.15);
+            border-color: rgba(255, 182, 193, 0.4);
+        }
+        
+        body.overview-mode .category-card:active {
+            transform: scale(0.95) !important;
         }
 
         body.overview-mode .carousel-track {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            align-items: center;
-            gap: 30px;
+            align-content: center;
+            gap: 15px;
             overflow-y: auto;
-            padding: 40px;
+            padding: 40px 20px;
+            min-height: calc(100vh - 80px);
         }
-
+        
+        /* Hide content in overview mode, show only icon */
         body.overview-mode .category-header {
             flex-direction: column;
             border: none;
             margin: 0;
             padding: 0;
+            gap: 8px;
+            width: 100%;
         }
-
+        
         body.overview-mode .category-icon {
-            font-size: 6rem !important;
+            font-size: 2.2rem;
+            margin-bottom: 2px;
         }
-
+        
         body.overview-mode .category-title {
-            font-size: 1.4rem;
+            font-size: 0.7rem;
             text-align: center;
+            line-height: 1.3;
+            color: #D8BFD8;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            padding: 0 2px;
         }
-
+        
+        body.overview-mode .category-count,
+        body.overview-mode .add-task-btn,
+        body.overview-mode .category-summary,
         body.overview-mode .task-list,
         body.overview-mode .subcategory,
-        body.overview-mode .category-summary {
+        body.overview-mode .add-group-btn {
             display: none !important;
+        }
+        
+        /* View transition overlay */
+        .view-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 182, 193, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 50;
+            transition: opacity 0.3s ease;
+        }
+        
+        .view-transition-overlay.active {
+            animation: view-flash 0.6s ease-out forwards;
+        }
+        
+        @keyframes view-flash {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
         }
 
         /* Card Header */
@@ -287,6 +412,32 @@
             color: #FFB6C1;
         }
 
+        /* Add Task Button */
+        .add-task-btn {
+            width: 36px;
+            height: 36px;
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            border-radius: 50%;
+            background: rgba(255, 182, 193, 0.1);
+            color: #FFB6C1;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+
+        .add-task-btn:hover {
+            background: rgba(255, 182, 193, 0.3);
+            border-color: #FFB6C1;
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 0 15px rgba(255, 182, 193, 0.4);
+        }
+
         .category-summary {
             margin-bottom: 30px;
             padding: 20px;
@@ -307,6 +458,8 @@
             padding: 16px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .task-item:last-child {
@@ -317,6 +470,114 @@
             padding-left: 12px;
             background: rgba(255, 182, 193, 0.05);
             border-radius: 10px;
+        }
+
+        /* Swipe container */
+        .task-swipe-container {
+            position: relative;
+            touch-action: pan-y pinch-zoom;
+            overflow: hidden;
+        }
+
+        .task-swipe-content {
+            position: relative;
+            background: transparent;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .task-swipe-content.swiping {
+            transition: none;
+        }
+        
+        .task-swipe-content.snapping {
+            transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Delete background revealed on swipe */
+        .task-delete-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(90deg, transparent 30%, rgba(255, 107, 157, 0.15) 70%, rgba(255, 107, 157, 0.35) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 25px;
+            color: #FF6B9D;
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .task-delete-bg.visible {
+            opacity: 1;
+        }
+        
+        .task-delete-bg.ready {
+            background: linear-gradient(90deg, transparent 20%, rgba(255, 107, 157, 0.25) 60%, rgba(255, 107, 157, 0.5) 100%);
+        }
+
+        /* Poof Animation - Very subtle fade */
+        @keyframes poof {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-30px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes poof-particle {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .task-item.poofing {
+            animation: poof 0.3s ease-out forwards;
+            pointer-events: none;
+        }
+
+        .poof-particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: poof-particle 0.4s ease-out forwards;
+        }
+
+        /* Swipe hint for completed tasks */
+        .swipe-hint {
+            font-size: 0.75rem;
+            color: rgba(255, 182, 193, 0.5);
+            margin-top: 6px;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .task-item.completed:hover .swipe-hint {
+            opacity: 1;
+        }
+        
+        /* Show swipe hint on mobile always for completed tasks */
+        @media (max-width: 768px) {
+            .task-item.completed .swipe-hint {
+                opacity: 0.7;
+            }
         }
 
         .task-main {
@@ -335,6 +596,10 @@
             flex-shrink: 0;
             transition: all 0.2s ease;
             margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         .task-checkbox:hover {
@@ -344,6 +609,14 @@
 
         .task-checkbox.checked {
             background: rgba(255, 182, 193, 0.6);
+        }
+        
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1;
         }
 
         .task-content {
@@ -486,10 +759,16 @@
             border-radius: 10px;
         }
 
+        .subcategory-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
         .subcategory-title {
             font-size: 1.2rem;
             color: #FFE4C4;
-            margin-bottom: 15px;
             font-weight: 600;
             cursor: text;
             padding: 4px 8px;
@@ -506,45 +785,27 @@
             box-shadow: 0 0 0 2px #FFB6C1;
         }
 
-        /* Navigation */
-        .carousel-nav {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 1000;
-            width: 70px;
-            height: 70px;
-            background: rgba(10, 14, 39, 0.95);
-            border: 3px solid rgba(255, 182, 193, 0.4);
+        .add-subtask-btn {
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(255, 182, 193, 0.3);
             border-radius: 50%;
+            background: rgba(255, 182, 193, 0.1);
+            color: #FFB6C1;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 3.5rem;
-            color: rgba(255, 182, 193, 0.85);
-            user-select: none;
-            line-height: 0.85;
-            padding-bottom: 8px;
+            flex-shrink: 0;
+            line-height: 1;
         }
 
-        .carousel-nav:hover {
-            background: rgba(255, 182, 193, 0.2);
+        .add-subtask-btn:hover {
+            background: rgba(255, 182, 193, 0.3);
             border-color: #FFB6C1;
-            transform: translateY(-50%) scale(1.15);
-        }
-
-        .carousel-nav.prev-btn {
-            left: 30px;
-        }
-
-        .carousel-nav.next-btn {
-            right: 30px;
-        }
-
-        body.overview-mode .carousel-nav {
-            display: none;
+            transform: scale(1.15) rotate(90deg);
         }
 
         /* Indicator Dots */
@@ -586,6 +847,7 @@
             right: 40px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 12px;
             z-index: 100;
         }
@@ -612,67 +874,619 @@
             border-color: #FFB6C1;
             transform: scale(1.15);
         }
-
-        .zoom-level-indicator {
-            text-align: center;
-            color: #D8BFD8;
-            font-size: 0.75rem;
-            background: rgba(10, 14, 39, 0.95);
-            padding: 10px 14px;
-            border-radius: 20px;
-            border: 2px solid rgba(255, 182, 193, 0.3);
-            line-height: 1.4;
+        
+        .zoom-icon {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        
+        .zoom-btn:hover .zoom-icon {
+            transform: rotate(180deg);
         }
 
+        /* Save indicator - hidden but functional */
         .save-indicator {
+            display: none;
+        }
+
+        /* Add Task Modal */
+        .modal-overlay {
             position: fixed;
-            top: 90px;
-            right: 40px;
-            padding: 10px 20px;
-            background: rgba(10, 14, 39, 0.95);
-            border: 2px solid rgba(144, 238, 144, 0.5);
-            border-radius: 25px;
-            color: lightgreen;
-            font-size: 0.85rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 100;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: rgba(10, 14, 39, 0.98);
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            animation: modal-pop 0.3s ease-out;
+        }
+
+        @keyframes modal-pop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal h2 {
+            color: #FFDAB9;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .modal-input:focus {
+            border-color: #FFB6C1;
+            box-shadow: 0 0 15px rgba(255, 182, 193, 0.2);
+        }
+
+        .modal-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .modal-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-select {
+            flex: 1;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .modal-select option {
+            background: #1a1f3a;
+            color: #fff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             font-weight: 600;
         }
 
-        .save-indicator.show {
-            opacity: 1;
+        .modal-btn.primary {
+            background: rgba(255, 182, 193, 0.3);
+            color: #FFB6C1;
         }
 
-        @media (max-width: 768px) {
-            .category-card {
-                width: 95%;
-                padding: 25px;
-            }
+        .modal-btn.primary:hover {
+            background: rgba(255, 182, 193, 0.5);
+            transform: scale(1.02);
+        }
 
-            .carousel-nav {
-                width: 55px;
-                height: 55px;
+        .modal-btn.secondary {
+            background: transparent;
+            color: #D8BFD8;
+        }
+
+        .modal-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Steps Modal Specific Styles */
+        .modal-steps {
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .steps-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 5px;
+        }
+        
+        .step-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            animation: stepFadeIn 0.2s ease-out;
+        }
+        
+        @keyframes stepFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .step-number-badge {
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 182, 193, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFB6C1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .step-input {
+            flex: 1;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .step-input:focus {
+            border-color: #FFB6C1;
+            background: rgba(255, 182, 193, 0.1);
+        }
+        
+        .step-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .step-remove-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 107, 157, 0.15);
+            color: #FF6B9D;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .step-remove-btn:hover {
+            background: rgba(255, 107, 157, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .add-step-modal-btn {
+            padding: 12px;
+            background: transparent;
+            border: 2px dashed rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+            color: #D8BFD8;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .add-step-modal-btn:hover {
+            background: rgba(255, 182, 193, 0.1);
+            border-color: #FFB6C1;
+            color: #FFB6C1;
+        }
+        
+        /* Icon Picker */
+        .icon-picker-section {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .icon-picker-label {
+            display: block;
+            color: #D8BFD8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .icon-picker-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .icon-picker-btn:hover {
+            border-color: #FFB6C1;
+            background: rgba(255, 182, 193, 0.1);
+        }
+        
+        #selectedIconDisplay {
+            font-size: 1.8rem;
+        }
+        
+        .icon-picker-arrow {
+            color: #D8BFD8;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .icon-picker-btn.open .icon-picker-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .icon-picker-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: rgba(10, 14, 39, 0.98);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            animation: dropdown-appear 0.2s ease-out;
+        }
+        
+        .icon-picker-dropdown.show {
+            display: block;
+        }
+        
+        @keyframes dropdown-appear {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .icon-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+        
+        .icon-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            background: rgba(255, 182, 193, 0.05);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .icon-option:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: rgba(255, 182, 193, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .icon-option.selected {
+            background: rgba(255, 182, 193, 0.3);
+            border-color: #FFB6C1;
+        }
+        
+        /* Add Group Button */
+        .add-group-btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: rgba(255, 182, 193, 0.1);
+            border: 2px dashed rgba(255, 182, 193, 0.3);
+            border-radius: 12px;
+            color: #D8BFD8;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .add-group-btn:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+            color: #FFB6C1;
+        }
+        
+        /* Add Steps Button */
+        .add-steps-btn {
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px dashed rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            color: #D8BFD8;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .task-item:hover .add-steps-btn {
+            opacity: 1;
+        }
+        
+        .add-steps-btn:hover {
+            background: rgba(255, 182, 193, 0.1);
+            border-color: #FFB6C1;
+            color: #FFB6C1;
+        }
+        
+        /* Remove Step Button */
+        .remove-step-btn {
+            width: 22px;
+            height: 22px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: rgba(255, 107, 157, 0.5);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        
+        .subtask-item:hover .remove-step-btn {
+            opacity: 1;
+        }
+        
+        .remove-step-btn:hover {
+            background: rgba(255, 107, 157, 0.2);
+            color: #FF6B9D;
+            transform: scale(1.1);
+        }
+        
+        /* Edit Steps Button */
+        .edit-steps-btn {
+            margin-top: 12px;
+            padding: 8px 14px;
+            background: rgba(255, 182, 193, 0.1);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            color: #D8BFD8;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .edit-steps-btn:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+            color: #FFB6C1;
+        }
+        
+        /* Make subtask item a flex row */
+        .subtask-item {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            header {
+                padding: 12px 20px;
+            }
+            
+            .header-left h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header-left .tagline {
+                font-size: 0.75rem;
+            }
+            
+            .carousel-container {
+                top: 70px;
+            }
+            
+            .category-card {
+                width: 92%;
+                max-width: 400px;
+                padding: 20px;
+                max-height: calc(100vh - 150px);
+            }
+            
+            .category-header {
+                padding-bottom: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .category-icon {
+                font-size: 1.8rem;
+            }
+            
+            .category-title {
+                font-size: 1.3rem;
+            }
+            
+            .task-item {
+                padding: 14px 0;
+            }
+            
+            .task-text {
+                font-size: 0.95rem;
+            }
+            
+            /* Overview mode - flexible layout on mobile */
+            body.overview-mode .carousel-track {
+                gap: 12px;
+                padding: 30px 15px;
+            }
+            
+            body.overview-mode .category-card {
+                min-width: 80px;
+                max-width: 120px;
+            }
+            
+            body.overview-mode .category-icon {
                 font-size: 2rem;
             }
-
-            .carousel-nav.prev-btn {
-                left: 15px;
+            
+            body.overview-mode .category-title {
+                font-size: 0.65rem;
             }
-
-            .carousel-nav.next-btn {
-                right: 15px;
+            
+            .zoom-controls {
+                bottom: 25px;
+                right: 20px;
             }
-
+            
+            .zoom-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .carousel-indicator {
+                bottom: 25px;
+            }
+            
+            .carousel-dot {
+                width: 10px;
+                height: 10px;
+            }
+            
+            .add-task-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 1.4rem;
+            }
+            
+            /* Modal adjustments for mobile */
+            .modal {
+                width: 92%;
+                max-width: 360px;
+                padding: 25px;
+            }
+            
+            .modal h2 {
+                font-size: 1.3rem;
+            }
+            
+            .modal-input {
+                padding: 14px;
+                font-size: 1rem;
+            }
+            
+            /* Make buttons always visible on touch devices */
+            .add-steps-btn {
+                opacity: 0.7;
+            }
+            
+            .remove-step-btn {
+                opacity: 0.6;
+            }
+            
+            /* Larger touch targets */
+            .remove-step-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 1.3rem;
+            }
+            
+            .step-remove-btn {
+                width: 36px;
+                height: 36px;
+            }
+        }
+        
+        /* Small phones */
+        @media (max-width: 380px) {
+            body.overview-mode .carousel-track {
+                gap: 10px;
+            }
+            
             body.overview-mode .category-card {
-                width: 250px;
-                height: 350px;
+                min-width: 75px;
+                max-width: 110px;
+            }
+            
+            body.overview-mode .category-icon {
+                font-size: 1.8rem;
+            }
+            
+            body.overview-mode .category-title {
+                font-size: 0.6rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="background" id="background"></div>
+    
+    <div class="view-transition-overlay" id="viewTransitionOverlay"></div>
 
     <div class="save-indicator" id="saveIndicator">✓ Saved</div>
 
@@ -687,65 +1501,99 @@
         <div class="carousel-track" id="carouselTrack"></div>
     </div>
 
-    <div class="carousel-nav prev-btn" id="prevBtn">‹</div>
-    <div class="carousel-nav next-btn" id="nextBtn">›</div>
-
     <div class="carousel-indicator" id="carouselIndicator"></div>
 
     <div class="zoom-controls">
-        <button class="zoom-btn" id="zoomOutBtn">−</button>
-        <button class="zoom-btn" id="zoomInBtn">+</button>
-        <div class="zoom-level-indicator" id="zoomLevelText">
-            Focus View
+        <button class="zoom-btn zoom-toggle" id="zoomToggleBtn">
+            <span class="zoom-icon" id="zoomIcon">−</span>
+        </button>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal-overlay" id="addTaskModal">
+        <div class="modal">
+            <h2>✨ Add New Task</h2>
+            <input type="text" class="modal-input" id="newTaskText" placeholder="What needs to be done?">
+            <select class="modal-select" id="newTaskPriority" style="width: 100%;">
+                <option value="">Priority (optional)</option>
+                <option value="urgent">🔥 Urgent</option>
+                <option value="high">⚡ High</option>
+                <option value="medium">📌 Medium</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeAddModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addNewTask()">Add Task</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Group Modal -->
+    <div class="modal-overlay" id="addGroupModal">
+        <div class="modal">
+            <h2>📁 Add New Group</h2>
+            <input type="text" class="modal-input" id="newGroupName" placeholder="Group name (e.g., Investments)">
+            <div class="icon-picker-section">
+                <label class="icon-picker-label">Choose an icon:</label>
+                <button class="icon-picker-btn" id="iconPickerBtn" onclick="toggleIconPicker()">
+                    <span id="selectedIconDisplay">📌</span>
+                    <span class="icon-picker-arrow">▼</span>
+                </button>
+                <div class="icon-picker-dropdown" id="iconPickerDropdown">
+                    <div class="icon-picker-grid" id="iconPickerGrid"></div>
+                </div>
+            </div>
+            <input type="hidden" id="newGroupIcon" value="📌">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeGroupModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addNewGroup()">Add Group</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Steps Modal -->
+    <div class="modal-overlay" id="addStepsModal">
+        <div class="modal modal-steps">
+            <h2>📝 Manage Steps</h2>
+            <p style="color: #D8BFD8; margin-bottom: 15px; font-size: 0.9rem;">Add steps to break down this task</p>
+            <div class="steps-list-container" id="stepsListContainer">
+                <!-- Steps will be dynamically added here -->
+            </div>
+            <button class="add-step-modal-btn" id="addStepBtn" onclick="addStepInput()">+ Add Step</button>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeStepsModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveStepsFromModal()">Save Steps</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Data structure (same generic data)
+        // Default Data
         const defaultData = {
             categories: {
                 urgent: {
                     id: 'urgent',
-                    name: '🔥 Urgent',
-                    icon: '⚡',
-                    summary: 'High-priority items that need immediate attention',
-                    tasks: [], // Will be populated dynamically
-                    isVirtual: true // Flag to indicate this is auto-generated
+                    name: '⚡ Urgent & Important',
+                    icon: '🔥',
+                    isVirtual: true,
+                    tasks: []
                 },
                 work: {
                     id: 'work',
-                    name: 'Work & Career',
+                    name: 'Work & Projects',
                     icon: '💼',
-                    summary: 'Project deadlines, meetings, and professional development goals',
                     tasks: [
-                        { 
-                            id: 1, 
-                            text: 'Finish quarterly report', 
-                            priority: 'high',
-                            timeframe: 'this-week',
-                            completed: false,
-                            subtasks: ['Gather data from all departments', 'Create charts and visualizations', 'Write executive summary', 'Review with manager', 'Submit final version']
-                        },
-                        { 
-                            id: 2, 
-                            text: 'Prepare presentation for client meeting', 
-                            priority: 'urgent',
-                            timeframe: 'today',
-                            completed: false,
-                            subtasks: ['Outline key talking points', 'Design slides', 'Rehearse pitch', 'Print handouts']
-                        },
-                        { id: 3, text: 'Update LinkedIn profile', timeframe: 'this-month', completed: false },
-                        { id: 4, text: 'Schedule 1-on-1 with team', timeframe: 'this-week', completed: false }
+                        { id: 1, text: 'Complete quarterly report', priority: 'urgent', completed: false },
+                        { id: 2, text: 'Schedule team sync meeting', priority: 'high', completed: false },
+                        { id: 3, text: 'Review project proposals', priority: 'medium', completed: false }
                     ],
                     subcategories: [
                         {
-                            id: 'skills',
-                            name: 'Skill Development',
-                            icon: '📚',
+                            id: 'design',
+                            icon: '🎨',
+                            name: 'Design Tasks',
                             tasks: [
-                                { id: 5, text: 'Complete online course on data analysis', completed: false },
-                                { id: 6, text: 'Attend industry webinar', completed: false },
-                                { id: 7, text: 'Read professional development book', completed: false }
+                                { id: 4, text: 'Update portfolio website', priority: 'medium', completed: false },
+                                { id: 5, text: 'Create presentation slides', completed: false }
                             ]
                         }
                     ]
@@ -754,63 +1602,29 @@
                     id: 'home',
                     name: 'Home & Living',
                     icon: '🏠',
-                    summary: 'Household chores, maintenance, and home improvement projects',
-                    subcategories: [
-                        {
-                            id: 'cleaning',
-                            name: 'Cleaning & Maintenance',
-                            icon: '🧹',
-                            tasks: [
-                                { id: 8, text: 'Deep clean kitchen', priority: 'medium', completed: false },
-                                { id: 9, text: 'Organize garage', completed: false },
-                                { id: 10, text: 'Change air filters', timeframe: 'this-week', completed: false }
-                            ]
-                        },
-                        {
-                            id: 'repairs',
-                            name: 'Repairs & Upgrades',
-                            icon: '🔧',
-                            tasks: [
-                                { 
-                                    id: 11, 
-                                    text: 'Fix leaky faucet', 
-                                    priority: 'high',
-                                    completed: false,
-                                    subtasks: ['Buy replacement parts', 'Watch tutorial video', 'Turn off water supply', 'Replace washers']
-                                },
-                                { id: 12, text: 'Paint bedroom', completed: false },
-                                { id: 13, text: 'Install smart thermostat', completed: false }
-                            ]
-                        }
+                    tasks: [
+                        { id: 10, text: 'Grocery shopping', priority: 'high', completed: false },
+                        { id: 11, text: 'Clean kitchen', completed: false },
+                        { id: 12, text: 'Fix leaky faucet', completed: false }
                     ]
                 },
                 health: {
                     id: 'health',
-                    name: 'Health & Fitness',
+                    name: 'Health & Wellness',
                     icon: '💪',
-                    summary: 'Exercise routines, meal planning, and wellness appointments',
                     tasks: [
-                        { id: 14, text: 'Morning jog (3 miles)', timeframe: 'today', completed: false },
+                        { id: 20, text: 'Morning workout', priority: 'high', completed: false },
+                        { id: 21, text: 'Meal prep for the week', completed: false },
+                        { id: 22, text: 'Schedule annual checkup', priority: 'medium', completed: false },
                         { 
-                            id: 15, 
-                            text: 'Meal prep for the week', 
-                            priority: 'medium',
-                            timeframe: 'this-week',
+                            id: 23, 
+                            text: 'Start meditation practice', 
                             completed: false,
-                            subtasks: ['Plan healthy recipes', 'Make grocery list', 'Buy ingredients', 'Prep and portion meals']
-                        },
-                        { id: 16, text: 'Schedule annual checkup', priority: 'high', completed: false },
-                        { id: 17, text: 'Refill prescriptions', completed: false }
-                    ],
-                    subcategories: [
-                        {
-                            id: 'fitness-goals',
-                            name: 'Fitness Goals',
-                            icon: '🎯',
-                            tasks: [
-                                { id: 18, text: 'Run 5K in under 30 minutes', completed: false },
-                                { id: 19, text: 'Join yoga class', completed: false },
-                                { id: 20, text: 'Track daily water intake', completed: false }
+                            subtasks: [
+                                'Download meditation app',
+                                'Set daily reminder for 7am',
+                                'Complete 7-day beginner course',
+                                'Establish 10-min daily habit'
                             ]
                         }
                     ]
@@ -819,85 +1633,36 @@
                     id: 'personal',
                     name: 'Personal Growth',
                     icon: '🌱',
-                    summary: 'Learning, hobbies, and self-improvement activities',
                     tasks: [
-                        { 
-                            id: 21, 
-                            text: 'Learn to play guitar', 
-                            completed: false,
-                            subtasks: ['Buy beginner guitar', 'Find online lessons', 'Practice 30 min daily', 'Learn first song']
-                        },
-                        { id: 22, text: 'Start journaling habit', timeframe: 'today', completed: false },
-                        { id: 23, text: 'Meditation (10 minutes)', timeframe: 'today', completed: false }
-                    ],
-                    subcategories: [
-                        {
-                            id: 'reading',
-                            name: 'Reading List',
-                            icon: '📖',
-                            tasks: [
-                                { id: 24, text: 'Finish current novel', completed: false },
-                                { id: 25, text: 'Read 2 chapters before bed', timeframe: 'today', completed: false },
-                                { id: 26, text: 'Join book club', completed: false }
-                            ]
-                        }
+                        { id: 30, text: 'Read 20 pages daily', completed: false },
+                        { id: 31, text: 'Learn new language - practice', priority: 'medium', completed: false },
+                        { id: 32, text: 'Journal reflection', completed: false }
                     ]
                 },
                 social: {
                     id: 'social',
-                    name: 'Social & Events',
-                    icon: '🎉',
-                    summary: 'Social plans, celebrations, and staying connected with loved ones',
+                    name: 'Social & Relationships',
+                    icon: '👥',
                     tasks: [
-                        { id: 27, text: 'Call mom', priority: 'high', timeframe: 'today', completed: false },
-                        { 
-                            id: 28, 
-                            text: 'Plan birthday party', 
-                            priority: 'medium',
-                            timeframe: 'this-week',
-                            completed: false,
-                            subtasks: ['Choose venue or location', 'Create guest list', 'Send invitations', 'Order cake', 'Plan activities']
-                        },
-                        { id: 29, text: 'Coffee with Sarah', timeframe: 'this-week', completed: false }
-                    ],
-                    subcategories: [
-                        {
-                            id: 'gifts',
-                            name: 'Gift Ideas',
-                            icon: '🎁',
-                            tasks: [
-                                { id: 30, text: 'Anniversary gift for partner', priority: 'high', completed: false },
-                                { id: 31, text: 'Birthday gifts for upcoming celebrations', completed: false }
-                            ]
-                        }
+                        { id: 35, text: 'Call mom', priority: 'high', completed: false },
+                        { id: 36, text: 'Plan weekend dinner with friends', completed: false }
                     ]
                 },
                 finance: {
                     id: 'finance',
-                    name: 'Finance & Admin',
+                    name: 'Finance & Planning',
                     icon: '💰',
-                    summary: 'Bills, budgeting, and financial planning',
                     tasks: [
-                        { 
-                            id: 32, 
-                            text: 'Review monthly budget', 
-                            priority: 'high',
-                            timeframe: 'this-week',
-                            completed: false,
-                            subtasks: ['Track all expenses', 'Review spending categories', 'Adjust budget as needed', 'Set savings goals']
-                        },
-                        { id: 33, text: 'Pay utility bills', priority: 'urgent', timeframe: 'today', completed: false },
-                        { id: 34, text: 'File tax documents', completed: false }
+                        { id: 37, text: 'Review monthly budget', priority: 'urgent', completed: false },
+                        { id: 38, text: 'Pay utility bills', priority: 'high', completed: false }
                     ],
                     subcategories: [
                         {
-                            id: 'savings',
-                            name: 'Savings Goals',
-                            icon: '🏦',
+                            id: 'investments',
+                            icon: '📈',
+                            name: 'Investments',
                             tasks: [
-                                { id: 35, text: 'Emergency fund: Save $5000', completed: false },
-                                { id: 36, text: 'Vacation fund', completed: false },
-                                { id: 37, text: 'Research investment options', completed: false }
+                                { id: 39, text: 'Research investment options', completed: false }
                             ]
                         }
                     ]
@@ -913,6 +1678,12 @@
         let overviewMode = false;
         let touchStartX = 0;
         let touchStartY = 0;
+        let addingToCategory = null;
+        let addingToSubcategory = null;
+        let nextTaskId = 100;
+
+        // Swipe state for tasks
+        let swipeState = {};
 
         // Storage
         function saveToStorage() {
@@ -920,7 +1691,8 @@
                 categories,
                 categoryOrder,
                 currentIndex,
-                overviewMode
+                overviewMode,
+                nextTaskId
             };
             localStorage.setItem('myListData', JSON.stringify(data));
             showSaveIndicator();
@@ -935,6 +1707,7 @@
                     categoryOrder = data.categoryOrder || categoryOrder;
                     currentIndex = data.currentIndex || 0;
                     overviewMode = data.overviewMode || false;
+                    nextTaskId = data.nextTaskId || 100;
                 } catch (e) {}
             }
         }
@@ -945,17 +1718,361 @@
             setTimeout(() => indicator.classList.remove('show'), 2000);
         }
 
+        // Add Task Modal
+        function openAddModal(categoryId, subcatId = null) {
+            addingToCategory = categoryId;
+            addingToSubcategory = subcatId;
+            document.getElementById('addTaskModal').classList.add('show');
+            document.getElementById('newTaskText').value = '';
+            document.getElementById('newTaskPriority').value = '';
+            setTimeout(() => document.getElementById('newTaskText').focus(), 100);
+        }
+
+        function closeAddModal() {
+            document.getElementById('addTaskModal').classList.remove('show');
+            addingToCategory = null;
+            addingToSubcategory = null;
+        }
+
+        function addNewTask() {
+            const text = document.getElementById('newTaskText').value.trim();
+            if (!text) return;
+
+            const priority = document.getElementById('newTaskPriority').value;
+
+            const newTask = {
+                id: nextTaskId++,
+                text: text,
+                completed: false
+            };
+
+            if (priority) newTask.priority = priority;
+
+            if (addingToSubcategory) {
+                const subcat = categories[addingToCategory].subcategories.find(s => s.id === addingToSubcategory);
+                if (subcat) subcat.tasks.push(newTask);
+            } else {
+                if (!categories[addingToCategory].tasks) {
+                    categories[addingToCategory].tasks = [];
+                }
+                categories[addingToCategory].tasks.push(newTask);
+            }
+
+            closeAddModal();
+            renderCarousel();
+            saveToStorage();
+        }
+        
+        // Group Modal Functions
+        let addingGroupToCategory = null;
+        
+        // Available icons for the picker
+        const availableIcons = [
+            '📈', '📊', '💹', '📉', '💰', '💵', '💳', '🏦',
+            '📁', '📂', '📋', '📝', '✏️', '📌', '📎', '🔖',
+            '🎯', '🎨', '🎭', '🎪', '🎬', '🎤', '🎧', '🎵',
+            '💼', '🏢', '🏠', '🏡', '🏗️', '🔧', '🔨', '⚙️',
+            '💡', '🔬', '🔭', '📡', '💻', '🖥️', '📱', '⌨️',
+            '✈️', '🚗', '🚀', '🛒', '🎁', '📦', '📮', '✉️',
+            '❤️', '⭐', '🌟', '✨', '🔥', '⚡', '💎', '🏆',
+            '🌱', '🌿', '🍀', '🌸', '🌺', '🌻', '🌴', '🌲',
+            '🍎', '🍕', '🍔', '☕', '🍷', '🎂', '🍪', '🥗',
+            '💪', '🏃', '🧘', '🏋️', '⚽', '🏀', '🎾', '🏊',
+            '📚', '📖', '🎓', '🧠', '💭', '🗣️', '👥', '👨‍👩‍👧‍👦',
+            '🐶', '🐱', '🐦', '🦋', '🐠', '🦁', '🐻', '🦊'
+        ];
+        
+        function openGroupModal(categoryId) {
+            addingGroupToCategory = categoryId;
+            document.getElementById('addGroupModal').classList.add('show');
+            document.getElementById('newGroupName').value = '';
+            document.getElementById('newGroupIcon').value = '📌';
+            document.getElementById('selectedIconDisplay').textContent = '📌';
+            document.getElementById('iconPickerDropdown').classList.remove('show');
+            document.getElementById('iconPickerBtn').classList.remove('open');
+            
+            // Populate the icon grid
+            const grid = document.getElementById('iconPickerGrid');
+            grid.innerHTML = '';
+            availableIcons.forEach(icon => {
+                const option = document.createElement('div');
+                option.className = 'icon-option' + (icon === '📌' ? ' selected' : '');
+                option.textContent = icon;
+                option.onclick = () => selectIcon(icon);
+                grid.appendChild(option);
+            });
+            
+            setTimeout(() => document.getElementById('newGroupName').focus(), 100);
+        }
+        
+        function toggleIconPicker() {
+            const dropdown = document.getElementById('iconPickerDropdown');
+            const btn = document.getElementById('iconPickerBtn');
+            dropdown.classList.toggle('show');
+            btn.classList.toggle('open');
+        }
+        
+        function selectIcon(icon) {
+            document.getElementById('newGroupIcon').value = icon;
+            document.getElementById('selectedIconDisplay').textContent = icon;
+            
+            // Update selected state in grid
+            document.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.textContent === icon);
+            });
+            
+            // Close dropdown
+            document.getElementById('iconPickerDropdown').classList.remove('show');
+            document.getElementById('iconPickerBtn').classList.remove('open');
+        }
+        
+        function closeGroupModal() {
+            document.getElementById('addGroupModal').classList.remove('show');
+            document.getElementById('iconPickerDropdown').classList.remove('show');
+            document.getElementById('iconPickerBtn').classList.remove('open');
+            addingGroupToCategory = null;
+        }
+        
+        function addNewGroup() {
+            const name = document.getElementById('newGroupName').value.trim();
+            const icon = document.getElementById('newGroupIcon').value || '📌';
+            
+            if (!name) return;
+            
+            const newSubcat = {
+                id: 'subcat_' + Date.now(),
+                icon: icon,
+                name: name,
+                tasks: []
+            };
+            
+            if (!categories[addingGroupToCategory].subcategories) {
+                categories[addingGroupToCategory].subcategories = [];
+            }
+            categories[addingGroupToCategory].subcategories.push(newSubcat);
+            
+            closeGroupModal();
+            renderCarousel();
+            saveToStorage();
+        }
+        
+        // Steps Modal Functions
+        let addingStepsToTask = null;
+        let addingStepsCategoryId = null;
+        let addingStepsSubcatId = null;
+        
+        function openStepsModal(taskId, categoryId, subcatId) {
+            addingStepsToTask = taskId;
+            addingStepsCategoryId = categoryId;
+            addingStepsSubcatId = subcatId;
+            
+            // Get existing steps if any
+            const task = findTask(taskId, categoryId, subcatId);
+            const existingSteps = task?.subtasks || [];
+            
+            // Build the steps list
+            const container = document.getElementById('stepsListContainer');
+            container.innerHTML = '';
+            
+            if (existingSteps.length > 0) {
+                existingSteps.forEach((step, index) => {
+                    addStepInputRow(step);
+                });
+            } else {
+                // Start with one empty step
+                addStepInputRow('');
+            }
+            
+            document.getElementById('addStepsModal').classList.add('show');
+            
+            // Focus the first input
+            setTimeout(() => {
+                const firstInput = container.querySelector('.step-input');
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
+        
+        function addStepInputRow(value = '') {
+            const container = document.getElementById('stepsListContainer');
+            const stepCount = container.querySelectorAll('.step-input-row').length + 1;
+            
+            const row = document.createElement('div');
+            row.className = 'step-input-row';
+            row.innerHTML = `
+                <div class="step-number-badge">${stepCount}</div>
+                <input type="text" class="step-input" placeholder="Enter step ${stepCount}..." value="${value.replace(/"/g, '&quot;')}">
+                <button class="step-remove-btn" onclick="removeStepInput(this)" title="Remove step">×</button>
+            `;
+            container.appendChild(row);
+            
+            // Add Enter key handler to the new input
+            const input = row.querySelector('.step-input');
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addStepInput();
+                }
+            });
+            
+            // Focus the new input if it's empty
+            if (!value) {
+                setTimeout(() => input.focus(), 50);
+            }
+            
+            updateStepNumbers();
+        }
+        
+        function addStepInput() {
+            addStepInputRow('');
+            // Scroll to bottom of container
+            const container = document.getElementById('stepsListContainer');
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function removeStepInput(btn) {
+            const row = btn.closest('.step-input-row');
+            const container = document.getElementById('stepsListContainer');
+            
+            // Don't remove if it's the only step
+            if (container.querySelectorAll('.step-input-row').length <= 1) {
+                // Just clear the input instead
+                row.querySelector('.step-input').value = '';
+                row.querySelector('.step-input').focus();
+                return;
+            }
+            
+            row.style.animation = 'stepFadeIn 0.2s ease-out reverse';
+            setTimeout(() => {
+                row.remove();
+                updateStepNumbers();
+            }, 150);
+        }
+        
+        function updateStepNumbers() {
+            const container = document.getElementById('stepsListContainer');
+            const rows = container.querySelectorAll('.step-input-row');
+            rows.forEach((row, index) => {
+                row.querySelector('.step-number-badge').textContent = index + 1;
+                row.querySelector('.step-input').placeholder = `Enter step ${index + 1}...`;
+            });
+        }
+        
+        function closeStepsModal() {
+            document.getElementById('addStepsModal').classList.remove('show');
+            addingStepsToTask = null;
+            addingStepsCategoryId = null;
+            addingStepsSubcatId = null;
+        }
+        
+        // Track which task just had steps added (to show them expanded)
+        let justAddedStepsToTask = null;
+        
+        function saveStepsFromModal() {
+            const container = document.getElementById('stepsListContainer');
+            const inputs = container.querySelectorAll('.step-input');
+            
+            const steps = [];
+            inputs.forEach(input => {
+                const value = input.value.trim();
+                if (value) {
+                    steps.push(value);
+                }
+            });
+            
+            const task = findTask(addingStepsToTask, addingStepsCategoryId, addingStepsSubcatId);
+            if (task) {
+                if (steps.length > 0) {
+                    task.subtasks = steps;
+                    // Remember this task so we can show its steps expanded
+                    justAddedStepsToTask = addingStepsToTask;
+                } else {
+                    delete task.subtasks;
+                    justAddedStepsToTask = null;
+                }
+            }
+            
+            closeStepsModal();
+            renderCarousel();
+            saveToStorage();
+            
+            // Clear the flag after a short delay (after render completes)
+            setTimeout(() => {
+                justAddedStepsToTask = null;
+            }, 100);
+        }
+        
+        // Remove a single step from a task (from the main view)
+        function removeStep(taskId, stepIndex, categoryId, subcatId) {
+            const task = findTask(taskId, categoryId, subcatId);
+            if (task && task.subtasks) {
+                task.subtasks.splice(stepIndex, 1);
+                if (task.subtasks.length === 0) {
+                    delete task.subtasks;
+                }
+                renderCarousel();
+                saveToStorage();
+            }
+        }
+        
+        // Open steps modal for adding more (from inline button)
+        function addSingleStep(taskId, categoryId, subcatId) {
+            openStepsModal(taskId, categoryId, subcatId);
+        }
+
+        // Poof Animation - Subtle fade with soft particles
+        function createPoofEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Create very subtle particles - few and soft
+            const colors = ['rgba(255,182,193,0.4)', 'rgba(255,218,185,0.35)', 'rgba(216,191,216,0.35)'];
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'poof-particle';
+                const angle = (i / 5) * Math.PI * 2 + Math.random() * 0.5;
+                const distance = 20 + Math.random() * 15;
+                particle.style.cssText = `
+                    left: ${centerX}px;
+                    top: ${centerY}px;
+                    background: ${colors[i % colors.length]};
+                    --tx: ${Math.cos(angle) * distance}px;
+                    --ty: ${Math.sin(angle) * distance}px;
+                `;
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 400);
+            }
+        }
+
+        function deleteTaskWithPoof(taskItem, categoryId, subcatId, taskId) {
+            // Trigger subtle poof effect
+            createPoofEffect(taskItem);
+            taskItem.classList.add('poofing');
+
+            setTimeout(() => {
+                // Actually delete the task
+                if (subcatId) {
+                    const subcat = categories[categoryId].subcategories.find(s => s.id === subcatId);
+                    if (subcat) {
+                        subcat.tasks = subcat.tasks.filter(t => t.id !== taskId);
+                    }
+                } else {
+                    categories[categoryId].tasks = categories[categoryId].tasks.filter(t => t.id !== taskId);
+                }
+                renderCarousel();
+                saveToStorage();
+            }, 300);
+        }
+
         // Helpers
         function populateUrgentCategory() {
-            // Collect all urgent and high priority tasks from all categories
             const urgentTasks = [];
             
             categoryOrder.forEach(catId => {
-                if (catId === 'urgent') return; // Skip the urgent category itself
+                if (catId === 'urgent') return;
                 const cat = categories[catId];
                 if (!cat) return;
                 
-                // Check main tasks
                 if (cat.tasks) {
                     cat.tasks.forEach(task => {
                         if (task.priority === 'urgent' || task.priority === 'high') {
@@ -970,7 +2087,6 @@
                     });
                 }
                 
-                // Check subcategory tasks
                 if (cat.subcategories) {
                     cat.subcategories.forEach(subcat => {
                         subcat.tasks.forEach(task => {
@@ -988,7 +2104,6 @@
                 }
             });
             
-            // Sort by priority (urgent first, then high)
             urgentTasks.sort((a, b) => {
                 if (a.priority === 'urgent' && b.priority === 'high') return -1;
                 if (a.priority === 'high' && b.priority === 'urgent') return 1;
@@ -1017,7 +2132,8 @@
         function findTask(taskId, categoryId, subcatId) {
             const category = categories[categoryId];
             if (!category) return null;
-            if (subcatId) {
+            // Handle both null and empty string as "no subcategory"
+            if (subcatId && subcatId !== '') {
                 const subcat = category.subcategories?.find(s => s.id === subcatId);
                 return subcat?.tasks.find(t => t.id === taskId);
             }
@@ -1026,7 +2142,6 @@
 
         // Render
         function renderCarousel() {
-            // Update urgent category before rendering
             populateUrgentCategory();
             
             const track = document.getElementById('carouselTrack');
@@ -1043,10 +2158,14 @@
                 
                 if (overviewMode) {
                     card.onclick = () => {
+                        // Trigger view transition effect
+                        const overlay = document.getElementById('viewTransitionOverlay');
+                        overlay.classList.add('active');
+                        setTimeout(() => overlay.classList.remove('active'), 600);
+                        
                         overviewMode = false;
                         currentIndex = index;
                         document.body.classList.remove('overview-mode');
-                        document.getElementById('zoomLevelText').textContent = 'Focus View';
                         renderCarousel();
                         saveToStorage();
                     };
@@ -1054,7 +2173,6 @@
                 
                 track.appendChild(card);
 
-                // Indicator dot
                 const dot = document.createElement('div');
                 dot.className = 'carousel-dot';
                 if (index === currentIndex) dot.classList.add('active');
@@ -1071,12 +2189,14 @@
             card.dataset.categoryId = category.id;
 
             const taskCount = countVisibleTasks(category);
+            const showAddBtn = !category.isVirtual;
 
             let html = `
                 <div class="category-header">
                     <span class="category-icon">${category.icon}</span>
                     <span class="category-title" contenteditable="${!category.isVirtual}" data-category-id="${category.id}">${category.name}</span>
                     <span class="category-count">${taskCount} tasks</span>
+                    ${showAddBtn ? `<button class="add-task-btn" data-category-id="${category.id}" title="Add task">+</button>` : ''}
                 </div>
             `;
 
@@ -1097,6 +2217,11 @@
                     html += renderSubcategory(subcat, category.id);
                 });
             }
+            
+            // Add "Add Group" button for non-virtual categories
+            if (!category.isVirtual) {
+                html += `<button class="add-group-btn" data-category-id="${category.id}">📁 Add Group</button>`;
+            }
 
             card.innerHTML = html;
             return card;
@@ -1104,7 +2229,10 @@
 
         function renderSubcategory(subcat, parentCatId) {
             let html = `<div class="subcategory">
-                <div class="subcategory-title" contenteditable="true" data-subcat-id="${subcat.id}" data-parent-id="${parentCatId}">${subcat.icon} ${subcat.name}</div>
+                <div class="subcategory-header">
+                    <div class="subcategory-title" contenteditable="true" data-subcat-id="${subcat.id}" data-parent-id="${parentCatId}">${subcat.icon} ${subcat.name}</div>
+                    <button class="add-subtask-btn" data-category-id="${parentCatId}" data-subcat-id="${subcat.id}" title="Add task">+</button>
+                </div>
                 <ul class="task-list">`;
             
             subcat.tasks.forEach(task => {
@@ -1119,42 +2247,63 @@
             const completedClass = task.completed ? 'completed' : '';
             const checkedClass = task.completed ? 'checked' : '';
             const priorityBadge = task.priority ? `<span class="priority-badge priority-${task.priority}">${task.priority.toUpperCase()}</span>` : '';
-            const timeBadge = task.timeframe ? `<span class="time-badge">${task.timeframe}</span>` : '';
-            
-            // Show source category for urgent tasks
             const sourceBadge = task.sourceCategory ? `<span class="time-badge">${task.sourceCategoryIcon} ${task.sourceCategory}</span>` : '';
             
+            const actualCategoryId = task.sourceCategoryId || categoryId;
+            const actualSubcatId = task.sourceSubcatId || subcatId || '';
+            
             let subtasksHtml = '';
-            if (task.subtasks) {
+            if (task.subtasks && task.subtasks.length > 0) {
+                // Show steps expanded if they were just added, otherwise collapsed
+                const isExpanded = justAddedStepsToTask === task.id;
+                const displayStyle = isExpanded ? 'block' : 'none';
+                const toggleText = isExpanded ? '↓' : '→';
+                
                 subtasksHtml = `
                     <div class="subtask-toggle" data-task-id="${task.id}">
-                        → ${task.subtasks.length} steps
+                        ${toggleText} ${task.subtasks.length} steps
                     </div>
-                    <div class="subtask-list" id="subtasks-${task.id}" style="display: none;">
+                    <div class="subtask-list" id="subtasks-${task.id}" style="display: ${displayStyle};">
                         ${task.subtasks.map((st, i) => `
                             <div class="subtask-item">
                                 <div class="subtask-number">${i + 1}</div>
-                                <div class="subtask-text" contenteditable="true" data-task-id="${task.id}" data-subtask-index="${i}">${st}</div>
+                                <div class="subtask-text" contenteditable="true" data-task-id="${task.id}" data-subtask-index="${i}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}">${st}</div>
+                                <button class="remove-step-btn" data-task-id="${task.id}" data-subtask-index="${i}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}" title="Remove step">×</button>
                             </div>
                         `).join('')}
+                        <button class="edit-steps-btn" data-task-id="${task.id}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}">✏️ Edit Steps</button>
                     </div>
                 `;
             }
+            
+            // Show "Add Steps" button only for non-virtual category tasks without steps
+            const isVirtualTask = task.sourceCategory ? true : false;
+            const addStepsBtn = (!task.subtasks || task.subtasks.length === 0) && !isVirtualTask && !task.completed
+                ? `<button class="add-steps-btn" data-task-id="${task.id}" data-category-id="${categoryId}" data-subcat-id="${subcatId || ''}">+ Add steps</button>`
+                : '';
+
+            const swipeHint = task.completed ? '<div class="swipe-hint">← Swipe to delete</div>' : '';
 
             return `
-                <li class="task-item ${completedClass}">
-                    <div class="task-main">
-                        <div class="task-checkbox ${checkedClass}" data-task-id="${task.id}" data-category-id="${task.sourceCategoryId || categoryId}" data-subcat-id="${task.sourceSubcatId || subcatId || ''}"></div>
-                        <div class="task-content">
-                            <span class="task-text" contenteditable="true" data-task-id="${task.id}" data-category-id="${task.sourceCategoryId || categoryId}" data-subcat-id="${task.sourceSubcatId || subcatId || ''}">${task.text}</span>
-                            <div class="task-meta">
-                                ${priorityBadge}
-                                ${timeBadge}
-                                ${sourceBadge}
+                <li class="task-item ${completedClass}" data-task-id="${task.id}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}">
+                    <div class="task-swipe-container">
+                        <div class="task-delete-bg">🗑️ Delete</div>
+                        <div class="task-swipe-content">
+                            <div class="task-main">
+                                <div class="task-checkbox ${checkedClass}" data-task-id="${task.id}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}"></div>
+                                <div class="task-content">
+                                    <span class="task-text" contenteditable="true" data-task-id="${task.id}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}">${task.text}</span>
+                                    <div class="task-meta">
+                                        ${priorityBadge}
+                                        ${sourceBadge}
+                                    </div>
+                                    ${addStepsBtn}
+                                    ${swipeHint}
+                                </div>
                             </div>
+                            ${subtasksHtml}
                         </div>
                     </div>
-                    ${subtasksHtml}
                 </li>
             `;
         }
@@ -1199,15 +2348,80 @@
         }
 
         function toggleOverview() {
+            // Trigger view transition effect
+            const overlay = document.getElementById('viewTransitionOverlay');
+            overlay.classList.add('active');
+            setTimeout(() => overlay.classList.remove('active'), 600);
+            
             overviewMode = !overviewMode;
             document.body.classList.toggle('overview-mode', overviewMode);
-            document.getElementById('zoomLevelText').textContent = overviewMode ? 'Overview' : 'Focus View';
+            document.getElementById('zoomIcon').textContent = overviewMode ? '+' : '−';
             renderCarousel();
             saveToStorage();
         }
 
         // Event Listeners
         function attachEventListeners() {
+            // Add task buttons
+            document.querySelectorAll('.add-task-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    openAddModal(this.dataset.categoryId);
+                };
+            });
+
+            document.querySelectorAll('.add-subtask-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    openAddModal(this.dataset.categoryId, this.dataset.subcatId);
+                };
+            });
+            
+            // Add group buttons
+            document.querySelectorAll('.add-group-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    openGroupModal(this.dataset.categoryId);
+                };
+            });
+            
+            // Add steps buttons
+            document.querySelectorAll('.add-steps-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    openStepsModal(
+                        parseInt(this.dataset.taskId),
+                        this.dataset.categoryId,
+                        this.dataset.subcatId || null
+                    );
+                };
+            });
+            
+            // Remove step buttons
+            document.querySelectorAll('.remove-step-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    removeStep(
+                        parseInt(this.dataset.taskId),
+                        parseInt(this.dataset.subtaskIndex),
+                        this.dataset.categoryId,
+                        this.dataset.subcatId || null
+                    );
+                };
+            });
+            
+            // Edit steps buttons (opens the modal with existing steps)
+            document.querySelectorAll('.edit-steps-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    openStepsModal(
+                        parseInt(this.dataset.taskId),
+                        this.dataset.categoryId,
+                        this.dataset.subcatId || null
+                    );
+                };
+            });
+
             // Checkboxes
             document.querySelectorAll('.task-checkbox').forEach(box => {
                 box.onclick = function(e) {
@@ -1223,13 +2437,133 @@
                 };
             });
 
+            // Swipe to delete for completed tasks - improved for mobile
+            document.querySelectorAll('.task-item.completed .task-swipe-container').forEach(container => {
+                const taskItem = container.closest('.task-item');
+                const swipeContent = container.querySelector('.task-swipe-content');
+                const deleteBg = container.querySelector('.task-delete-bg');
+                const taskId = parseInt(taskItem.dataset.taskId);
+                const categoryId = taskItem.dataset.categoryId;
+                const subcatId = taskItem.dataset.subcatId;
+
+                let startX = 0;
+                let startY = 0;
+                let currentX = 0;
+                let isSwiping = false;
+                let isHorizontalSwipe = null; // null = undetermined, true = horizontal, false = vertical
+                let startTime = 0;
+                const SWIPE_THRESHOLD = 80; // pixels needed to trigger delete
+                const DIRECTION_LOCK_THRESHOLD = 10; // pixels before locking direction
+                const MAX_SWIPE = 120; // max swipe distance
+
+                const handleStart = (e) => {
+                    const touch = e.touches ? e.touches[0] : e;
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                    currentX = startX;
+                    isSwiping = true;
+                    isHorizontalSwipe = null;
+                    startTime = Date.now();
+                    swipeContent.classList.add('swiping');
+                    swipeContent.classList.remove('snapping');
+                };
+
+                const handleMove = (e) => {
+                    if (!isSwiping) return;
+                    
+                    const touch = e.touches ? e.touches[0] : e;
+                    const deltaX = startX - touch.clientX;
+                    const deltaY = startY - touch.clientY;
+                    
+                    // Determine swipe direction if not yet locked
+                    if (isHorizontalSwipe === null && (Math.abs(deltaX) > DIRECTION_LOCK_THRESHOLD || Math.abs(deltaY) > DIRECTION_LOCK_THRESHOLD)) {
+                        isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
+                        
+                        // If vertical scroll, cancel swipe
+                        if (!isHorizontalSwipe) {
+                            isSwiping = false;
+                            swipeContent.classList.remove('swiping');
+                            swipeContent.style.transform = 'translateX(0)';
+                            deleteBg.classList.remove('visible', 'ready');
+                            return;
+                        }
+                    }
+                    
+                    // Only process horizontal swipes
+                    if (isHorizontalSwipe) {
+                        currentX = touch.clientX;
+                        const diff = startX - currentX;
+                        
+                        if (diff > 0) {
+                            // Apply slight resistance as swipe increases
+                            const resistance = 1 - (diff / (MAX_SWIPE * 3));
+                            const translateX = Math.min(diff * Math.max(resistance, 0.5), MAX_SWIPE);
+                            swipeContent.style.transform = `translateX(-${translateX}px)`;
+                            
+                            // Show delete background
+                            deleteBg.classList.toggle('visible', diff > 20);
+                            deleteBg.classList.toggle('ready', diff > SWIPE_THRESHOLD);
+                        } else {
+                            // Don't allow swiping right
+                            swipeContent.style.transform = 'translateX(0)';
+                        }
+                    }
+                };
+
+                const handleEnd = () => {
+                    if (!isSwiping) return;
+                    isSwiping = false;
+                    swipeContent.classList.remove('swiping');
+                    
+                    const diff = startX - currentX;
+                    const velocity = diff / (Date.now() - startTime);
+                    
+                    // Delete if swiped far enough OR swiped fast enough
+                    if (diff > SWIPE_THRESHOLD || (diff > 50 && velocity > 0.5)) {
+                        // Smooth slide out then delete
+                        swipeContent.classList.add('snapping');
+                        swipeContent.style.transform = `translateX(-${MAX_SWIPE + 50}px)`;
+                        setTimeout(() => {
+                            deleteTaskWithPoof(taskItem, categoryId, subcatId, taskId);
+                        }, 150);
+                    } else {
+                        // Snap back smoothly
+                        swipeContent.classList.add('snapping');
+                        swipeContent.style.transform = 'translateX(0)';
+                        deleteBg.classList.remove('visible', 'ready');
+                    }
+                };
+
+                // Touch events
+                container.addEventListener('touchstart', handleStart, { passive: true });
+                container.addEventListener('touchmove', handleMove, { passive: false });
+                container.addEventListener('touchend', handleEnd);
+                container.addEventListener('touchcancel', handleEnd);
+
+                // Mouse events for desktop testing
+                container.addEventListener('mousedown', handleStart);
+                container.addEventListener('mousemove', (e) => {
+                    if (isSwiping) handleMove(e);
+                });
+                container.addEventListener('mouseup', handleEnd);
+                container.addEventListener('mouseleave', handleEnd);
+            });
+
             // Subtask toggles
             document.querySelectorAll('.subtask-toggle').forEach(toggle => {
                 toggle.onclick = function(e) {
                     e.stopPropagation();
                     const subtasks = document.getElementById(`subtasks-${this.dataset.taskId}`);
                     if (subtasks) {
-                        subtasks.style.display = subtasks.style.display === 'none' ? 'block' : 'none';
+                        const isHidden = subtasks.style.display === 'none';
+                        subtasks.style.display = isHidden ? 'block' : 'none';
+                        // Update arrow direction
+                        const text = this.textContent;
+                        if (isHidden) {
+                            this.textContent = text.replace('→', '↓');
+                        } else {
+                            this.textContent = text.replace('↓', '→');
+                        }
                     }
                 };
             });
@@ -1275,8 +2609,8 @@
 
             document.querySelectorAll('.subtask-text').forEach(text => {
                 text.onblur = function() {
-                    const categoryId = this.closest('.category-card').dataset.categoryId;
-                    const subcatId = this.closest('.subcategory')?.querySelector('.subcategory-title')?.dataset?.subcatId || '';
+                    const categoryId = this.dataset.categoryId || this.closest('.category-card').dataset.categoryId;
+                    const subcatId = this.dataset.subcatId || this.closest('.subcategory')?.querySelector('.subcategory-title')?.dataset?.subcatId || '';
                     const task = findTask(parseInt(this.dataset.taskId), categoryId, subcatId);
                     if (task && task.subtasks) {
                         task.subtasks[parseInt(this.dataset.subtaskIndex)] = this.textContent.trim();
@@ -1286,28 +2620,83 @@
             });
         }
 
-        // Navigation
-        document.getElementById('prevBtn').onclick = prevSlide;
-        document.getElementById('nextBtn').onclick = nextSlide;
-        document.getElementById('zoomInBtn').onclick = () => {
-            if (overviewMode) toggleOverview();
-        };
-        document.getElementById('zoomOutBtn').onclick = toggleOverview;
+        // Navigation (swipe only, no buttons)
+        document.getElementById('zoomToggleBtn').onclick = toggleOverview;
 
-        // Touch/swipe
+        // Modal keyboard support
+        document.getElementById('newTaskText').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewTask();
+            } else if (e.key === 'Escape') {
+                closeAddModal();
+            }
+        });
+        
+        document.getElementById('newGroupName').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewGroup();
+            } else if (e.key === 'Escape') {
+                closeGroupModal();
+            }
+        });
+        
+        // Escape key to close steps modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('addStepsModal').classList.contains('show')) {
+                closeStepsModal();
+            }
+        });
+
+        // Close modal on overlay click
+        document.getElementById('addTaskModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addTaskModal') {
+                closeAddModal();
+            }
+        });
+        
+        document.getElementById('addGroupModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addGroupModal') {
+                closeGroupModal();
+            }
+            // Close icon picker if clicking outside of it
+            if (!e.target.closest('.icon-picker-section')) {
+                document.getElementById('iconPickerDropdown').classList.remove('show');
+                document.getElementById('iconPickerBtn').classList.remove('open');
+            }
+        });
+        
+        document.getElementById('addStepsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addStepsModal') {
+                closeStepsModal();
+            }
+        });
+
+        // Touch/swipe for carousel - improved for mobile
+        let touchStartTime = 0;
+        
         document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.task-swipe-container')) return;
+            if (e.target.closest('.modal')) return;
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
         }, { passive: true });
 
         document.addEventListener('touchend', (e) => {
             if (overviewMode) return;
+            if (e.target.closest('.task-swipe-container')) return;
+            if (e.target.closest('.modal')) return;
+            
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
             const deltaX = touchEndX - touchStartX;
             const deltaY = touchEndY - touchStartY;
+            const touchDuration = Date.now() - touchStartTime;
 
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+            // Require horizontal swipe, not too slow, and significant distance
+            if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) > 40 && touchDuration < 500) {
                 if (deltaX > 0) prevSlide();
                 else nextSlide();
             }
@@ -1316,6 +2705,7 @@
         // Keyboard
         document.addEventListener('keydown', (e) => {
             if (e.target.closest('[contenteditable]')) return;
+            if (e.target.closest('.modal')) return;
             if (overviewMode) return;
 
             if (e.key === 'ArrowLeft') {
@@ -1407,7 +2797,6 @@
             setTimeout(() => ripple.remove(), 6000);
         }
 
-        // Create ambient ripples periodically
         function createAmbientRipple() {
             const x = Math.random() * window.innerWidth;
             const y = Math.random() * window.innerHeight;
@@ -1430,7 +2819,6 @@
             time++;
             particles.forEach(p => p.update(time));
             
-            // Random ambient ripples (0.1% chance per frame = ~1 every 16 seconds at 60fps)
             if (Math.random() < 0.001) {
                 createAmbientRipple();
             }
@@ -1442,12 +2830,25 @@
         loadFromStorage();
         if (overviewMode) {
             document.body.classList.add('overview-mode');
-            document.getElementById('zoomLevelText').textContent = 'Overview';
+            document.getElementById('zoomIcon').textContent = '+';
         }
         renderCarousel();
         animate();
         
-        // Start with a few initial ripples for peaceful effect
+        // Show swipe hint on first visit (only once)
+        if (!localStorage.getItem('mylist_swipe_hint_shown') && !overviewMode) {
+            setTimeout(() => {
+                const activeCard = document.querySelector('.category-card.active');
+                if (activeCard) {
+                    activeCard.classList.add('swipe-hint');
+                    setTimeout(() => {
+                        activeCard.classList.remove('swipe-hint');
+                        localStorage.setItem('mylist_swipe_hint_shown', 'true');
+                    }, 3000);
+                }
+            }, 500);
+        }
+        
         setTimeout(() => createAmbientRipple(), 500);
         setTimeout(() => createAmbientRipple(), 1500);
         setTimeout(() => createAmbientRipple(), 2500);
