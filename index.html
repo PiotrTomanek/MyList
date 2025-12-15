@@ -12,11 +12,13 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background: #0a0e27;
             color: #ffffff;
             min-height: 100vh;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .background {
@@ -29,19 +31,13 @@
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
         }
 
-        .wisp {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        /* Ripple effect */
+        /* Ripple effect - subtle and elegant */
         .ripple {
             position: absolute;
-            border: 2px solid rgba(255, 182, 193, 0.4);
+            border: 1px solid rgba(255, 182, 193, 0.25);
             border-radius: 50%;
             pointer-events: none;
-            animation: ripple-expand 6s ease-out forwards;
+            animation: ripple-expand 8s ease-out forwards;
         }
 
         @keyframes ripple-expand {
@@ -92,30 +88,33 @@
             opacity: 0.8;
         }
 
-        /* Photo Import Button */
-        .photo-import-btn {
+        /* Header Action Buttons */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-action-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(216, 191, 216, 0.2));
-            border: 2px solid rgba(255, 182, 193, 0.4);
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.15), rgba(216, 191, 216, 0.15));
+            border: 2px solid rgba(255, 182, 193, 0.3);
             border-radius: 12px;
-            color: #FFB6C1;
-            font-size: 0.9rem;
-            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .photo-import-btn:hover {
-            background: linear-gradient(135deg, rgba(255, 182, 193, 0.3), rgba(216, 191, 216, 0.3));
+        .header-action-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.25), rgba(216, 191, 216, 0.25));
             border-color: #FFB6C1;
             transform: scale(1.05);
         }
 
-        .photo-import-btn .camera-icon {
-            font-size: 1.2rem;
+        .header-action-btn .action-icon {
+            font-size: 1.3rem;
         }
 
         /* Photo Import Modal */
@@ -245,6 +244,40 @@
         .import-preview.show {
             display: block;
         }
+        
+        .import-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 182, 193, 0.2);
+        }
+        
+        .import-preview-title {
+            color: #D8BFD8;
+            font-size: 0.9rem;
+        }
+        
+        .import-edit-toggle {
+            background: transparent;
+            border: 1px solid rgba(255, 182, 193, 0.4);
+            color: #FFB6C1;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .import-edit-toggle:hover {
+            background: rgba(255, 182, 193, 0.1);
+        }
+        
+        .import-edit-toggle.active {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+        }
 
         .import-category {
             margin-bottom: 15px;
@@ -266,17 +299,177 @@
         }
 
         .import-task-item {
-            padding: 6px 0;
+            padding: 8px 0;
             color: #fff;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            border-bottom: 1px solid rgba(255, 182, 193, 0.1);
+        }
+        
+        .import-task-item:last-child {
+            border-bottom: none;
         }
 
         .import-task-item::before {
             content: '→';
             color: #D8BFD8;
+            flex-shrink: 0;
+        }
+        
+        .import-task-text {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 4px 0;
+            outline: none;
+        }
+        
+        .import-task-text.editable {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 4px;
+            padding: 4px 8px;
+        }
+        
+        .import-task-text.editable:focus {
+            border-color: #FFB6C1;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .import-task-category-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 4px;
+            color: #D8BFD8;
+            font-size: 0.75rem;
+            padding: 3px 6px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .import-task-category-select.show {
+            display: block;
+        }
+        
+        .import-task-delete {
+            background: transparent;
+            border: none;
+            color: rgba(255, 107, 107, 0.7);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: none;
+            transition: all 0.2s ease;
+        }
+        
+        .import-task-delete.show {
+            display: block;
+        }
+        
+        .import-task-delete:hover {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+        }
+
+        /* Export/Import Data Modal */
+        .modal-export {
+            max-width: 500px;
+        }
+        
+        .export-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 182, 193, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+        }
+        
+        .export-section-title {
+            color: #FFB6C1;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .export-section-desc {
+            color: #D8BFD8;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+        
+        .export-btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .export-action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 15px;
+            background: rgba(255, 182, 193, 0.1);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .export-action-btn:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+        }
+        
+        .import-file-input {
+            display: none;
+        }
+        
+        .export-textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.8rem;
+            padding: 10px;
+            resize: none;
+            margin-top: 10px;
+        }
+        
+        .export-textarea::placeholder {
+            color: rgba(216, 191, 216, 0.5);
+        }
+        
+        .export-message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        .export-message.success {
+            display: block;
+            background: rgba(144, 238, 144, 0.1);
+            color: #90EE90;
+        }
+        
+        .export-message.error {
+            display: block;
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
         }
 
         .import-error {
@@ -338,7 +531,7 @@
             height: 85%;
             background: rgba(255, 255, 255, 0.03);
             border: 2px solid rgba(255, 182, 193, 0.3);
-            border-radius: 20px;
+            border-radius: 12px;
             padding: 40px;
             backdrop-filter: blur(10px);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -421,137 +614,6 @@
         }
 
         /* Overview Mode (Zoomed Out) - iPhone App Grid Style */
-        body.overview-mode .carousel-container {
-            perspective: none;
-            animation: zoom-out-container 0.6s ease-out forwards;
-        }
-
-        body:not(.overview-mode) .carousel-container {
-            animation: zoom-in-container 0.6s ease-out forwards;
-        }
-
-        @keyframes zoom-out-container {
-            0% {
-                opacity: 0.5;
-                transform: scale(1.1);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes zoom-in-container {
-            0% {
-                opacity: 0.5;
-                transform: scale(0.9);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        body.overview-mode .category-card {
-            position: relative;
-            width: auto;
-            min-width: 85px;
-            max-width: 140px;
-            height: auto;
-            min-height: 100px;
-            margin: 0;
-            padding: 12px 8px 10px;
-            opacity: 1 !important;
-            transform: none !important;
-            filter: none !important;
-            pointer-events: auto !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            cursor: pointer;
-            animation: card-appear 0.4s ease-out backwards;
-            background: rgba(255, 182, 193, 0.08);
-            border: 1px solid rgba(255, 182, 193, 0.15);
-            border-radius: 20px;
-        }
-
-        body.overview-mode .category-card:nth-child(1) { animation-delay: 0.02s; }
-        body.overview-mode .category-card:nth-child(2) { animation-delay: 0.04s; }
-        body.overview-mode .category-card:nth-child(3) { animation-delay: 0.06s; }
-        body.overview-mode .category-card:nth-child(4) { animation-delay: 0.08s; }
-        body.overview-mode .category-card:nth-child(5) { animation-delay: 0.10s; }
-        body.overview-mode .category-card:nth-child(6) { animation-delay: 0.12s; }
-        body.overview-mode .category-card:nth-child(7) { animation-delay: 0.14s; }
-
-        @keyframes card-appear {
-            0% {
-                opacity: 0;
-                transform: scale(0.8) translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        body.overview-mode .category-card:hover {
-            transform: scale(1.08) !important;
-            background: rgba(255, 182, 193, 0.15);
-            border-color: rgba(255, 182, 193, 0.4);
-        }
-        
-        body.overview-mode .category-card:active {
-            transform: scale(0.95) !important;
-        }
-
-        body.overview-mode .carousel-track {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-content: center;
-            gap: 15px;
-            overflow-y: auto;
-            padding: 40px 20px;
-            min-height: calc(100vh - 80px);
-        }
-        
-        /* Hide content in overview mode, show only icon */
-        body.overview-mode .category-header {
-            flex-direction: column;
-            border: none;
-            margin: 0;
-            padding: 0;
-            gap: 8px;
-            width: 100%;
-        }
-        
-        body.overview-mode .category-icon {
-            font-size: 2.2rem;
-            margin-bottom: 2px;
-        }
-        
-        body.overview-mode .category-title {
-            font-size: 0.7rem;
-            text-align: center;
-            line-height: 1.3;
-            color: #D8BFD8;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-            padding: 0 2px;
-        }
-        
-        body.overview-mode .category-count,
-        body.overview-mode .add-task-btn,
-        body.overview-mode .category-summary,
-        body.overview-mode .task-list,
-        body.overview-mode .subcategory,
-        body.overview-mode .add-group-btn {
-            display: none !important;
-        }
-        
         /* View transition overlay */
         .view-transition-overlay {
             position: fixed;
@@ -1057,47 +1119,116 @@
         }
 
         /* Zoom Controls */
-        .zoom-controls {
+        /* Manage Categories Button */
+        .manage-btn-container {
             position: fixed;
-            bottom: 40px;
-            right: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            bottom: 30px;
+            right: 20px;
             z-index: 100;
         }
 
-        .zoom-btn {
-            width: 55px;
-            height: 55px;
-            border: 3px solid rgba(255, 182, 193, 0.4);
+        .manage-categories-btn {
+            width: 48px;
+            height: 48px;
+            border: 2px solid rgba(255, 182, 193, 0.3);
             border-radius: 50%;
-            background: rgba(10, 14, 39, 0.95);
+            background: rgba(10, 14, 39, 0.9);
             backdrop-filter: blur(10px);
             color: #FFB6C1;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
         }
 
-        .zoom-btn:hover {
-            background: rgba(255, 182, 193, 0.2);
+        .manage-categories-btn:hover {
+            background: rgba(255, 182, 193, 0.15);
             border-color: #FFB6C1;
-            transform: scale(1.15);
+            transform: scale(1.1);
         }
         
-        .zoom-icon {
-            transition: transform 0.3s ease;
-            display: inline-block;
+        .manage-categories-btn:active {
+            transform: scale(0.95);
         }
         
-        .zoom-btn:hover .zoom-icon {
-            transform: rotate(180deg);
+        /* Manage Categories Modal */
+        .modal-manage {
+            max-width: 400px;
+        }
+        
+        .modal-subtitle {
+            color: #D8BFD8;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        
+        .manage-categories-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .manage-category-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 182, 193, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.15);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .manage-category-item.urgent-item {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .manage-category-icon {
+            font-size: 1.2rem;
+        }
+        
+        .manage-category-name {
+            flex: 1;
+            color: #fff;
+            font-size: 0.85rem;
+        }
+        
+        .manage-category-delete {
+            background: transparent;
+            border: none;
+            color: rgba(255, 107, 107, 0.6);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .manage-category-delete:hover {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+        }
+        
+        .add-category-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 182, 193, 0.1);
+            border: 1px dashed rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            color: #FFB6C1;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 15px;
+        }
+        
+        .add-category-btn:hover {
+            background: rgba(255, 182, 193, 0.15);
+            border-color: #FFB6C1;
         }
 
         /* Save indicator - hidden but functional */
@@ -1448,26 +1579,27 @@
         
         /* Add Group Button */
         .add-group-btn {
-            margin-top: 20px;
-            padding: 12px 20px;
-            background: rgba(255, 182, 193, 0.1);
-            border: 2px dashed rgba(255, 182, 193, 0.3);
-            border-radius: 12px;
-            color: #D8BFD8;
-            font-size: 0.95rem;
+            margin-top: 12px;
+            padding: 6px 0;
+            background: transparent;
+            border: none;
+            color: rgba(216, 191, 216, 0.4);
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
+            transition: all 0.2s ease;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
+            gap: 4px;
+            width: auto;
         }
         
         .add-group-btn:hover {
-            background: rgba(255, 182, 193, 0.2);
-            border-color: #FFB6C1;
             color: #FFB6C1;
+        }
+        
+        .add-group-btn .plus-icon {
+            font-size: 0.9rem;
+            font-weight: 300;
         }
         
         /* Add Steps Button */
@@ -1525,21 +1657,22 @@
         
         /* Edit Steps Button */
         .edit-steps-btn {
-            margin-top: 12px;
-            padding: 8px 14px;
-            background: rgba(255, 182, 193, 0.1);
-            border: 1px solid rgba(255, 182, 193, 0.3);
-            border-radius: 8px;
-            color: #D8BFD8;
-            font-size: 0.85rem;
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            color: rgba(216, 191, 216, 0.5);
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
+            transition: all 0.2s ease;
+            width: auto;
+            align-self: flex-start;
+            letter-spacing: 2px;
         }
         
         .edit-steps-btn:hover {
-            background: rgba(255, 182, 193, 0.2);
-            border-color: #FFB6C1;
+            background: rgba(255, 182, 193, 0.1);
             color: #FFB6C1;
         }
         
@@ -1552,132 +1685,160 @@
         /* Mobile Optimizations */
         @media (max-width: 768px) {
             header {
-                padding: 12px 20px;
+                padding: 10px 16px;
             }
             
             .header-left h1 {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
             
             .header-left .tagline {
-                font-size: 0.75rem;
+                font-size: 0.65rem;
             }
             
-            .photo-import-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
+            .header-actions {
+                gap: 6px;
             }
             
-            .photo-import-btn .btn-text {
-                display: none;
+            .header-action-btn {
+                width: 36px;
+                height: 36px;
             }
             
-            .photo-import-btn .camera-icon {
-                font-size: 1.3rem;
+            .header-action-btn .action-icon {
+                font-size: 1rem;
             }
             
             .modal-photo {
                 width: 95%;
                 max-width: none;
-                padding: 20px;
+                padding: 18px;
             }
             
             .carousel-container {
-                top: 70px;
+                top: 60px;
             }
             
             .category-card {
                 width: 92%;
                 max-width: 400px;
-                padding: 20px;
-                max-height: calc(100vh - 150px);
+                padding: 16px;
+                max-height: calc(100vh - 130px);
+                border-radius: 10px;
             }
             
             .category-header {
-                padding-bottom: 12px;
-                margin-bottom: 15px;
+                padding-bottom: 10px;
+                margin-bottom: 12px;
             }
             
             .category-icon {
-                font-size: 1.8rem;
+                font-size: 1.4rem;
             }
             
             .category-title {
-                font-size: 1.3rem;
+                font-size: 1.05rem;
+            }
+            
+            .category-count {
+                font-size: 0.7rem;
+                padding: 2px 8px;
             }
             
             .task-item {
-                padding: 14px 0;
+                padding: 10px 0;
             }
             
             .task-text {
-                font-size: 0.95rem;
+                font-size: 0.85rem;
+                line-height: 1.35;
             }
             
-            /* Overview mode - flexible layout on mobile */
-            body.overview-mode .carousel-track {
-                gap: 12px;
-                padding: 30px 15px;
+            .task-checkbox {
+                width: 18px;
+                height: 18px;
+                min-width: 18px;
             }
             
-            body.overview-mode .category-card {
-                min-width: 80px;
-                max-width: 120px;
+            .priority-badge {
+                font-size: 0.55rem;
+                padding: 2px 5px;
             }
             
-            body.overview-mode .category-icon {
-                font-size: 2rem;
+            .subcategory-header {
+                padding: 8px;
+                margin-top: 12px;
             }
             
-            body.overview-mode .category-title {
-                font-size: 0.65rem;
+            .subcategory-icon {
+                font-size: 1rem;
             }
             
-            .zoom-controls {
-                bottom: 25px;
-                right: 20px;
+            .subcategory-name {
+                font-size: 0.8rem;
             }
             
-            .zoom-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.3rem;
+            .subtask-toggle {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+            
+            .subtask-item {
+                font-size: 0.8rem;
+            }
+            
+            .manage-btn-container {
+                bottom: 15px;
+                right: 12px;
+            }
+            
+            .manage-categories-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
             }
             
             .carousel-indicator {
-                bottom: 25px;
+                bottom: 20px;
             }
             
             .carousel-dot {
-                width: 10px;
-                height: 10px;
+                width: 8px;
+                height: 8px;
             }
             
             .add-task-btn {
-                width: 34px;
-                height: 34px;
-                font-size: 1.4rem;
+                width: 30px;
+                height: 30px;
+                font-size: 1.2rem;
+            }
+            
+            .add-group-btn {
+                font-size: 0.7rem;
+                padding: 4px 0;
             }
             
             /* Modal adjustments for mobile */
             .modal {
                 width: 92%;
-                max-width: 360px;
-                padding: 25px;
+                max-width: 340px;
+                padding: 20px;
             }
             
             .modal h2 {
-                font-size: 1.3rem;
+                font-size: 1.15rem;
             }
             
             .modal-input {
-                padding: 14px;
-                font-size: 1rem;
+                padding: 12px;
+                font-size: 0.9rem;
             }
             
             /* Make buttons always visible on touch devices */
             .add-steps-btn {
                 opacity: 0.7;
+                font-size: 0.75rem;
+                padding: 6px 10px;
             }
             
             .remove-step-btn {
@@ -1686,34 +1847,14 @@
             
             /* Larger touch targets */
             .remove-step-btn {
-                width: 28px;
-                height: 28px;
-                font-size: 1.3rem;
+                width: 26px;
+                height: 26px;
+                font-size: 1.1rem;
             }
             
             .step-remove-btn {
-                width: 36px;
-                height: 36px;
-            }
-        }
-        
-        /* Small phones */
-        @media (max-width: 380px) {
-            body.overview-mode .carousel-track {
-                gap: 10px;
-            }
-            
-            body.overview-mode .category-card {
-                min-width: 75px;
-                max-width: 110px;
-            }
-            
-            body.overview-mode .category-icon {
-                font-size: 1.8rem;
-            }
-            
-            body.overview-mode .category-title {
-                font-size: 0.6rem;
+                width: 32px;
+                height: 32px;
             }
         }
     </style>
@@ -1730,10 +1871,14 @@
             <h1>MyList</h1>
             <div class="tagline">Organize your life with ease ✨</div>
         </div>
-        <button class="photo-import-btn" onclick="openPhotoModal()">
-            <span class="camera-icon">📷</span>
-            <span class="btn-text">Import</span>
-        </button>
+        <div class="header-actions">
+            <button class="header-action-btn export-btn" onclick="openExportModal()" title="Export/Import Data">
+                <span class="action-icon">📤</span>
+            </button>
+            <button class="header-action-btn import-btn" onclick="openPhotoModal()" title="Import from Photo">
+                <span class="action-icon">📷</span>
+            </button>
+        </div>
     </header>
 
     <div class="carousel-container">
@@ -1742,9 +1887,9 @@
 
     <div class="carousel-indicator" id="carouselIndicator"></div>
 
-    <div class="zoom-controls">
-        <button class="zoom-btn zoom-toggle" id="zoomToggleBtn">
-            <span class="zoom-icon" id="zoomIcon">−</span>
+    <div class="manage-btn-container">
+        <button class="manage-categories-btn" id="manageCategoriesBtn" onclick="openManageCategoriesModal()">
+            <span>⚙️</span>
         </button>
     </div>
 
@@ -1762,6 +1907,45 @@
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closeAddModal()">Cancel</button>
                 <button class="modal-btn primary" onclick="addNewTask()">Add Task</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Manage Categories Modal -->
+    <div class="modal-overlay" id="manageCategoriesModal">
+        <div class="modal modal-manage">
+            <h2>⚙️ Manage Categories</h2>
+            <p class="modal-subtitle">Add, remove, or reorder your categories</p>
+            
+            <div class="manage-categories-list" id="manageCategoriesList"></div>
+            
+            <button class="add-category-btn" onclick="openAddCategoryModal()">+ Add New Category</button>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn primary" onclick="closeManageCategoriesModal()">Done</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Category Modal -->
+    <div class="modal-overlay" id="addCategoryModal">
+        <div class="modal">
+            <h2>✨ Add New Category</h2>
+            <input type="text" class="modal-input" id="newCategoryName" placeholder="Category name (e.g., Learning)">
+            <div class="icon-picker-section">
+                <label class="icon-picker-label">Choose an icon:</label>
+                <button class="icon-picker-btn" id="categoryIconPickerBtn" onclick="toggleCategoryIconPicker()">
+                    <span id="selectedCategoryIconDisplay">📚</span>
+                    <span class="icon-picker-arrow">▼</span>
+                </button>
+                <div class="icon-picker-dropdown" id="categoryIconPickerDropdown">
+                    <div class="icon-picker-grid" id="categoryIconPickerGrid"></div>
+                </div>
+            </div>
+            <input type="hidden" id="newCategoryIcon" value="📚">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeAddCategoryModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addNewCategory()">Add Category</button>
             </div>
         </div>
     </div>
@@ -1847,7 +2031,56 @@
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closePhotoModal()">Cancel</button>
                 <button class="modal-btn primary" id="processPhotoBtn" onclick="processPhoto()" style="display: none;">Process Photo</button>
-                <button class="modal-btn primary" id="confirmImportBtn" onclick="confirmImport()" style="display: none;">Import Tasks</button>
+                <button class="modal-btn secondary" id="editImportBtn" onclick="toggleEditMode()" style="display: none;">✏️ Edit</button>
+                <button class="modal-btn primary" id="confirmImportBtn" onclick="confirmImport()" style="display: none;">✓ Commit</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export/Import Data Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal modal-export">
+            <h2>📤 Export & Import Data</h2>
+            
+            <!-- Export Section -->
+            <div class="export-section">
+                <div class="export-section-title">📥 Export Your Data</div>
+                <div class="export-section-desc">Download your tasks as a file to backup or share</div>
+                <div class="export-btn-row">
+                    <button class="export-action-btn" onclick="exportAsJSON()">
+                        <span>📄</span> JSON File
+                    </button>
+                    <button class="export-action-btn" onclick="exportAsText()">
+                        <span>📝</span> Text File
+                    </button>
+                    <button class="export-action-btn" onclick="copyToClipboard()">
+                        <span>📋</span> Copy
+                    </button>
+                </div>
+                <div class="export-message" id="exportMessage"></div>
+            </div>
+            
+            <!-- Import Section -->
+            <div class="export-section">
+                <div class="export-section-title">📤 Import Data</div>
+                <div class="export-section-desc">Load tasks from a JSON file or paste data</div>
+                <div class="export-btn-row">
+                    <button class="export-action-btn" onclick="document.getElementById('importFileInput').click()">
+                        <span>📁</span> Load File
+                    </button>
+                </div>
+                <input type="file" id="importFileInput" class="import-file-input" accept=".json" onchange="importFromFile(event)">
+                <textarea class="export-textarea" id="importTextarea" placeholder="Or paste JSON data here..."></textarea>
+                <div class="export-btn-row" style="margin-top: 10px;">
+                    <button class="export-action-btn" onclick="importFromText()">
+                        <span>📥</span> Import from Text
+                    </button>
+                </div>
+                <div class="export-message" id="importMessage"></div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeExportModal()">Close</button>
             </div>
         </div>
     </div>
@@ -1961,7 +2194,6 @@
         let categories = defaultData.categories;
         let categoryOrder = defaultData.categoryOrder;
         let currentIndex = 0;
-        let overviewMode = false;
         let touchStartX = 0;
         let touchStartY = 0;
         let addingToCategory = null;
@@ -1977,7 +2209,6 @@
                 categories,
                 categoryOrder,
                 currentIndex,
-                overviewMode,
                 nextTaskId
             };
             localStorage.setItem('myListData', JSON.stringify(data));
@@ -1992,7 +2223,6 @@
                     categories = data.categories || categories;
                     categoryOrder = data.categoryOrder || categoryOrder;
                     currentIndex = data.currentIndex || 0;
-                    overviewMode = data.overviewMode || false;
                     nextTaskId = data.nextTaskId || 100;
                 } catch (e) {}
             }
@@ -2442,21 +2672,6 @@
                 const card = createCategoryCard(cat);
                 updateCardPosition(card, index);
                 
-                if (overviewMode) {
-                    card.onclick = () => {
-                        // Trigger view transition effect
-                        const overlay = document.getElementById('viewTransitionOverlay');
-                        overlay.classList.add('active');
-                        setTimeout(() => overlay.classList.remove('active'), 600);
-                        
-                        overviewMode = false;
-                        currentIndex = index;
-                        document.body.classList.remove('overview-mode');
-                        renderCarousel();
-                        saveToStorage();
-                    };
-                }
-                
                 track.appendChild(card);
 
                 const dot = document.createElement('div');
@@ -2506,7 +2721,7 @@
             
             // Add "Add Group" button for non-virtual categories
             if (!category.isVirtual) {
-                html += `<button class="add-group-btn" data-category-id="${category.id}">📁 Add Group</button>`;
+                html += `<button class="add-group-btn" data-category-id="${category.id}"><span class="plus-icon">+</span> group</button>`;
             }
 
             card.innerHTML = html;
@@ -2545,11 +2760,14 @@
                 const displayStyle = isExpanded ? 'block' : 'none';
                 const toggleText = isExpanded ? '↓' : '→';
                 
+                // Create unique ID using task ID + category + subcategory to avoid duplicates
+                const uniqueId = `${task.id}-${actualCategoryId}-${actualSubcatId || 'main'}`;
+                
                 subtasksHtml = `
-                    <div class="subtask-toggle" data-task-id="${task.id}">
+                    <div class="subtask-toggle" data-task-id="${task.id}" data-unique-id="${uniqueId}">
                         ${toggleText} ${task.subtasks.length} steps
                     </div>
-                    <div class="subtask-list" id="subtasks-${task.id}" style="display: ${displayStyle};">
+                    <div class="subtask-list" id="subtasks-${uniqueId}" style="display: ${displayStyle};">
                         ${task.subtasks.map((st, i) => `
                             <div class="subtask-item">
                                 <div class="subtask-number">${i + 1}</div>
@@ -2557,7 +2775,7 @@
                                 <button class="remove-step-btn" data-task-id="${task.id}" data-subtask-index="${i}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}" title="Remove step">×</button>
                             </div>
                         `).join('')}
-                        <button class="edit-steps-btn" data-task-id="${task.id}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}">✏️ Edit Steps</button>
+                        <button class="edit-steps-btn" data-task-id="${task.id}" data-category-id="${actualCategoryId}" data-subcat-id="${actualSubcatId}" title="Edit steps">•••</button>
                     </div>
                 `;
             }
@@ -2633,17 +2851,141 @@
             goToSlide(currentIndex);
         }
 
-        function toggleOverview() {
-            // Trigger view transition effect
-            const overlay = document.getElementById('viewTransitionOverlay');
-            overlay.classList.add('active');
-            setTimeout(() => overlay.classList.remove('active'), 600);
+        // ==========================================
+        // CATEGORY MANAGEMENT
+        // ==========================================
+        
+        function openManageCategoriesModal() {
+            renderManageCategoriesList();
+            document.getElementById('manageCategoriesModal').classList.add('show');
+        }
+        
+        function closeManageCategoriesModal() {
+            document.getElementById('manageCategoriesModal').classList.remove('show');
+        }
+        
+        function renderManageCategoriesList() {
+            const listEl = document.getElementById('manageCategoriesList');
+            let html = '';
             
-            overviewMode = !overviewMode;
-            document.body.classList.toggle('overview-mode', overviewMode);
-            document.getElementById('zoomIcon').textContent = overviewMode ? '+' : '−';
-            renderCarousel();
+            categoryOrder.forEach(catId => {
+                const cat = categories[catId];
+                if (!cat) return;
+                
+                const isUrgent = catId === 'urgent';
+                const itemClass = isUrgent ? 'manage-category-item urgent-item' : 'manage-category-item';
+                
+                html += `
+                    <div class="${itemClass}" data-category-id="${catId}">
+                        <span class="manage-category-icon">${cat.icon}</span>
+                        <span class="manage-category-name">${cat.name}</span>
+                        ${isUrgent ? '<span style="font-size: 0.7rem; color: #D8BFD8;">System</span>' : 
+                        `<button class="manage-category-delete" onclick="deleteCategory('${catId}')" title="Delete category">×</button>`}
+                    </div>
+                `;
+            });
+            
+            listEl.innerHTML = html;
+        }
+        
+        function openAddCategoryModal() {
+            document.getElementById('newCategoryName').value = '';
+            document.getElementById('newCategoryIcon').value = '📚';
+            document.getElementById('selectedCategoryIconDisplay').textContent = '📚';
+            document.getElementById('addCategoryModal').classList.add('show');
+            setTimeout(() => document.getElementById('newCategoryName').focus(), 100);
+        }
+        
+        function closeAddCategoryModal() {
+            document.getElementById('addCategoryModal').classList.remove('show');
+            document.getElementById('categoryIconPickerDropdown').classList.remove('show');
+        }
+        
+        function toggleCategoryIconPicker() {
+            document.getElementById('categoryIconPickerDropdown').classList.toggle('show');
+            
+            // Populate icons if not already done
+            const grid = document.getElementById('categoryIconPickerGrid');
+            if (grid.children.length === 0) {
+                availableIcons.forEach(icon => {
+                    const iconEl = document.createElement('div');
+                    iconEl.className = 'icon-option';
+                    iconEl.textContent = icon;
+                    iconEl.onclick = () => selectCategoryIcon(icon);
+                    grid.appendChild(iconEl);
+                });
+            }
+        }
+        
+        function selectCategoryIcon(icon) {
+            document.getElementById('newCategoryIcon').value = icon;
+            document.getElementById('selectedCategoryIconDisplay').textContent = icon;
+            document.getElementById('categoryIconPickerDropdown').classList.remove('show');
+        }
+        
+        function addNewCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            const icon = document.getElementById('newCategoryIcon').value;
+            
+            if (!name) {
+                alert('Please enter a category name');
+                return;
+            }
+            
+            // Generate unique ID
+            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 20) + '_' + Date.now().toString(36);
+            
+            // Create new category
+            categories[id] = {
+                id: id,
+                name: name,
+                icon: icon,
+                tasks: [],
+                subcategories: []
+            };
+            
+            // Add to order (before last position)
+            categoryOrder.push(id);
+            
             saveToStorage();
+            renderCarousel();
+            renderManageCategoriesList();
+            closeAddCategoryModal();
+            
+            // Navigate to new category
+            const newIndex = categoryOrder.indexOf(id);
+            if (newIndex !== -1) {
+                currentIndex = newIndex;
+                updateCarousel();
+            }
+        }
+        
+        function deleteCategory(catId) {
+            const cat = categories[catId];
+            if (!cat) return;
+            
+            const taskCount = (cat.tasks?.length || 0) + 
+                (cat.subcategories?.reduce((sum, sub) => sum + (sub.tasks?.length || 0), 0) || 0);
+            
+            let message = `Delete "${cat.name}"?`;
+            if (taskCount > 0) {
+                message += `\n\nThis will also delete ${taskCount} task${taskCount > 1 ? 's' : ''}.`;
+            }
+            
+            if (!confirm(message)) return;
+            
+            // Remove from categories and order
+            delete categories[catId];
+            categoryOrder = categoryOrder.filter(id => id !== catId);
+            
+            // Adjust current index if needed
+            if (currentIndex >= categoryOrder.length) {
+                currentIndex = Math.max(0, categoryOrder.length - 1);
+            }
+            
+            saveToStorage();
+            renderCarousel();
+            renderManageCategoriesList();
         }
 
         // Event Listeners
@@ -2839,7 +3181,8 @@
             document.querySelectorAll('.subtask-toggle').forEach(toggle => {
                 toggle.onclick = function(e) {
                     e.stopPropagation();
-                    const subtasks = document.getElementById(`subtasks-${this.dataset.taskId}`);
+                    const uniqueId = this.dataset.uniqueId;
+                    const subtasks = document.getElementById(`subtasks-${uniqueId}`);
                     if (subtasks) {
                         const isHidden = subtasks.style.display === 'none';
                         subtasks.style.display = isHidden ? 'block' : 'none';
@@ -2906,9 +3249,6 @@
             });
         }
 
-        // Navigation (swipe only, no buttons)
-        document.getElementById('zoomToggleBtn').onclick = toggleOverview;
-
         // Modal keyboard support
         document.getElementById('newTaskText').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -2925,6 +3265,15 @@
                 addNewGroup();
             } else if (e.key === 'Escape') {
                 closeGroupModal();
+            }
+        });
+        
+        document.getElementById('newCategoryName').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewCategory();
+            } else if (e.key === 'Escape') {
+                closeAddCategoryModal();
             }
         });
         
@@ -2971,7 +3320,6 @@
         }, { passive: true });
 
         document.addEventListener('touchend', (e) => {
-            if (overviewMode) return;
             if (e.target.closest('.task-swipe-container')) return;
             if (e.target.closest('.modal')) return;
             
@@ -2992,7 +3340,6 @@
         document.addEventListener('keydown', (e) => {
             if (e.target.closest('[contenteditable]')) return;
             if (e.target.closest('.modal')) return;
-            if (overviewMode) return;
 
             if (e.key === 'ArrowLeft') {
                 e.preventDefault();
@@ -3004,83 +3351,15 @@
         });
 
         // Particles
-        class Particle {
-            constructor(x, y, vx, vy, radius, color) {
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.radius = radius;
-                this.color = color;
-                this.pulsePhase = Math.random() * Math.PI * 2;
-                this.element = document.createElement('div');
-                this.element.className = 'wisp';
-                this.element.style.width = (radius * 2) + 'px';
-                this.element.style.height = (radius * 2) + 'px';
-                this.element.style.background = `radial-gradient(circle, ${color} 0%, transparent 70%)`;
-                this.element.style.filter = `blur(${radius}px)`;
-                this.element.style.opacity = '0.25';
-                document.getElementById('background').appendChild(this.element);
-            }
-
-            update(time) {
-                this.pulsePhase += 0.02;
-                this.element.style.transform = `scale(${Math.sin(this.pulsePhase) * 0.15 + 0.85})`;
-
-                this.vx += (Math.random() - 0.5) * 0.02;
-                this.vy += (Math.random() - 0.5) * 0.02;
-                this.vx += Math.sin(this.y * 0.003 + time * 0.0005) * 0.015;
-                this.vy += Math.cos(this.x * 0.003 + time * 0.0005) * 0.015;
-
-                this.x += this.vx;
-                this.y += this.vy;
-
-                const width = window.innerWidth;
-                const height = window.innerHeight;
-
-                if (this.x < this.radius) {
-                    this.x = this.radius;
-                    this.vx = Math.abs(this.vx) * 0.4;
-                } else if (this.x > width - this.radius) {
-                    this.x = width - this.radius;
-                    this.vx = -Math.abs(this.vx) * 0.4;
-                }
-
-                if (this.y < this.radius) {
-                    this.y = this.radius;
-                    this.vy = Math.abs(this.vy) * 0.4;
-                } else if (this.y > height - this.radius) {
-                    this.y = height - this.radius;
-                    this.vy = -Math.abs(this.vy) * 0.4;
-                }
-
-                this.vx *= 0.95;
-                this.vy *= 0.95;
-
-                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                if (speed > 0.8) {
-                    this.vx = (this.vx / speed) * 0.8;
-                    this.vy = (this.vy / speed) * 0.8;
-                }
-                if (speed < 0.1 && speed > 0) {
-                    this.vx = (this.vx / speed) * 0.1;
-                    this.vy = (this.vy / speed) * 0.1;
-                }
-
-                this.element.style.left = (this.x - this.radius) + 'px';
-                this.element.style.top = (this.y - this.radius) + 'px';
-            }
-        }
-
-        // Ripple effect
+        // Ambient Ripple effect only (no floating particles)
         function createRipple(x, y) {
             const ripple = document.createElement('div');
             ripple.className = 'ripple';
-            ripple.style.left = (x - 0) + 'px';
-            ripple.style.top = (y - 0) + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
             document.getElementById('background').appendChild(ripple);
             
-            setTimeout(() => ripple.remove(), 6000);
+            setTimeout(() => ripple.remove(), 8000);
         }
 
         function createAmbientRipple() {
@@ -3089,40 +3368,22 @@
             createRipple(x, y);
         }
 
-        const particles = [];
-        const colors = ['rgba(255,182,193,1)', 'rgba(255,218,185,1)', 'rgba(216,191,216,1)', 'rgba(255,228,196,1)', 'rgba(255,192,203,1)', 'rgba(230,190,255,1)', 'rgba(255,200,180,1)', 'rgba(200,220,255,1)'];
-
-        for (let i = 0; i < 12; i++) {
-            const angle = (i / 12) * Math.PI * 2;
-            const spreadRadius = Math.min(window.innerWidth, window.innerHeight) * 0.3;
-            const x = window.innerWidth / 2 + Math.cos(angle) * spreadRadius + (Math.random() - 0.5) * 200;
-            const y = window.innerHeight / 2 + Math.sin(angle) * spreadRadius + (Math.random() - 0.5) * 200;
-            particles.push(new Particle(x, y, (Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3, 35 + Math.random() * 25, colors[i % colors.length]));
-        }
-
-        let time = 0;
+        // Simple animation loop for ripples
         function animate() {
-            time++;
-            particles.forEach(p => p.update(time));
-            
-            if (Math.random() < 0.001) {
+            // Create ambient ripples occasionally
+            if (Math.random() < 0.002) {
                 createAmbientRipple();
             }
-            
             requestAnimationFrame(animate);
         }
 
         // Initialize
         loadFromStorage();
-        if (overviewMode) {
-            document.body.classList.add('overview-mode');
-            document.getElementById('zoomIcon').textContent = '+';
-        }
         renderCarousel();
         animate();
         
         // Show swipe hint on first visit (only once)
-        if (!localStorage.getItem('mylist_swipe_hint_shown') && !overviewMode) {
+        if (!localStorage.getItem('mylist_swipe_hint_shown')) {
             setTimeout(() => {
                 const activeCard = document.querySelector('.category-card.active');
                 if (activeCard) {
@@ -3172,6 +3433,7 @@
         function resetPhotoModal() {
             selectedPhotoBase64 = null;
             parsedImportData = null;
+            editModeEnabled = false;
             
             document.getElementById('photoPreview').classList.remove('show');
             document.getElementById('photoPreview').src = '';
@@ -3187,6 +3449,9 @@
             
             document.getElementById('processPhotoBtn').style.display = 'none';
             document.getElementById('confirmImportBtn').style.display = 'none';
+            document.getElementById('editImportBtn').style.display = 'none';
+            document.getElementById('editImportBtn').textContent = '✏️ Edit';
+            document.getElementById('editImportBtn').classList.remove('active');
             document.getElementById('photoInput').value = '';
         }
         
@@ -3378,50 +3643,150 @@ priority should be "urgent", "high", "medium", or null`
             return context;
         }
         
+        let editModeEnabled = false;
+        
         function showImportPreview(tasks) {
             const previewEl = document.getElementById('importPreview');
+            editModeEnabled = false;
             
-            // Group tasks by category
-            const grouped = {};
-            tasks.forEach(task => {
+            // Build category options for dropdown
+            const categoryOptions = categoryOrder
+                .filter(c => c !== 'urgent')
+                .map(catId => {
+                    const cat = categories[catId];
+                    let options = `<option value="${catId}">${cat.name}</option>`;
+                    if (cat.subcategories) {
+                        cat.subcategories.forEach(sub => {
+                            options += `<option value="${catId}/${sub.id}">  → ${sub.name}</option>`;
+                        });
+                    }
+                    return options;
+                }).join('');
+            
+            // Build HTML with editable fields
+            let html = `
+                <div class="import-preview-header">
+                    <div class="import-preview-title">Found ${tasks.length} task${tasks.length > 1 ? 's' : ''}</div>
+                </div>
+                <div class="import-tasks-container">
+            `;
+            
+            tasks.forEach((task, index) => {
                 const catId = task.categoryId || 'work';
                 const cat = categories[catId];
                 const catName = cat ? cat.name : catId;
-                const key = task.subcategoryId ? `${catId}/${task.subcategoryId}` : catId;
+                let displayCat = catName;
+                let currentValue = catId;
                 
-                if (!grouped[key]) {
-                    let displayName = catName;
-                    if (task.subcategoryId && cat?.subcategories) {
-                        const sub = cat.subcategories.find(s => s.id === task.subcategoryId);
-                        if (sub) displayName = `${catName} → ${sub.name}`;
+                if (task.subcategoryId && cat?.subcategories) {
+                    const sub = cat.subcategories.find(s => s.id === task.subcategoryId);
+                    if (sub) {
+                        displayCat = `${catName} → ${sub.name}`;
+                        currentValue = `${catId}/${task.subcategoryId}`;
                     }
-                    grouped[key] = { name: displayName, tasks: [] };
                 }
-                grouped[key].tasks.push(task);
+                
+                html += `
+                    <div class="import-task-item" data-index="${index}">
+                        <input type="text" class="import-task-text" value="${task.text.replace(/"/g, '&quot;')}" data-index="${index}">
+                        <select class="import-task-category-select" data-index="${index}">
+                            ${categoryOptions.replace(`value="${currentValue}"`, `value="${currentValue}" selected`)}
+                        </select>
+                        <span class="import-task-cat-display" style="color: #D8BFD8; font-size: 0.75rem; white-space: nowrap;">${displayCat}</span>
+                        ${task.priority ? `<span class="priority-badge priority-${task.priority}">${task.priority.toUpperCase()}</span>` : ''}
+                        <button class="import-task-delete" data-index="${index}" onclick="deleteImportTask(${index})">×</button>
+                    </div>
+                `;
             });
             
-            // Build HTML
-            let html = '';
-            Object.values(grouped).forEach(group => {
-                html += `<div class="import-category">
-                    <div class="import-category-title">${group.name}</div>
-                    <ul class="import-task-list">
-                        ${group.tasks.map(t => `
-                            <li class="import-task-item">
-                                ${t.text}
-                                ${t.priority ? `<span class="priority-badge priority-${t.priority}">${t.priority.toUpperCase()}</span>` : ''}
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>`;
-            });
+            html += '</div>';
             
             previewEl.innerHTML = html;
             previewEl.classList.add('show');
             document.getElementById('confirmImportBtn').style.display = 'inline-block';
+            document.getElementById('editImportBtn').style.display = 'inline-block';
+        }
+        
+        function toggleEditMode() {
+            editModeEnabled = !editModeEnabled;
+            const editBtn = document.getElementById('editImportBtn');
+            
+            if (editModeEnabled) {
+                editBtn.textContent = '✓ Done Editing';
+                editBtn.classList.add('active');
+            } else {
+                editBtn.textContent = '✏️ Edit';
+                editBtn.classList.remove('active');
+                // Save edits back to parsedImportData
+                saveEditsToImportData();
+            }
+            
+            // Toggle visibility of edit controls
+            document.querySelectorAll('.import-task-text').forEach(el => {
+                el.classList.toggle('editable', editModeEnabled);
+                el.readOnly = !editModeEnabled;
+            });
+            document.querySelectorAll('.import-task-category-select').forEach(el => {
+                el.classList.toggle('show', editModeEnabled);
+            });
+            document.querySelectorAll('.import-task-cat-display').forEach(el => {
+                el.style.display = editModeEnabled ? 'none' : 'block';
+            });
+            document.querySelectorAll('.import-task-delete').forEach(el => {
+                el.classList.toggle('show', editModeEnabled);
+            });
+        }
+        
+        function saveEditsToImportData() {
+            if (!parsedImportData || !parsedImportData.tasks) return;
+            
+            document.querySelectorAll('.import-task-text').forEach(input => {
+                const index = parseInt(input.dataset.index);
+                if (parsedImportData.tasks[index]) {
+                    parsedImportData.tasks[index].text = input.value.trim();
+                }
+            });
+            
+            document.querySelectorAll('.import-task-category-select').forEach(select => {
+                const index = parseInt(select.dataset.index);
+                if (parsedImportData.tasks[index]) {
+                    const value = select.value;
+                    if (value.includes('/')) {
+                        const [catId, subId] = value.split('/');
+                        parsedImportData.tasks[index].categoryId = catId;
+                        parsedImportData.tasks[index].subcategoryId = subId;
+                    } else {
+                        parsedImportData.tasks[index].categoryId = value;
+                        parsedImportData.tasks[index].subcategoryId = null;
+                    }
+                }
+            });
+        }
+        
+        function deleteImportTask(index) {
+            if (!parsedImportData || !parsedImportData.tasks) return;
+            parsedImportData.tasks.splice(index, 1);
+            
+            if (parsedImportData.tasks.length === 0) {
+                document.getElementById('importPreview').classList.remove('show');
+                document.getElementById('confirmImportBtn').style.display = 'none';
+                document.getElementById('editImportBtn').style.display = 'none';
+                showImportError('All tasks removed. Upload a new photo to try again.');
+            } else {
+                showImportPreview(parsedImportData.tasks);
+                if (editModeEnabled) {
+                    toggleEditMode(); // Re-enable edit mode
+                    toggleEditMode();
+                }
+            }
         }
         
         function confirmImport() {
+            // Save any pending edits first
+            if (editModeEnabled) {
+                saveEditsToImportData();
+            }
+            
             if (!parsedImportData || !parsedImportData.tasks) return;
             
             parsedImportData.tasks.forEach(task => {
@@ -3457,6 +3822,7 @@ priority should be "urgent", "high", "medium", or null`
             // Show success
             document.getElementById('importPreview').classList.remove('show');
             document.getElementById('confirmImportBtn').style.display = 'none';
+            document.getElementById('editImportBtn').style.display = 'none';
             document.getElementById('importSuccess').classList.add('show');
             
             // Save and re-render
@@ -3480,6 +3846,231 @@ priority should be "urgent", "high", "medium", or null`
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && document.getElementById('photoImportModal').classList.contains('show')) {
                 closePhotoModal();
+            }
+        });
+        
+        // ==========================================
+        // EXPORT/IMPORT DATA FUNCTIONALITY
+        // ==========================================
+        
+        function openExportModal() {
+            document.getElementById('exportModal').classList.add('show');
+            document.getElementById('importTextarea').value = '';
+            document.getElementById('exportMessage').className = 'export-message';
+            document.getElementById('exportMessage').textContent = '';
+            document.getElementById('importMessage').className = 'export-message';
+            document.getElementById('importMessage').textContent = '';
+        }
+        
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('show');
+        }
+        
+        function getExportData() {
+            return {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                categories: categories,
+                categoryOrder: categoryOrder,
+                nextTaskId: nextTaskId
+            };
+        }
+        
+        function exportAsJSON() {
+            const data = getExportData();
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mylist-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showExportMessage('success', '✓ JSON file downloaded!');
+        }
+        
+        function exportAsText() {
+            let text = `MyList Export - ${new Date().toLocaleDateString()}\n`;
+            text += '='.repeat(40) + '\n\n';
+            
+            categoryOrder.forEach(catId => {
+                if (catId === 'urgent') return;
+                const cat = categories[catId];
+                if (!cat) return;
+                
+                text += `${cat.icon} ${cat.name}\n`;
+                text += '-'.repeat(30) + '\n';
+                
+                if (cat.tasks && cat.tasks.length > 0) {
+                    cat.tasks.forEach(task => {
+                        const status = task.completed ? '✓' : '○';
+                        const priority = task.priority ? ` [${task.priority.toUpperCase()}]` : '';
+                        text += `  ${status} ${task.text}${priority}\n`;
+                        if (task.subtasks) {
+                            task.subtasks.forEach((st, i) => {
+                                text += `      ${i + 1}. ${st}\n`;
+                            });
+                        }
+                    });
+                }
+                
+                if (cat.subcategories) {
+                    cat.subcategories.forEach(sub => {
+                        text += `\n  ${sub.icon} ${sub.name}\n`;
+                        sub.tasks.forEach(task => {
+                            const status = task.completed ? '✓' : '○';
+                            const priority = task.priority ? ` [${task.priority.toUpperCase()}]` : '';
+                            text += `    ${status} ${task.text}${priority}\n`;
+                            if (task.subtasks) {
+                                task.subtasks.forEach((st, i) => {
+                                    text += `        ${i + 1}. ${st}\n`;
+                                });
+                            }
+                        });
+                    });
+                }
+                
+                text += '\n';
+            });
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mylist-export-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showExportMessage('success', '✓ Text file downloaded!');
+        }
+        
+        function copyToClipboard() {
+            const data = getExportData();
+            const json = JSON.stringify(data, null, 2);
+            
+            navigator.clipboard.writeText(json).then(() => {
+                showExportMessage('success', '✓ Copied to clipboard!');
+            }).catch(err => {
+                showExportMessage('error', 'Failed to copy. Try downloading instead.');
+            });
+        }
+        
+        function showExportMessage(type, message) {
+            const el = document.getElementById('exportMessage');
+            el.className = `export-message ${type}`;
+            el.textContent = message;
+            setTimeout(() => {
+                el.className = 'export-message';
+            }, 3000);
+        }
+        
+        function showImportMessage(type, message) {
+            const el = document.getElementById('importMessage');
+            el.className = `export-message ${type}`;
+            el.textContent = message;
+        }
+        
+        function importFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    importData(data);
+                } catch (err) {
+                    showImportMessage('error', 'Invalid JSON file. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        function importFromText() {
+            const text = document.getElementById('importTextarea').value.trim();
+            if (!text) {
+                showImportMessage('error', 'Please paste JSON data first.');
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(text);
+                importData(data);
+            } catch (err) {
+                showImportMessage('error', 'Invalid JSON format. Please check your data.');
+            }
+        }
+        
+        function importData(data) {
+            if (!data.categories) {
+                showImportMessage('error', 'Invalid data format. Missing categories.');
+                return;
+            }
+            
+            // Confirm before overwriting
+            if (!confirm('This will replace all your current tasks. Continue?')) {
+                return;
+            }
+            
+            categories = data.categories;
+            categoryOrder = data.categoryOrder || categoryOrder;
+            nextTaskId = data.nextTaskId || 100;
+            
+            saveToStorage();
+            renderCarousel();
+            
+            showImportMessage('success', '✓ Data imported successfully!');
+            document.getElementById('importTextarea').value = '';
+            
+            setTimeout(() => {
+                closeExportModal();
+            }, 1500);
+        }
+        
+        // Close export modal on overlay click
+        document.getElementById('exportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'exportModal') {
+                closeExportModal();
+            }
+        });
+        
+        // Escape to close export modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('exportModal').classList.contains('show')) {
+                closeExportModal();
+            }
+        });
+        
+        // Close manage categories modal on overlay click
+        document.getElementById('manageCategoriesModal').addEventListener('click', (e) => {
+            if (e.target.id === 'manageCategoriesModal') {
+                closeManageCategoriesModal();
+            }
+        });
+        
+        // Close add category modal on overlay click
+        document.getElementById('addCategoryModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addCategoryModal') {
+                closeAddCategoryModal();
+            }
+        });
+        
+        // Escape to close manage modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('addCategoryModal').classList.contains('show')) {
+                    closeAddCategoryModal();
+                } else if (document.getElementById('manageCategoriesModal').classList.contains('show')) {
+                    closeManageCategoriesModal();
+                }
             }
         });
     </script>
