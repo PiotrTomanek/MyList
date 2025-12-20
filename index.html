@@ -1448,6 +1448,150 @@
             margin-bottom: 10px;
         }
         
+        /* Welcome Modal Styles */
+        .modal-welcome {
+            max-width: 420px;
+            text-align: center;
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-subtitle {
+            color: #D8BFD8;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .welcome-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 20px;
+            background: rgba(255, 182, 193, 0.05);
+            border: 2px solid rgba(255, 182, 193, 0.2);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .welcome-option:hover {
+            background: rgba(255, 182, 193, 0.12);
+            border-color: rgba(255, 182, 193, 0.4);
+            transform: translateX(5px);
+        }
+        
+        .welcome-option-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        
+        .welcome-option-content {
+            flex: 1;
+        }
+        
+        .welcome-option-title {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .welcome-option-desc {
+            color: #D8BFD8;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .welcome-option-arrow {
+            color: rgba(255, 182, 193, 0.5);
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .welcome-option:hover .welcome-option-arrow {
+            transform: translateX(5px);
+            color: #FFB6C1;
+        }
+        
+        /* Start Over Link */
+        .start-over-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 182, 193, 0.15);
+        }
+        
+        .start-over-link {
+            background: transparent;
+            border: none;
+            color: rgba(255, 107, 107, 0.7);
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .start-over-link:hover {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+        }
+        
+        /* Photo Import Mode Selection */
+        .import-mode-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 182, 193, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+        }
+        
+        .import-mode-label {
+            color: #D8BFD8;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .import-mode-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .import-mode-btn {
+            flex: 1;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 182, 193, 0.2);
+            border-radius: 8px;
+            color: #D8BFD8;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .import-mode-btn:hover {
+            background: rgba(255, 182, 193, 0.1);
+            border-color: rgba(255, 182, 193, 0.4);
+        }
+        
+        .import-mode-btn.active {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
+            color: #FFB6C1;
+        }
+        
         /* Steps Modal Specific Styles */
         .modal-steps {
             max-height: 80vh;
@@ -2007,6 +2151,10 @@
             
             <button class="add-category-btn" onclick="openAddCategoryModal()">+ Add New Category</button>
             
+            <div class="start-over-section">
+                <button class="start-over-link" onclick="confirmStartOver()">🔄 Start Over</button>
+            </div>
+            
             <div class="modal-buttons">
                 <button class="modal-btn primary" onclick="closeManageCategoriesModal()">Done</button>
             </div>
@@ -2085,6 +2233,19 @@
                 <label>Claude API Key (stored locally in your browser)</label>
                 <input type="password" class="api-key-input" id="claudeApiKey" placeholder="sk-ant-api03-...">
                 <div class="api-key-saved" id="apiKeySaved" style="display: none;">✓ API key saved</div>
+            </div>
+            
+            <!-- Import Mode Selection -->
+            <div class="import-mode-section" id="importModeSection">
+                <label class="import-mode-label">What should happen to existing tasks?</label>
+                <div class="import-mode-options">
+                    <button class="import-mode-btn active" id="importModeAdd" onclick="setImportMode('add')">
+                        ➕ Add to existing
+                    </button>
+                    <button class="import-mode-btn" id="importModeReplace" onclick="setImportMode('replace')">
+                        🔄 Replace all
+                    </button>
+                </div>
             </div>
             
             <!-- Upload Area -->
@@ -2186,6 +2347,44 @@
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closeConfirmModal(false)">Cancel</button>
                 <button class="modal-btn danger" id="confirmActionBtn" onclick="closeConfirmModal(true)">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Welcome Modal -->
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal modal-welcome">
+            <div class="welcome-icon">✨</div>
+            <h2>Welcome to MyList</h2>
+            <p class="welcome-subtitle">How would you like to get started?</p>
+            
+            <div class="welcome-options">
+                <div class="welcome-option" onclick="welcomePhotoImport()">
+                    <div class="welcome-option-icon">📸</div>
+                    <div class="welcome-option-content">
+                        <div class="welcome-option-title">Import from Photo</div>
+                        <div class="welcome-option-desc">Snap a photo of your handwritten list</div>
+                    </div>
+                    <div class="welcome-option-arrow">→</div>
+                </div>
+                
+                <div class="welcome-option" onclick="welcomeUseTemplates()">
+                    <div class="welcome-option-icon">📋</div>
+                    <div class="welcome-option-content">
+                        <div class="welcome-option-title">Start with Templates</div>
+                        <div class="welcome-option-desc">Use sample categories as a starting point</div>
+                    </div>
+                    <div class="welcome-option-arrow">→</div>
+                </div>
+                
+                <div class="welcome-option" onclick="welcomeStartFresh()">
+                    <div class="welcome-option-icon">🌟</div>
+                    <div class="welcome-option-content">
+                        <div class="welcome-option-title">Start Fresh</div>
+                        <div class="welcome-option-desc">Create your own categories from scratch</div>
+                    </div>
+                    <div class="welcome-option-arrow">→</div>
+                </div>
             </div>
         </div>
     </div>
@@ -2304,6 +2503,8 @@
         let addingToCategory = null;
         let addingToSubcategory = null;
         let nextTaskId = 100;
+        let importMode = 'add'; // 'add' or 'replace'
+        let isFirstTimeUser = false;
 
         // Swipe state for tasks
         let swipeState = {};
@@ -2314,7 +2515,8 @@
                 categories,
                 categoryOrder,
                 currentIndex,
-                nextTaskId
+                nextTaskId,
+                hasSeenWelcome: true
             };
             localStorage.setItem('myListData', JSON.stringify(data));
             showSaveIndicator();
@@ -2329,8 +2531,80 @@
                     categoryOrder = data.categoryOrder || categoryOrder;
                     currentIndex = data.currentIndex || 0;
                     nextTaskId = data.nextTaskId || 100;
-                } catch (e) {}
+                    isFirstTimeUser = !data.hasSeenWelcome;
+                } catch (e) {
+                    isFirstTimeUser = true;
+                }
+            } else {
+                isFirstTimeUser = true;
             }
+        }
+        
+        // Welcome Modal Functions
+        function showWelcomeModal() {
+            document.getElementById('welcomeModal').classList.add('show');
+        }
+        
+        function closeWelcomeModal() {
+            document.getElementById('welcomeModal').classList.remove('show');
+        }
+        
+        function welcomePhotoImport() {
+            closeWelcomeModal();
+            // Set to replace mode for fresh start
+            setImportMode('replace');
+            openPhotoModal();
+        }
+        
+        function welcomeUseTemplates() {
+            closeWelcomeModal();
+            // Keep default data
+            saveToStorage();
+            renderCarousel();
+        }
+        
+        function welcomeStartFresh() {
+            closeWelcomeModal();
+            // Clear everything except urgent category
+            categories = {
+                urgent: {
+                    id: 'urgent',
+                    name: '⚡ Urgent & Important',
+                    icon: '🔥',
+                    isVirtual: true,
+                    tasks: []
+                }
+            };
+            categoryOrder = ['urgent'];
+            nextTaskId = 1;
+            saveToStorage();
+            renderCarousel();
+            // Open add category modal to help them get started
+            setTimeout(() => {
+                openAddCategoryModal();
+            }, 300);
+        }
+        
+        async function confirmStartOver() {
+            closeManageCategoriesModal();
+            
+            const confirmed = await showConfirmModal(
+                'Start Over?',
+                'This will open the welcome screen where you can choose how to set up your list. Your current data will be preserved until you make a choice.',
+                '🔄',
+                'Continue'
+            );
+            
+            if (confirmed) {
+                showWelcomeModal();
+            }
+        }
+        
+        // Import Mode Functions
+        function setImportMode(mode) {
+            importMode = mode;
+            document.getElementById('importModeAdd').classList.toggle('active', mode === 'add');
+            document.getElementById('importModeReplace').classList.toggle('active', mode === 'replace');
         }
 
         function showSaveIndicator() {
@@ -3569,6 +3843,13 @@
         renderCarousel();
         animate();
         
+        // Show welcome modal for first-time users
+        if (isFirstTimeUser) {
+            setTimeout(() => {
+                showWelcomeModal();
+            }, 500);
+        }
+        
         // Show swipe hint on first visit (only once)
         if (!localStorage.getItem('mylist_swipe_hint_shown')) {
             setTimeout(() => {
@@ -3976,10 +4257,59 @@ priority should be "urgent", "high", "medium", or null`
             
             if (!parsedImportData || !parsedImportData.tasks) return;
             
+            // If replace mode, clear everything first
+            if (importMode === 'replace') {
+                // Keep only urgent category structure
+                categories = {
+                    urgent: {
+                        id: 'urgent',
+                        name: '⚡ Urgent & Important',
+                        icon: '🔥',
+                        isVirtual: true,
+                        tasks: []
+                    }
+                };
+                categoryOrder = ['urgent'];
+                
+                // Create categories from the imported tasks
+                const categoryMap = {}; // To track created categories
+                parsedImportData.tasks.forEach(task => {
+                    const catId = task.categoryId || 'imported';
+                    if (!categoryMap[catId] && catId !== 'urgent') {
+                        // Create the category if it doesn't exist
+                        const catName = task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
+                        const catIcon = task.categoryIcon || '📌';
+                        categories[catId] = {
+                            id: catId,
+                            name: catName,
+                            icon: catIcon,
+                            tasks: [],
+                            subcategories: []
+                        };
+                        categoryOrder.push(catId);
+                        categoryMap[catId] = true;
+                    }
+                });
+            }
+            
             parsedImportData.tasks.forEach(task => {
                 const catId = task.categoryId || 'work';
-                const cat = categories[catId];
-                if (!cat) return;
+                let cat = categories[catId];
+                
+                // If category doesn't exist (in add mode), create it
+                if (!cat) {
+                    const catName = task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
+                    const catIcon = task.categoryIcon || '📌';
+                    categories[catId] = {
+                        id: catId,
+                        name: catName,
+                        icon: catIcon,
+                        tasks: [],
+                        subcategories: []
+                    };
+                    categoryOrder.push(catId);
+                    cat = categories[catId];
+                }
                 
                 const newTask = {
                     id: nextTaskId++,
@@ -3992,14 +4322,19 @@ priority should be "urgent", "high", "medium", or null`
                 }
                 
                 if (task.subcategoryId) {
-                    const sub = cat.subcategories?.find(s => s.id === task.subcategoryId);
-                    if (sub) {
-                        sub.tasks.push(newTask);
-                    } else {
-                        // Fallback to main category
-                        if (!cat.tasks) cat.tasks = [];
-                        cat.tasks.push(newTask);
+                    let sub = cat.subcategories?.find(s => s.id === task.subcategoryId);
+                    // Create subcategory if it doesn't exist
+                    if (!sub) {
+                        if (!cat.subcategories) cat.subcategories = [];
+                        sub = {
+                            id: task.subcategoryId,
+                            name: task.subcategoryName || task.subcategoryId.replace(/_/g, ' '),
+                            icon: task.subcategoryIcon || '📁',
+                            tasks: []
+                        };
+                        cat.subcategories.push(sub);
                     }
+                    sub.tasks.push(newTask);
                 } else {
                     if (!cat.tasks) cat.tasks = [];
                     cat.tasks.push(newTask);
@@ -4015,6 +4350,9 @@ priority should be "urgent", "high", "medium", or null`
             // Save and re-render
             saveToStorage();
             renderCarousel();
+            
+            // Reset import mode to default
+            setImportMode('add');
             
             // Close modal after delay
             setTimeout(() => {
@@ -4339,7 +4677,10 @@ END:VTODO
         // Escape to close manage modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (document.getElementById('confirmModal').classList.contains('show')) {
+                if (document.getElementById('welcomeModal').classList.contains('show')) {
+                    // Don't close welcome modal with Escape for first-time users
+                    if (!isFirstTimeUser) closeWelcomeModal();
+                } else if (document.getElementById('confirmModal').classList.contains('show')) {
                     closeConfirmModal(false);
                 } else if (document.getElementById('addCategoryModal').classList.contains('show')) {
                     closeAddCategoryModal();
@@ -4353,6 +4694,13 @@ END:VTODO
         document.getElementById('confirmModal').addEventListener('click', (e) => {
             if (e.target.id === 'confirmModal') {
                 closeConfirmModal(false);
+            }
+        });
+        
+        // Close welcome modal on overlay click (but not for first-time users)
+        document.getElementById('welcomeModal').addEventListener('click', (e) => {
+            if (e.target.id === 'welcomeModal' && !isFirstTimeUser) {
+                closeWelcomeModal();
             }
         });
     </script>
