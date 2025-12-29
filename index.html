@@ -2,13 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyList ✨</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+        
+        /* Global button reset for touch devices */
+        button {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        button:focus {
+            outline: none;
+        }
+        
+        /* Prevent sticky hover on touch devices */
+        @media (hover: none) {
+            button:hover {
+                background: inherit;
+            }
         }
 
         body {
@@ -19,6 +36,7 @@
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            -webkit-text-size-adjust: 100%;
         }
 
         .background {
@@ -120,6 +138,18 @@
         /* Photo Import Modal */
         .modal-photo {
             max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-photo .modal-buttons {
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(26, 31, 58, 1) 80%, rgba(26, 31, 58, 0));
+            padding-top: 15px;
+            margin-top: auto;
         }
 
         .api-key-section {
@@ -144,7 +174,7 @@
             border: 1px solid rgba(255, 182, 193, 0.3);
             border-radius: 8px;
             color: #fff;
-            font-size: 0.9rem;
+            font-size: 16px; /* Prevents iOS zoom on focus */
         }
 
         .api-key-input::placeholder {
@@ -190,6 +220,65 @@
             color: rgba(216, 191, 216, 0.6);
             font-size: 0.8rem;
             margin-top: 8px;
+        }
+
+        .photo-previews-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .photo-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 182, 193, 0.3);
+        }
+        
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-preview-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 22px;
+            height: 22px;
+            background: #FF6B6B;
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .add-more-photos-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 182, 193, 0.1);
+            border: 1px dashed rgba(255, 182, 193, 0.4);
+            border-radius: 8px;
+            color: #FFB6C1;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .add-more-photos-btn:hover {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #FFB6C1;
         }
 
         .photo-preview {
@@ -299,10 +388,11 @@
         }
 
         .import-task-item {
-            padding: 8px 0;
+            padding: 10px 0;
             color: #fff;
             font-size: 0.9rem;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 8px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.1);
@@ -312,43 +402,46 @@
             border-bottom: none;
         }
 
-        .import-task-item::before {
-            content: '→';
-            color: #D8BFD8;
-            flex-shrink: 0;
-        }
-        
         .import-task-text {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 0.9rem;
-            padding: 4px 0;
-            outline: none;
-        }
-        
-        .import-task-text.editable {
+            flex: 1 1 100%;
+            min-width: 0;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 182, 193, 0.3);
-            border-radius: 4px;
-            padding: 4px 8px;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px; /* Prevents iOS zoom on focus */
+            padding: 10px 12px;
+            outline: none;
+            transition: all 0.2s ease;
         }
         
-        .import-task-text.editable:focus {
+        .import-task-text:focus {
             border-color: #FFB6C1;
             background: rgba(255, 255, 255, 0.08);
         }
         
+        .import-task-text.editable {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 182, 193, 0.4);
+        }
+        
+        .import-task-text.editable:focus {
+            border-color: #FFB6C1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
         .import-task-category-select {
+            flex: 1 1 auto;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 182, 193, 0.3);
-            border-radius: 4px;
+            border-radius: 6px;
             color: #D8BFD8;
-            font-size: 0.75rem;
-            padding: 3px 6px;
+            font-size: 16px; /* Prevents iOS zoom */
+            padding: 8px 10px;
             cursor: pointer;
             display: none;
+            min-width: 0;
+            max-width: none;
         }
         
         .import-task-category-select.show {
@@ -356,23 +449,26 @@
         }
         
         .import-task-delete {
-            background: transparent;
+            background: rgba(255, 107, 107, 0.15);
             border: none;
-            color: rgba(255, 107, 107, 0.7);
-            font-size: 1rem;
+            color: #FF6B6B;
+            font-size: 1.1rem;
             cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
             display: none;
             transition: all 0.2s ease;
+            flex-shrink: 0;
         }
         
         .import-task-delete.show {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .import-task-delete:hover {
-            background: rgba(255, 107, 107, 0.1);
+        .import-task-delete:hover, .import-task-delete:active {
+            background: rgba(255, 107, 107, 0.3);
             color: #FF6B6B;
         }
 
@@ -1346,7 +1442,7 @@
             border: 2px solid rgba(255, 182, 193, 0.3);
             border-radius: 12px;
             color: #fff;
-            font-size: 1rem;
+            font-size: 16px; /* Prevents iOS zoom on focus */
             outline: none;
             margin-bottom: 15px;
         }
@@ -1373,7 +1469,7 @@
             border: 2px solid rgba(255, 182, 193, 0.3);
             border-radius: 12px;
             color: #fff;
-            font-size: 0.9rem;
+            font-size: 16px; /* Prevents iOS zoom */
             outline: none;
             cursor: pointer;
         }
@@ -1394,10 +1490,13 @@
             padding: 14px;
             border: 2px solid rgba(255, 182, 193, 0.4);
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-weight: 600;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .modal-btn.primary {
@@ -1646,7 +1745,7 @@
             border: 2px solid rgba(255, 182, 193, 0.3);
             border-radius: 10px;
             color: #fff;
-            font-size: 0.95rem;
+            font-size: 16px; /* Prevents iOS zoom on focus */
             outline: none;
             transition: all 0.3s ease;
         }
@@ -2239,10 +2338,10 @@
             <div class="import-mode-section" id="importModeSection">
                 <label class="import-mode-label">What should happen to existing tasks?</label>
                 <div class="import-mode-options">
-                    <button class="import-mode-btn active" id="importModeAdd" onclick="setImportMode('add')">
+                    <button type="button" class="import-mode-btn active" id="importModeAdd" onclick="setImportMode('add')">
                         ➕ Add to existing
                     </button>
-                    <button class="import-mode-btn" id="importModeReplace" onclick="setImportMode('replace')">
+                    <button type="button" class="import-mode-btn" id="importModeReplace" onclick="setImportMode('replace')">
                         🔄 Replace all
                     </button>
                 </div>
@@ -2250,17 +2349,22 @@
             
             <!-- Upload Area -->
             <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
-                <div class="photo-upload-icon">📝</div>
-                <div class="photo-upload-text">Click to upload a photo of your handwritten notes</div>
-                <div class="photo-upload-hint">Supports JPG, PNG • Works best with clear handwriting</div>
-                <img class="photo-preview" id="photoPreview" alt="Preview">
+                <div class="photo-upload-icon" id="photoUploadIcon">📝</div>
+                <div class="photo-upload-text" id="photoUploadText">Click to upload photos of your handwritten notes</div>
+                <div class="photo-upload-hint">Supports multiple JPG, PNG • Works best with clear handwriting</div>
+                <div class="photo-previews-container" id="photoPreviewsContainer"></div>
             </div>
-            <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)">
+            <input type="file" id="photoInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoSelect(event)">
+            
+            <!-- Add More Photos Button -->
+            <button type="button" class="add-more-photos-btn" id="addMorePhotosBtn" onclick="document.getElementById('photoInput').click()" style="display: none;">
+                ➕ Add More Photos
+            </button>
             
             <!-- Processing Indicator -->
             <div class="processing-indicator" id="processingIndicator">
                 <div class="spinner"></div>
-                <div class="processing-text">Reading your notes with Claude AI...</div>
+                <div class="processing-text" id="processingText">Reading your notes with Claude AI...</div>
             </div>
             
             <!-- Error Message -->
@@ -2276,10 +2380,10 @@
             </div>
             
             <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closePhotoModal()">Cancel</button>
-                <button class="modal-btn primary" id="processPhotoBtn" onclick="processPhoto()" style="display: none;">Process Photo</button>
-                <button class="modal-btn secondary" id="editImportBtn" onclick="toggleEditMode()" style="display: none;">✏️ Edit</button>
-                <button class="modal-btn primary" id="confirmImportBtn" onclick="confirmImport()" style="display: none;">✓ Commit</button>
+                <button type="button" class="modal-btn secondary" onclick="closePhotoModal()">Cancel</button>
+                <button type="button" class="modal-btn primary" id="processPhotoBtn" onclick="processPhoto()" style="display: none;">Process Photos</button>
+                <button type="button" class="modal-btn secondary" id="editImportBtn" onclick="toggleEditMode()" style="display: none;">✏️ Edit</button>
+                <button type="button" class="modal-btn primary" id="confirmImportBtn" onclick="confirmImport()" style="display: none;">✓ Import Tasks</button>
             </div>
         </div>
     </div>
@@ -3878,7 +3982,7 @@
         // PHOTO IMPORT FUNCTIONALITY
         // ==========================================
         
-        let selectedPhotoBase64 = null;
+        let selectedPhotos = []; // Array of {base64, mediaType, file}
         let parsedImportData = null;
         
         function openPhotoModal() {
@@ -3899,16 +4003,17 @@
         }
         
         function resetPhotoModal() {
-            selectedPhotoBase64 = null;
+            selectedPhotos = [];
             parsedImportData = null;
             editModeEnabled = false;
             
-            document.getElementById('photoPreview').classList.remove('show');
-            document.getElementById('photoPreview').src = '';
+            // Reset photo previews
+            document.getElementById('photoPreviewsContainer').innerHTML = '';
             document.getElementById('photoUploadArea').classList.remove('has-image');
-            document.getElementById('photoUploadArea').querySelector('.photo-upload-icon').style.display = 'block';
-            document.getElementById('photoUploadArea').querySelector('.photo-upload-text').style.display = 'block';
-            document.getElementById('photoUploadArea').querySelector('.photo-upload-hint').style.display = 'block';
+            document.getElementById('photoUploadIcon').style.display = 'block';
+            document.getElementById('photoUploadText').style.display = 'block';
+            document.querySelector('.photo-upload-hint').style.display = 'block';
+            document.getElementById('addMorePhotosBtn').style.display = 'none';
             
             document.getElementById('processingIndicator').classList.remove('show');
             document.getElementById('importError').classList.remove('show');
@@ -3924,43 +4029,80 @@
         }
         
         function handlePhotoSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
             
-            // Check file type
-            if (!file.type.startsWith('image/')) {
-                showImportError('Please select an image file.');
-                return;
-            }
+            files.forEach(file => {
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    showImportError('Please select image files only.');
+                    return;
+                }
+                
+                // Check file size (max 10MB each)
+                if (file.size > 10 * 1024 * 1024) {
+                    showImportError('Images must be under 10MB each.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    const mediaType = file.type;
+                    
+                    selectedPhotos.push({
+                        base64: base64,
+                        mediaType: mediaType,
+                        name: file.name
+                    });
+                    
+                    updatePhotoPreview();
+                };
+                reader.readAsDataURL(file);
+            });
             
-            // Check file size (max 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                showImportError('Image too large. Please use an image under 10MB.');
-                return;
-            }
+            // Clear input so same file can be selected again
+            event.target.value = '';
+        }
+        
+        function updatePhotoPreview() {
+            const container = document.getElementById('photoPreviewsContainer');
+            container.innerHTML = '';
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                selectedPhotoBase64 = base64;
-                
-                // Show preview
-                const preview = document.getElementById('photoPreview');
-                preview.src = base64;
-                preview.classList.add('show');
-                
-                // Update upload area
-                const uploadArea = document.getElementById('photoUploadArea');
-                uploadArea.classList.add('has-image');
-                uploadArea.querySelector('.photo-upload-icon').style.display = 'none';
-                uploadArea.querySelector('.photo-upload-text').style.display = 'none';
-                uploadArea.querySelector('.photo-upload-hint').style.display = 'none';
-                
-                // Show process button
+            selectedPhotos.forEach((photo, index) => {
+                const item = document.createElement('div');
+                item.className = 'photo-preview-item';
+                item.innerHTML = `
+                    <img src="${photo.base64}" alt="Photo ${index + 1}">
+                    <button type="button" class="photo-preview-remove" onclick="removePhoto(${index})">×</button>
+                `;
+                container.appendChild(item);
+            });
+            
+            if (selectedPhotos.length > 0) {
+                document.getElementById('photoUploadArea').classList.add('has-image');
+                document.getElementById('photoUploadIcon').style.display = 'none';
+                document.getElementById('photoUploadText').textContent = `${selectedPhotos.length} photo${selectedPhotos.length > 1 ? 's' : ''} selected`;
+                document.getElementById('photoUploadText').style.display = 'block';
+                document.querySelector('.photo-upload-hint').style.display = 'none';
+                document.getElementById('addMorePhotosBtn').style.display = 'block';
                 document.getElementById('processPhotoBtn').style.display = 'inline-block';
+                document.getElementById('processPhotoBtn').textContent = `Process ${selectedPhotos.length} Photo${selectedPhotos.length > 1 ? 's' : ''}`;
                 document.getElementById('importError').classList.remove('show');
-            };
-            reader.readAsDataURL(file);
+            } else {
+                document.getElementById('photoUploadArea').classList.remove('has-image');
+                document.getElementById('photoUploadIcon').style.display = 'block';
+                document.getElementById('photoUploadText').textContent = 'Click to upload photos of your handwritten notes';
+                document.getElementById('photoUploadText').style.display = 'block';
+                document.querySelector('.photo-upload-hint').style.display = 'block';
+                document.getElementById('addMorePhotosBtn').style.display = 'none';
+                document.getElementById('processPhotoBtn').style.display = 'none';
+            }
+        }
+        
+        function removePhoto(index) {
+            selectedPhotos.splice(index, 1);
+            updatePhotoPreview();
         }
         
         function showImportError(message) {
@@ -3977,8 +4119,8 @@
                 return;
             }
             
-            if (!selectedPhotoBase64) {
-                showImportError('Please select a photo first.');
+            if (selectedPhotos.length === 0) {
+                showImportError('Please select at least one photo.');
                 return;
             }
             
@@ -3988,17 +4130,66 @@
             
             // Show processing
             document.getElementById('processingIndicator').classList.add('show');
+            document.getElementById('processingText').textContent = `Processing ${selectedPhotos.length} photo${selectedPhotos.length > 1 ? 's' : ''}...`;
             document.getElementById('processPhotoBtn').style.display = 'none';
+            document.getElementById('addMorePhotosBtn').style.display = 'none';
             document.getElementById('importError').classList.remove('show');
             
             // Build category context for Claude
             const categoryContext = buildCategoryContext();
             
-            // Extract base64 data (remove data URL prefix)
-            const base64Data = selectedPhotoBase64.split(',')[1];
-            const mediaType = selectedPhotoBase64.split(';')[0].split(':')[1];
-            
             try {
+                // Build content array with all images
+                const contentArray = [];
+                
+                selectedPhotos.forEach((photo, index) => {
+                    const base64Data = photo.base64.split(',')[1];
+                    contentArray.push({
+                        type: 'image',
+                        source: {
+                            type: 'base64',
+                            media_type: photo.mediaType,
+                            data: base64Data
+                        }
+                    });
+                });
+                
+                // Add the text prompt
+                contentArray.push({
+                    type: 'text',
+                    text: `You are a task extraction assistant. Look at ${selectedPhotos.length > 1 ? 'these handwritten notes' : 'this handwritten note'} and extract all tasks/items from ${selectedPhotos.length > 1 ? 'them' : 'it'}.
+
+Here are the existing categories and groups in the user's task app:
+${categoryContext}
+
+Please analyze the handwritten notes and:
+1. Extract each task/item you can read from ALL images
+2. Assign each task to the most appropriate existing category or subcategory/group
+3. If a task doesn't fit existing categories, suggest a new category by using a descriptive categoryId (like "project_alpha" or "shopping")
+4. Include categoryName for any new categories you create
+5. Try to infer priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
+
+Respond ONLY with valid JSON in this exact format (no other text):
+{
+  "tasks": [
+    {
+      "text": "task description",
+      "categoryId": "work",
+      "categoryName": "Work & Projects",
+      "categoryIcon": "💼",
+      "subcategoryId": null,
+      "subcategoryName": null,
+      "priority": null
+    }
+  ]
+}
+
+Existing categoryIds: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
+subcategoryId should be the subcategory/group id if applicable, or null
+priority should be "urgent", "high", "medium", or null
+For new categories, provide categoryName and categoryIcon`
+                });
+                
                 const response = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
                     headers: {
@@ -4012,45 +4203,7 @@
                         max_tokens: 4096,
                         messages: [{
                             role: 'user',
-                            content: [
-                                {
-                                    type: 'image',
-                                    source: {
-                                        type: 'base64',
-                                        media_type: mediaType,
-                                        data: base64Data
-                                    }
-                                },
-                                {
-                                    type: 'text',
-                                    text: `You are a task extraction assistant. Look at this handwritten note and extract all tasks/items from it.
-
-Here are the existing categories and groups in the user's task app:
-${categoryContext}
-
-Please analyze the handwritten notes and:
-1. Extract each task/item you can read
-2. Assign each task to the most appropriate existing category or subcategory/group
-3. If a task doesn't fit any category, assign it to "work" as default
-4. Try to infer priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
-
-Respond ONLY with valid JSON in this exact format (no other text):
-{
-  "tasks": [
-    {
-      "text": "task description",
-      "categoryId": "work",
-      "subcategoryId": null,
-      "priority": null
-    }
-  ]
-}
-
-categoryId must be one of: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
-subcategoryId should be the subcategory/group id if applicable, or null
-priority should be "urgent", "high", "medium", or null`
-                                }
-                            ]
+                            content: contentArray
                         }]
                     })
                 });
@@ -4074,20 +4227,21 @@ priority should be "urgent", "high", "medium", or null`
                     parsedImportData = JSON.parse(jsonMatch[0]);
                     
                     if (!parsedImportData.tasks || parsedImportData.tasks.length === 0) {
-                        throw new Error('No tasks found in the image');
+                        throw new Error('No tasks found in the image(s)');
                     }
                     
                     // Show preview
                     showImportPreview(parsedImportData.tasks);
                     
                 } catch (parseError) {
-                    throw new Error('Could not parse tasks from image. Try a clearer photo.');
+                    throw new Error('Could not parse tasks from image(s). Try clearer photos.');
                 }
                 
             } catch (error) {
                 console.error('Photo processing error:', error);
-                showImportError(error.message || 'Failed to process photo. Please try again.');
+                showImportError(error.message || 'Failed to process photo(s). Please try again.');
                 document.getElementById('processPhotoBtn').style.display = 'inline-block';
+                document.getElementById('addMorePhotosBtn').style.display = 'block';
             } finally {
                 document.getElementById('processingIndicator').classList.remove('show');
             }
@@ -4115,26 +4269,36 @@ priority should be "urgent", "high", "medium", or null`
         
         function showImportPreview(tasks) {
             const previewEl = document.getElementById('importPreview');
-            editModeEnabled = false;
+            editModeEnabled = true; // Start in edit mode
             
-            // Build category options for dropdown
-            const categoryOptions = categoryOrder
-                .filter(c => c !== 'urgent')
-                .map(catId => {
-                    const cat = categories[catId];
-                    let options = `<option value="${catId}">${cat.name}</option>`;
-                    if (cat.subcategories) {
-                        cat.subcategories.forEach(sub => {
-                            options += `<option value="${catId}/${sub.id}">  → ${sub.name}</option>`;
-                        });
-                    }
-                    return options;
-                }).join('');
+            // Build category options for dropdown - include new categories from import
+            let allCategoryOptions = '';
             
-            // Build HTML with editable fields
+            // Add existing categories
+            categoryOrder.filter(c => c !== 'urgent').forEach(catId => {
+                const cat = categories[catId];
+                allCategoryOptions += `<option value="${catId}">${cat.name}</option>`;
+                if (cat.subcategories) {
+                    cat.subcategories.forEach(sub => {
+                        allCategoryOptions += `<option value="${catId}/${sub.id}">  → ${sub.name}</option>`;
+                    });
+                }
+            });
+            
+            // Add any new categories from import
+            const newCats = new Set();
+            tasks.forEach(task => {
+                if (task.categoryId && !categories[task.categoryId] && !newCats.has(task.categoryId)) {
+                    newCats.add(task.categoryId);
+                    const catName = task.categoryName || task.categoryId.replace(/_/g, ' ');
+                    allCategoryOptions += `<option value="${task.categoryId}">[NEW] ${catName}</option>`;
+                }
+            });
+            
+            // Build HTML with always-editable fields
             let html = `
                 <div class="import-preview-header">
-                    <div class="import-preview-title">Found ${tasks.length} task${tasks.length > 1 ? 's' : ''}</div>
+                    <div class="import-preview-title">Found ${tasks.length} task${tasks.length > 1 ? 's' : ''} - tap to edit</div>
                 </div>
                 <div class="import-tasks-container">
             `;
@@ -4142,27 +4306,35 @@ priority should be "urgent", "high", "medium", or null`
             tasks.forEach((task, index) => {
                 const catId = task.categoryId || 'work';
                 const cat = categories[catId];
-                const catName = cat ? cat.name : catId;
+                const catName = cat ? cat.name : (task.categoryName || catId.replace(/_/g, ' '));
                 let displayCat = catName;
                 let currentValue = catId;
                 
-                if (task.subcategoryId && cat?.subcategories) {
-                    const sub = cat.subcategories.find(s => s.id === task.subcategoryId);
-                    if (sub) {
-                        displayCat = `${catName} → ${sub.name}`;
+                if (task.subcategoryId) {
+                    if (cat?.subcategories) {
+                        const sub = cat.subcategories.find(s => s.id === task.subcategoryId);
+                        if (sub) {
+                            displayCat = `${catName} → ${sub.name}`;
+                            currentValue = `${catId}/${task.subcategoryId}`;
+                        }
+                    } else if (task.subcategoryName) {
+                        displayCat = `${catName} → ${task.subcategoryName}`;
                         currentValue = `${catId}/${task.subcategoryId}`;
                     }
                 }
                 
+                // Mark new categories
+                const isNewCategory = !categories[catId];
+                const categoryLabel = isNewCategory ? `[NEW] ${displayCat}` : displayCat;
+                
                 html += `
                     <div class="import-task-item" data-index="${index}">
-                        <input type="text" class="import-task-text" value="${task.text.replace(/"/g, '&quot;')}" data-index="${index}">
-                        <select class="import-task-category-select" data-index="${index}">
-                            ${categoryOptions.replace(`value="${currentValue}"`, `value="${currentValue}" selected`)}
+                        <input type="text" class="import-task-text editable" value="${task.text.replace(/"/g, '&quot;')}" data-index="${index}">
+                        <select class="import-task-category-select show" data-index="${index}">
+                            ${allCategoryOptions.replace(`value="${currentValue}"`, `value="${currentValue}" selected`)}
                         </select>
-                        <span class="import-task-cat-display" style="color: #D8BFD8; font-size: 0.75rem; white-space: nowrap;">${displayCat}</span>
-                        ${task.priority ? `<span class="priority-badge priority-${task.priority}">${task.priority.toUpperCase()}</span>` : ''}
-                        <button class="import-task-delete" data-index="${index}" onclick="deleteImportTask(${index})">×</button>
+                        ${task.priority ? `<span class="priority-badge priority-${task.priority}">${task.priority.charAt(0).toUpperCase()}</span>` : ''}
+                        <button type="button" class="import-task-delete show" data-index="${index}" onclick="deleteImportTask(${index})">×</button>
                     </div>
                 `;
             });
@@ -4172,7 +4344,7 @@ priority should be "urgent", "high", "medium", or null`
             previewEl.innerHTML = html;
             previewEl.classList.add('show');
             document.getElementById('confirmImportBtn').style.display = 'inline-block';
-            document.getElementById('editImportBtn').style.display = 'inline-block';
+            document.getElementById('editImportBtn').style.display = 'none'; // Hide edit button since always in edit mode
         }
         
         function toggleEditMode() {
@@ -4233,19 +4405,20 @@ priority should be "urgent", "high", "medium", or null`
         
         function deleteImportTask(index) {
             if (!parsedImportData || !parsedImportData.tasks) return;
+            
+            // Save current edits first
+            saveEditsToImportData();
+            
             parsedImportData.tasks.splice(index, 1);
             
             if (parsedImportData.tasks.length === 0) {
                 document.getElementById('importPreview').classList.remove('show');
                 document.getElementById('confirmImportBtn').style.display = 'none';
                 document.getElementById('editImportBtn').style.display = 'none';
-                showImportError('All tasks removed. Upload a new photo to try again.');
+                document.getElementById('addMorePhotosBtn').style.display = 'block';
+                showImportError('All tasks removed. Upload more photos to try again.');
             } else {
                 showImportPreview(parsedImportData.tasks);
-                if (editModeEnabled) {
-                    toggleEditMode(); // Re-enable edit mode
-                    toggleEditMode();
-                }
             }
         }
         
