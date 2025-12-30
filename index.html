@@ -247,20 +247,33 @@
         
         .photo-preview-remove {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 22px;
-            height: 22px;
+            top: -12px;
+            right: -12px;
+            width: 32px;
+            height: 32px;
             background: #FF6B6B;
-            border: none;
+            border: 3px solid rgba(10, 14, 39, 0.95);
             border-radius: 50%;
             color: #fff;
-            font-size: 14px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .photo-preview-remove:hover {
+            transform: scale(1.15);
+            background: #FF5252;
+        }
+        
+        .photo-preview-remove:active {
+            transform: scale(0.95);
         }
         
         .add-more-photos-btn {
@@ -623,7 +636,7 @@
             top: 80px;
             left: 0;
             right: 0;
-            bottom: 120px;
+            bottom: 80px;
             perspective: 2000px;
             display: flex;
             align-items: center;
@@ -1242,7 +1255,7 @@
         /* Indicator Dots */
         .carousel-indicator {
             position: fixed;
-            bottom: 40px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -1272,12 +1285,43 @@
         }
 
         /* Zoom Controls */
-        /* Manage Categories Button */
+        /* Bottom Right FAB Container */
         .manage-btn-container {
             position: fixed;
             bottom: 30px;
             right: 20px;
             z-index: 100;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .fab-add-task {
+            width: 48px;
+            height: 48px;
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(216, 191, 216, 0.2));
+            backdrop-filter: blur(10px);
+            color: #FFB6C1;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3);
+        }
+        
+        .fab-add-task:hover {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.35), rgba(216, 191, 216, 0.35));
+            border-color: #FFB6C1;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4);
+        }
+        
+        .fab-add-task:active {
+            transform: scale(0.95);
         }
 
         .manage-categories-btn {
@@ -2119,6 +2163,13 @@
             .manage-btn-container {
                 bottom: 15px;
                 right: 12px;
+                gap: 10px;
+            }
+            
+            .fab-add-task {
+                width: 44px;
+                height: 44px;
+                font-size: 1.4rem;
             }
             
             .manage-categories-btn {
@@ -2128,7 +2179,7 @@
             }
             
             .carousel-indicator {
-                bottom: 20px;
+                bottom: 15px;
             }
             
             .carousel-dot {
@@ -2217,6 +2268,9 @@
     <div class="carousel-indicator" id="carouselIndicator"></div>
 
     <div class="manage-btn-container">
+        <button class="fab-add-task" id="fabAddTask" onclick="openAddTaskModalForCurrentCategory()" title="Add New Task">
+            <span>+</span>
+        </button>
         <button class="manage-categories-btn" id="manageCategoriesBtn" onclick="openManageCategoriesModal()">
             <span>⚙️</span>
         </button>
@@ -2731,6 +2785,14 @@
             document.getElementById('addTaskModal').classList.remove('show');
             addingToCategory = null;
             addingToSubcategory = null;
+        }
+        
+        // Open add task modal for the currently visible category (from FAB)
+        function openAddTaskModalForCurrentCategory() {
+            const currentCategoryId = categoryOrder[currentIndex];
+            if (currentCategoryId) {
+                openAddModal(currentCategoryId);
+            }
         }
 
         function addNewTask() {
