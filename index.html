@@ -225,9 +225,10 @@
         .photo-previews-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
             margin-top: 15px;
             justify-content: center;
+            padding: 10px;
         }
         
         .photo-preview-item {
@@ -235,7 +236,6 @@
             width: 80px;
             height: 80px;
             border-radius: 8px;
-            overflow: hidden;
             border: 2px solid rgba(255, 182, 193, 0.3);
         }
         
@@ -243,19 +243,20 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 6px;
         }
         
         .photo-preview-remove {
             position: absolute;
-            top: -12px;
-            right: -12px;
-            width: 32px;
-            height: 32px;
+            top: -10px;
+            right: -10px;
+            width: 28px;
+            height: 28px;
             background: #FF6B6B;
-            border: 3px solid rgba(10, 14, 39, 0.95);
+            border: 2px solid rgba(10, 14, 39, 0.95);
             border-radius: 50%;
             color: #fff;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -4224,32 +4225,38 @@
 Here are the existing categories and groups in the user's task app:
 ${categoryContext}
 
+IMPORTANT RULES FOR CATEGORY ASSIGNMENT:
+1. STRONGLY PREFER existing categories - only create a new category if a task absolutely cannot fit any existing category
+2. Be creative in fitting tasks to existing categories. For example:
+   - Home repair tasks can go in a general "Home" or "Personal" category
+   - Work-related tasks should go in "Work" or similar existing category
+   - Shopping items can go in "Personal", "Home", or any lifestyle category
+3. Group similar tasks together - if you see multiple related items, put them in the same existing category
+4. Only suggest ONE new category maximum, and only if there are 3+ tasks that truly don't fit anywhere else
+
 Please analyze the handwritten notes and:
 1. Extract each task/item you can read from ALL images
-2. Assign each task to the most appropriate existing category or subcategory/group
-3. If a task doesn't fit existing categories, suggest a new category by using a descriptive categoryId (like "project_alpha" or "shopping")
-4. Include categoryName for any new categories you create
-5. Try to infer priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
+2. Assign each task to the most appropriate EXISTING category or subcategory/group
+3. If multiple tasks truly don't fit any existing category (3+ tasks), you may suggest ONE new category
+4. Include priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
 
 Respond ONLY with valid JSON in this exact format (no other text):
 {
   "tasks": [
     {
       "text": "task description",
-      "categoryId": "work",
-      "categoryName": "Work & Projects",
-      "categoryIcon": "💼",
+      "categoryId": "existing_category_id",
       "subcategoryId": null,
-      "subcategoryName": null,
       "priority": null
     }
   ]
 }
 
-Existing categoryIds: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
-subcategoryId should be the subcategory/group id if applicable, or null
-priority should be "urgent", "high", "medium", or null
-For new categories, provide categoryName and categoryIcon`
+Existing categoryIds you MUST use when possible: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
+
+Only if creating a new category (rare), add: "categoryName": "Name", "categoryIcon": "emoji"
+subcategoryId should be an existing subcategory/group id if applicable, or null
+priority should be "urgent", "high", "medium", or null`
                 });
                 
                 const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -4492,6 +4499,14 @@ For new categories, provide categoryName and categoryIcon`
             
             if (!parsedImportData || !parsedImportData.tasks) return;
             
+            // Collect which categories are actually being used by the final task list
+            const usedCategories = new Set();
+            parsedImportData.tasks.forEach(task => {
+                if (task.categoryId && task.categoryId !== 'urgent') {
+                    usedCategories.add(task.categoryId);
+                }
+            });
+            
             // If replace mode, clear everything first
             if (importMode === 'replace') {
                 // Keep only urgent category structure
@@ -4506,12 +4521,11 @@ For new categories, provide categoryName and categoryIcon`
                 };
                 categoryOrder = ['urgent'];
                 
-                // Create categories from the imported tasks
-                const categoryMap = {}; // To track created categories
+                // Create ONLY the categories that are actually used
                 parsedImportData.tasks.forEach(task => {
                     const catId = task.categoryId || 'imported';
-                    if (!categoryMap[catId] && catId !== 'urgent') {
-                        // Create the category if it doesn't exist
+                    if (!categories[catId] && catId !== 'urgent' && usedCategories.has(catId)) {
+                        // Create the category if it doesn't exist and is actually used
                         const catName = task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
                         const catIcon = task.categoryIcon || '📌';
                         categories[catId] = {
@@ -4522,7 +4536,6 @@ For new categories, provide categoryName and categoryIcon`
                             subcategories: []
                         };
                         categoryOrder.push(catId);
-                        categoryMap[catId] = true;
                     }
                 });
             }
@@ -4531,8 +4544,8 @@ For new categories, provide categoryName and categoryIcon`
                 const catId = task.categoryId || 'work';
                 let cat = categories[catId];
                 
-                // If category doesn't exist (in add mode), create it
-                if (!cat) {
+                // If category doesn't exist (in add mode), create it ONLY if it's being used
+                if (!cat && usedCategories.has(catId)) {
                     const catName = task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
                     const catIcon = task.categoryIcon || '📌';
                     categories[catId] = {
@@ -4545,6 +4558,9 @@ For new categories, provide categoryName and categoryIcon`
                     categoryOrder.push(catId);
                     cat = categories[catId];
                 }
+                
+                // Skip if category still doesn't exist (shouldn't happen, but safety check)
+                if (!cat) return;
                 
                 const newTask = {
                     id: nextTaskId++,
