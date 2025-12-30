@@ -339,13 +339,150 @@
         /* Import Preview */
         .import-preview {
             display: none;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
             margin: 15px 0;
         }
 
         .import-preview.show {
             display: block;
+        }
+        
+        /* New Categories Review Section */
+        .new-categories-section {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(144, 238, 144, 0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(144, 238, 144, 0.3);
+        }
+        
+        .new-categories-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #90EE90;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .new-category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .new-category-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .new-category-icon-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .new-category-icon-btn:hover {
+            background: rgba(255, 182, 193, 0.15);
+            border-color: #FFB6C1;
+        }
+        
+        .new-category-name-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 8px 10px;
+            min-width: 0;
+        }
+        
+        .new-category-name-input:focus {
+            outline: none;
+            border-color: #FFB6C1;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .new-category-count {
+            color: #D8BFD8;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            background: rgba(216, 191, 216, 0.15);
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+        
+        .new-category-delete {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 107, 107, 0.15);
+            color: #FF6B6B;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .new-category-delete:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+        
+        .category-icon-picker-mini {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(26, 31, 58, 0.98);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            width: 200px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .category-icon-picker-mini.show {
+            display: flex;
+        }
+        
+        .category-icon-picker-mini button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        
+        .category-icon-picker-mini button:hover {
+            background: rgba(255, 182, 193, 0.2);
+            transform: scale(1.1);
         }
         
         .import-preview-header {
@@ -4069,6 +4206,7 @@
             selectedPhotos = [];
             parsedImportData = null;
             editModeEnabled = false;
+            newCategoriesData = {};
             
             // Reset photo previews
             document.getElementById('photoPreviewsContainer').innerHTML = '';
@@ -4222,40 +4360,47 @@
                     type: 'text',
                     text: `You are a task extraction assistant. Look at ${selectedPhotos.length > 1 ? 'these handwritten notes' : 'this handwritten note'} and extract all tasks/items from ${selectedPhotos.length > 1 ? 'them' : 'it'}.
 
-Here are the existing categories and groups in the user's task app:
+Here are the existing categories in the user's task app:
 ${categoryContext}
 
-IMPORTANT RULES FOR CATEGORY ASSIGNMENT:
-1. STRONGLY PREFER existing categories - only create a new category if a task absolutely cannot fit any existing category
-2. Be creative in fitting tasks to existing categories. For example:
-   - Home repair tasks can go in a general "Home" or "Personal" category
-   - Work-related tasks should go in "Work" or similar existing category
-   - Shopping items can go in "Personal", "Home", or any lifestyle category
-3. Group similar tasks together - if you see multiple related items, put them in the same existing category
-4. Only suggest ONE new category maximum, and only if there are 3+ tasks that truly don't fit anywhere else
+CATEGORY ASSIGNMENT GUIDELINES:
+1. Use existing categories when tasks clearly fit them
+2. Create NEW categories for groups of related tasks that don't fit existing categories well
+3. Aim for 3-6 categories total for the imported tasks (roughly 1 category per 5-7 tasks)
+4. Group similar/related tasks together in the same category
+5. Give new categories clear, descriptive names and appropriate emoji icons
+6. If there are only a few tasks (under 5), try to fit them into 1-2 categories
+
+Examples of good categorization:
+- Home repair, cleaning, maintenance → "Home & Maintenance" 🏠
+- Calls to make, emails to send, follow-ups → "Communications" 📞
+- Groceries, shopping items → "Shopping" 🛒
+- Work tasks, projects, deadlines → use existing work category or create "Projects" 📋
+- Personal errands, appointments → "Personal" 👤
 
 Please analyze the handwritten notes and:
 1. Extract each task/item you can read from ALL images
-2. Assign each task to the most appropriate EXISTING category or subcategory/group
-3. If multiple tasks truly don't fit any existing category (3+ tasks), you may suggest ONE new category
-4. Include priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
+2. Assign each task to an existing category OR create a new well-named category
+3. Include priority (urgent, high, medium) if the handwriting suggests urgency (underlines, stars, exclamation marks)
 
 Respond ONLY with valid JSON in this exact format (no other text):
 {
   "tasks": [
     {
       "text": "task description",
-      "categoryId": "existing_category_id",
+      "categoryId": "category_id",
+      "categoryName": "Category Name",
+      "categoryIcon": "📌",
       "subcategoryId": null,
       "priority": null
     }
   ]
 }
 
-Existing categoryIds you MUST use when possible: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
-
-Only if creating a new category (rare), add: "categoryName": "Name", "categoryIcon": "emoji"
-subcategoryId should be an existing subcategory/group id if applicable, or null
+Existing categoryIds: ${Object.keys(categories).filter(c => c !== 'urgent').join(', ')}
+For NEW categories: use a simple lowercase id like "shopping", "home", "calls" etc, and always include categoryName and categoryIcon
+For EXISTING categories: use the existing categoryId, categoryName is optional
+subcategoryId should be an existing group id if applicable, or null
 priority should be "urgent", "high", "medium", or null`
                 });
                 
@@ -4335,18 +4480,73 @@ priority should be "urgent", "high", "medium", or null`
         }
         
         let editModeEnabled = false;
+        let newCategoriesData = {}; // Store editable new category data {catId: {name, icon, taskCount}}
+        
+        // Mini icon set for category picker
+        const miniIcons = ['📋', '📌', '🏠', '💼', '📞', '🛒', '💰', '📚', '🎯', '⭐', '💡', '🔧', '📦', '✈️', '💪', '🎨', '📝', '🗂️', '👤', '🌟'];
         
         function showImportPreview(tasks) {
             const previewEl = document.getElementById('importPreview');
             editModeEnabled = true; // Start in edit mode
             
-            // Build category options for dropdown - include new categories from import
+            // Collect new categories and count tasks for each
+            newCategoriesData = {};
+            tasks.forEach(task => {
+                const catId = task.categoryId;
+                if (catId && !categories[catId]) {
+                    if (!newCategoriesData[catId]) {
+                        newCategoriesData[catId] = {
+                            id: catId,
+                            name: task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' '),
+                            icon: task.categoryIcon || '📌',
+                            taskCount: 0
+                        };
+                    }
+                    newCategoriesData[catId].taskCount++;
+                }
+            });
+            
+            // Build HTML
+            let html = '';
+            
+            // New categories review section (if any new categories)
+            const newCatIds = Object.keys(newCategoriesData);
+            if (newCatIds.length > 0) {
+                html += `
+                    <div class="new-categories-section">
+                        <div class="new-categories-header">
+                            <span>✨</span>
+                            <span>New Categories to Create (${newCatIds.length})</span>
+                        </div>
+                `;
+                
+                newCatIds.forEach(catId => {
+                    const cat = newCategoriesData[catId];
+                    html += `
+                        <div class="new-category-item" data-cat-id="${catId}">
+                            <div style="position: relative;">
+                                <button type="button" class="new-category-icon-btn" onclick="toggleCategoryIconPicker('${catId}')">${cat.icon}</button>
+                                <div class="category-icon-picker-mini" id="iconPicker_${catId}">
+                                    ${miniIcons.map(icon => `<button type="button" onclick="selectCategoryIcon('${catId}', '${icon}')">${icon}</button>`).join('')}
+                                </div>
+                            </div>
+                            <input type="text" class="new-category-name-input" value="${cat.name}" data-cat-id="${catId}" onchange="updateCategoryName('${catId}', this.value)">
+                            <span class="new-category-count">${cat.taskCount} task${cat.taskCount > 1 ? 's' : ''}</span>
+                            <button type="button" class="new-category-delete" onclick="deleteNewCategory('${catId}')" title="Remove category">×</button>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            // Build category options for task dropdown
             let allCategoryOptions = '';
             
             // Add existing categories
             categoryOrder.filter(c => c !== 'urgent').forEach(catId => {
                 const cat = categories[catId];
-                allCategoryOptions += `<option value="${catId}">${cat.name}</option>`;
+                allCategoryOptions += `<option value="${catId}">${cat.icon} ${cat.name}</option>`;
                 if (cat.subcategories) {
                     cat.subcategories.forEach(sub => {
                         allCategoryOptions += `<option value="${catId}/${sub.id}">  → ${sub.name}</option>`;
@@ -4354,18 +4554,14 @@ priority should be "urgent", "high", "medium", or null`
                 }
             });
             
-            // Add any new categories from import
-            const newCats = new Set();
-            tasks.forEach(task => {
-                if (task.categoryId && !categories[task.categoryId] && !newCats.has(task.categoryId)) {
-                    newCats.add(task.categoryId);
-                    const catName = task.categoryName || task.categoryId.replace(/_/g, ' ');
-                    allCategoryOptions += `<option value="${task.categoryId}">[NEW] ${catName}</option>`;
-                }
+            // Add new categories from import
+            newCatIds.forEach(catId => {
+                const cat = newCategoriesData[catId];
+                allCategoryOptions += `<option value="${catId}">${cat.icon} [NEW] ${cat.name}</option>`;
             });
             
-            // Build HTML with always-editable fields
-            let html = `
+            // Tasks header and list
+            html += `
                 <div class="import-preview-header">
                     <div class="import-preview-title">Found ${tasks.length} task${tasks.length > 1 ? 's' : ''} - tap to edit</div>
                 </div>
@@ -4374,27 +4570,11 @@ priority should be "urgent", "high", "medium", or null`
             
             tasks.forEach((task, index) => {
                 const catId = task.categoryId || 'work';
-                const cat = categories[catId];
-                const catName = cat ? cat.name : (task.categoryName || catId.replace(/_/g, ' '));
-                let displayCat = catName;
                 let currentValue = catId;
                 
                 if (task.subcategoryId) {
-                    if (cat?.subcategories) {
-                        const sub = cat.subcategories.find(s => s.id === task.subcategoryId);
-                        if (sub) {
-                            displayCat = `${catName} → ${sub.name}`;
-                            currentValue = `${catId}/${task.subcategoryId}`;
-                        }
-                    } else if (task.subcategoryName) {
-                        displayCat = `${catName} → ${task.subcategoryName}`;
-                        currentValue = `${catId}/${task.subcategoryId}`;
-                    }
+                    currentValue = `${catId}/${task.subcategoryId}`;
                 }
-                
-                // Mark new categories
-                const isNewCategory = !categories[catId];
-                const categoryLabel = isNewCategory ? `[NEW] ${displayCat}` : displayCat;
                 
                 html += `
                     <div class="import-task-item" data-index="${index}">
@@ -4413,7 +4593,93 @@ priority should be "urgent", "high", "medium", or null`
             previewEl.innerHTML = html;
             previewEl.classList.add('show');
             document.getElementById('confirmImportBtn').style.display = 'inline-block';
-            document.getElementById('editImportBtn').style.display = 'none'; // Hide edit button since always in edit mode
+            document.getElementById('editImportBtn').style.display = 'none';
+        }
+        
+        function toggleCategoryIconPicker(catId) {
+            // Close all other pickers
+            document.querySelectorAll('.category-icon-picker-mini').forEach(picker => {
+                if (picker.id !== `iconPicker_${catId}`) {
+                    picker.classList.remove('show');
+                }
+            });
+            // Toggle this picker
+            document.getElementById(`iconPicker_${catId}`).classList.toggle('show');
+        }
+        
+        function selectCategoryIcon(catId, icon) {
+            newCategoriesData[catId].icon = icon;
+            // Update button display
+            document.querySelector(`.new-category-item[data-cat-id="${catId}"] .new-category-icon-btn`).textContent = icon;
+            // Update in parsedImportData
+            parsedImportData.tasks.forEach(task => {
+                if (task.categoryId === catId) {
+                    task.categoryIcon = icon;
+                }
+            });
+            // Close picker
+            document.getElementById(`iconPicker_${catId}`).classList.remove('show');
+            // Refresh task dropdowns
+            refreshTaskDropdowns();
+        }
+        
+        function updateCategoryName(catId, newName) {
+            newCategoriesData[catId].name = newName;
+            // Update in parsedImportData
+            parsedImportData.tasks.forEach(task => {
+                if (task.categoryId === catId) {
+                    task.categoryName = newName;
+                }
+            });
+            // Refresh task dropdowns
+            refreshTaskDropdowns();
+        }
+        
+        function deleteNewCategory(catId) {
+            // Find first existing category to reassign tasks to
+            const fallbackCatId = categoryOrder.find(c => c !== 'urgent') || 'work';
+            
+            // Reassign all tasks from this category
+            parsedImportData.tasks.forEach(task => {
+                if (task.categoryId === catId) {
+                    task.categoryId = fallbackCatId;
+                    task.categoryName = null;
+                    task.categoryIcon = null;
+                }
+            });
+            
+            // Remove from newCategoriesData
+            delete newCategoriesData[catId];
+            
+            // Re-render preview
+            showImportPreview(parsedImportData.tasks);
+        }
+        
+        function refreshTaskDropdowns() {
+            // Rebuild category options
+            let allCategoryOptions = '';
+            
+            categoryOrder.filter(c => c !== 'urgent').forEach(catId => {
+                const cat = categories[catId];
+                allCategoryOptions += `<option value="${catId}">${cat.icon} ${cat.name}</option>`;
+                if (cat.subcategories) {
+                    cat.subcategories.forEach(sub => {
+                        allCategoryOptions += `<option value="${catId}/${sub.id}">  → ${sub.name}</option>`;
+                    });
+                }
+            });
+            
+            Object.keys(newCategoriesData).forEach(catId => {
+                const cat = newCategoriesData[catId];
+                allCategoryOptions += `<option value="${catId}">${cat.icon} [NEW] ${cat.name}</option>`;
+            });
+            
+            // Update all dropdowns while preserving selection
+            document.querySelectorAll('.import-task-category-select').forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = allCategoryOptions;
+                select.value = currentValue;
+            });
         }
         
         function toggleEditMode() {
@@ -4521,22 +4787,25 @@ priority should be "urgent", "high", "medium", or null`
                 };
                 categoryOrder = ['urgent'];
                 
-                // Create ONLY the categories that are actually used
-                parsedImportData.tasks.forEach(task => {
-                    const catId = task.categoryId || 'imported';
-                    if (!categories[catId] && catId !== 'urgent' && usedCategories.has(catId)) {
-                        // Create the category if it doesn't exist and is actually used
-                        const catName = task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
-                        const catIcon = task.categoryIcon || '📌';
-                        categories[catId] = {
-                            id: catId,
-                            name: catName,
-                            icon: catIcon,
-                            tasks: [],
-                            subcategories: []
-                        };
-                        categoryOrder.push(catId);
-                    }
+                // Create ONLY the categories that are actually used, using edited data from newCategoriesData
+                usedCategories.forEach(catId => {
+                    if (catId === 'urgent' || categories[catId]) return;
+                    
+                    // Use edited category data if available, otherwise fall back to task data
+                    const editedCat = newCategoriesData[catId];
+                    const taskWithCat = parsedImportData.tasks.find(t => t.categoryId === catId);
+                    
+                    const catName = editedCat?.name || taskWithCat?.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
+                    const catIcon = editedCat?.icon || taskWithCat?.categoryIcon || '📌';
+                    
+                    categories[catId] = {
+                        id: catId,
+                        name: catName,
+                        icon: catIcon,
+                        tasks: [],
+                        subcategories: []
+                    };
+                    categoryOrder.push(catId);
                 });
             }
             
@@ -4546,8 +4815,11 @@ priority should be "urgent", "high", "medium", or null`
                 
                 // If category doesn't exist (in add mode), create it ONLY if it's being used
                 if (!cat && usedCategories.has(catId)) {
-                    const catName = task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
-                    const catIcon = task.categoryIcon || '📌';
+                    // Use edited category data if available
+                    const editedCat = newCategoriesData[catId];
+                    const catName = editedCat?.name || task.categoryName || catId.charAt(0).toUpperCase() + catId.slice(1).replace(/_/g, ' ');
+                    const catIcon = editedCat?.icon || task.categoryIcon || '📌';
+                    
                     categories[catId] = {
                         id: catId,
                         name: catName,
@@ -4615,6 +4887,12 @@ priority should be "urgent", "high", "medium", or null`
         document.getElementById('photoImportModal').addEventListener('click', (e) => {
             if (e.target.id === 'photoImportModal') {
                 closePhotoModal();
+            }
+            // Close icon pickers when clicking outside
+            if (!e.target.closest('.new-category-icon-btn') && !e.target.closest('.category-icon-picker-mini')) {
+                document.querySelectorAll('.category-icon-picker-mini').forEach(picker => {
+                    picker.classList.remove('show');
+                });
             }
         });
         
