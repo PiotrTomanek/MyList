@@ -890,51 +890,99 @@
         function setupSwipeListeners() {
             const track = document.getElementById('carouselTrack');
             let startX = 0;
+            let startY = 0;
             let isDragging = false;
+            let gestureDecided = false;
+            let isCarouselSwipe = false;
 
             track.addEventListener('touchstart', (e) => {
-                if (e.target.closest('.task-swipe-container')) return;
                 startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
                 isDragging = true;
+                gestureDecided = false;
+                isCarouselSwipe = false;
+            }, { passive: true });
+
+            track.addEventListener('touchmove', (e) => {
+                if (!isDragging || gestureDecided) return;
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const diffX = Math.abs(currentX - startX);
+                const diffY = Math.abs(currentY - startY);
+                
+                // Decide gesture type once we have enough movement
+                if (diffX > 15 || diffY > 15) {
+                    gestureDecided = true;
+                    // If horizontal movement is dominant, it's a carousel swipe
+                    isCarouselSwipe = diffX > diffY * 1.5;
+                }
             }, { passive: true });
 
             track.addEventListener('touchend', (e) => {
                 if (!isDragging) return;
                 isDragging = false;
-                const endX = e.changedTouches[0].clientX;
-                const diff = startX - endX;
-                if (Math.abs(diff) > 50) {
-                    navigateCarousel(diff > 0 ? 1 : -1);
+                
+                if (isCarouselSwipe) {
+                    const endX = e.changedTouches[0].clientX;
+                    const diff = startX - endX;
+                    if (Math.abs(diff) > 50) {
+                        navigateCarousel(diff > 0 ? 1 : -1);
+                    }
                 }
+                gestureDecided = false;
+                isCarouselSwipe = false;
             });
 
             setupTaskSwipeListeners();
         }
+
+        // Track active task swipe to coordinate with carousel
+        let activeTaskSwipe = null;
 
         function setupTaskSwipeListeners() {
             document.querySelectorAll('.task-swipe-container').forEach(container => {
                 const content = container.querySelector('.task-swipe-content');
                 const deleteBg = container.querySelector('.task-delete-bg');
                 let startX = 0;
+                let startY = 0;
                 let currentX = 0;
                 let isDragging = false;
+                let gestureDecided = false;
+                let isDeleteSwipe = false;
 
                 container.addEventListener('touchstart', (e) => {
                     startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
                     isDragging = true;
-                    content.classList.add('swiping');
+                    gestureDecided = false;
+                    isDeleteSwipe = false;
                     content.classList.remove('snapping');
                 }, { passive: true });
 
                 container.addEventListener('touchmove', (e) => {
                     if (!isDragging) return;
                     currentX = e.touches[0].clientX;
-                    const diff = startX - currentX;
-                    if (diff > 0) {
-                        const translateX = Math.min(diff, 150);
+                    const currentY = e.touches[0].clientY;
+                    const diffX = startX - currentX;
+                    const diffY = Math.abs(currentY - startY);
+                    
+                    // Decide gesture type
+                    if (!gestureDecided && (Math.abs(diffX) > 15 || diffY > 15)) {
+                        gestureDecided = true;
+                        // Only a LEFT swipe with horizontal dominance is a delete swipe
+                        isDeleteSwipe = diffX > 0 && Math.abs(diffX) > diffY * 2;
+                        if (isDeleteSwipe) {
+                            content.classList.add('swiping');
+                            activeTaskSwipe = container;
+                        }
+                    }
+                    
+                    // Only handle delete swipe movement
+                    if (isDeleteSwipe && diffX > 0) {
+                        const translateX = Math.min(diffX, 150);
                         content.style.transform = `translateX(-${translateX}px)`;
                         deleteBg.classList.add('visible');
-                        deleteBg.classList.toggle('ready', diff > 100);
+                        deleteBg.classList.toggle('ready', diffX > 100);
                     }
                 }, { passive: true });
 
@@ -943,20 +991,29 @@
                     isDragging = false;
                     content.classList.remove('swiping');
                     content.classList.add('snapping');
+                    activeTaskSwipe = null;
                     
-                    const diff = startX - currentX;
-                    if (diff > 100) {
-                        const taskItem = container.closest('.task-item');
-                        const taskId = taskItem.dataset.taskId;
-                        const categoryId = taskItem.dataset.categoryId || taskItem.dataset.sourceCategory;
-                        const groupId = taskItem.dataset.groupId || taskItem.dataset.sourceGroup || '';
-                        
-                        taskItem.classList.add('poofing');
-                        setTimeout(() => deleteTask(categoryId, groupId, taskId), 300);
+                    // Only handle delete if it was determined to be a delete swipe
+                    if (isDeleteSwipe) {
+                        const diff = startX - currentX;
+                        if (diff > 100) {
+                            const taskItem = container.closest('.task-item');
+                            const taskId = taskItem.dataset.taskId;
+                            const categoryId = taskItem.dataset.categoryId || taskItem.dataset.sourceCategory;
+                            const groupId = taskItem.dataset.groupId || taskItem.dataset.sourceGroup || '';
+                            
+                            taskItem.classList.add('poofing');
+                            setTimeout(() => deleteTask(categoryId, groupId, taskId), 300);
+                        } else {
+                            content.style.transform = '';
+                            deleteBg.classList.remove('visible', 'ready');
+                        }
                     } else {
                         content.style.transform = '';
                         deleteBg.classList.remove('visible', 'ready');
                     }
+                    gestureDecided = false;
+                    isDeleteSwipe = false;
                 });
             });
         }
