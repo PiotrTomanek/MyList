@@ -185,8 +185,22 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .modal-overlay.show { display: flex; }
-        .modal { background: #000; border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; width: 90%; max-width: 450px; animation: modal-pop 0.3s ease-out; }
+        .modal { background: #000; border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; width: 90%; max-width: 450px; animation: modal-pop 0.3s ease-out; position: relative; }
         @keyframes modal-pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .modal-close-x {
+            position: absolute; top: 16px; right: 16px;
+            width: 36px; height: 36px;
+            background: transparent; border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.5); font-size: 1.3rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; z-index: 10; line-height: 1;
+        }
+        .modal-close-x:hover { border-color: #fff; color: #fff; }
+
+        .api-key-row { display: flex; align-items: center; gap: 10px; }
+        .api-key-reveal { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); padding: 8px 12px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; white-space: nowrap; transition: all 0.2s ease; flex-shrink: 0; margin-bottom: 0; }
+        .api-key-reveal:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
 
         .modal h2 { font-family: 'Bebas Neue', sans-serif; color: #fff; margin-bottom: 30px; font-size: 2.5rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; }
         .modal-input { width: 100%; padding: 16px 0; background: transparent; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 16px; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 20px; }
@@ -355,6 +369,7 @@
             .subcategory-title { font-size: 1.6rem; }
             .modal { padding: 30px 25px; width: 95%; }
             .modal h2 { font-size: 2rem; }
+            .modal-close-x { width: 44px; height: 44px; top: 12px; right: 12px; font-size: 1.5rem; }
             .manage-btn-container { bottom: 20px; right: 15px; }
             .fab-add-task { width: 50px; height: 50px; font-size: 1.8rem; }
         }
@@ -368,7 +383,7 @@
 <body>
     <div class="background"></div>
     <header>
-        <button class="header-action-btn" onclick="openPhotoImportModal()" title="Import from Photo">CAM</button>
+        <button class="header-action-btn" onclick="openPhotoImportModal()" title="Import from Photo">SCAN</button>
         <button class="header-action-btn" onclick="openExportModal()" title="Export/Import Data">I/O</button>
     </header>
     <div class="carousel-container"><div class="carousel-track" id="carouselTrack"></div></div>
@@ -380,6 +395,7 @@
 
     <div class="modal-overlay" id="addTaskModal">
         <div class="modal">
+            <button class="modal-close-x" onclick="closeAddModal()" title="Close">×</button>
             <h2>New Task</h2>
             <input type="text" class="modal-input" id="newTaskText" placeholder="What needs to be done?">
             <select class="modal-select" id="newTaskPriority" style="width: 100%;">
@@ -397,6 +413,7 @@
 
     <div class="modal-overlay" id="manageCategoriesModal">
         <div class="modal modal-manage">
+            <button class="modal-close-x" onclick="closeManageCategoriesModal()" title="Close">×</button>
             <h2>Categories</h2>
             <p class="modal-subtitle">Add, remove, or reorder</p>
             <div class="manage-categories-list" id="manageCategoriesList"></div>
@@ -408,6 +425,7 @@
 
     <div class="modal-overlay" id="addCategoryModal">
         <div class="modal">
+            <button class="modal-close-x" onclick="closeAddCategoryModal()" title="Close">×</button>
             <h2>New Category</h2>
             <input type="text" class="modal-input" id="newCategoryName" placeholder="Category name">
             <div class="modal-buttons">
@@ -419,6 +437,7 @@
 
     <div class="modal-overlay" id="addGroupModal">
         <div class="modal">
+            <button class="modal-close-x" onclick="closeGroupModal()" title="Close">×</button>
             <h2>New Group</h2>
             <input type="text" class="modal-input" id="newGroupName" placeholder="Group name">
             <div class="modal-buttons">
@@ -430,6 +449,7 @@
 
     <div class="modal-overlay" id="addStepsModal">
         <div class="modal modal-steps">
+            <button class="modal-close-x" onclick="closeStepsModal()" title="Close">×</button>
             <h2>Steps</h2>
             <p style="color: rgba(255,255,255,0.5); margin-bottom: 20px; font-size: 0.9rem;">Break down this task</p>
             <div class="steps-list-container" id="stepsListContainer"></div>
@@ -443,10 +463,14 @@
 
     <div class="modal-overlay" id="photoImportModal">
         <div class="modal modal-photo">
+            <button class="modal-close-x" onclick="closePhotoImportModal()" title="Close">×</button>
             <h2>Photo Import</h2>
             <div class="api-key-section">
                 <label>Claude API Key (stored locally)</label>
-                <input type="password" class="api-key-input" id="claudeApiKey" placeholder="sk-ant-api03-...">
+                <div class="api-key-row">
+                    <input type="password" class="api-key-input" id="claudeApiKey" placeholder="sk-ant-api03-...">
+                    <button type="button" class="api-key-reveal" id="apiKeyRevealBtn" onclick="toggleApiKeyVisibility()">SHOW</button>
+                </div>
                 <div class="api-key-saved" id="apiKeySaved" style="display: none;">KEY SAVED</div>
             </div>
             <div class="import-mode-section" id="importModeSection">
@@ -458,8 +482,8 @@
             </div>
             <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
                 <div class="photo-upload-icon" id="photoUploadIcon">UPLOAD</div>
-                <div class="photo-upload-text" id="photoUploadText">Click to select photos</div>
-                <div class="photo-upload-hint">JPG, PNG</div>
+                <div class="photo-upload-text" id="photoUploadText">Tap to select photos</div>
+                <div class="photo-upload-hint">JPG, PNG — or use your camera</div>
                 <div class="photo-previews-container" id="photoPreviewsContainer"></div>
             </div>
             <input type="file" id="photoInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoSelect(event)">
@@ -478,6 +502,7 @@
 
     <div class="modal-overlay" id="exportModal">
         <div class="modal modal-export">
+            <button class="modal-close-x" onclick="closeExportModal()" title="Close">×</button>
             <h2>Export / Import</h2>
             <div class="export-section">
                 <div class="export-section-title">Export</div>
@@ -1558,6 +1583,18 @@
             } catch { showImportMessage('Parse error', 'error'); }
         }
 
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('claudeApiKey');
+            const btn = document.getElementById('apiKeyRevealBtn');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'HIDE';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'SHOW';
+            }
+        }
+
         // Photo import
         function openPhotoImportModal() {
             const savedKey = localStorage.getItem('claude-api-key');
@@ -1580,7 +1617,7 @@
             isEditMode = false;
             document.getElementById('photoUploadArea').classList.remove('has-image');
             document.getElementById('photoUploadIcon').style.display = 'block';
-            document.getElementById('photoUploadText').textContent = 'Click to select photos';
+            document.getElementById('photoUploadText').textContent = 'Tap to select photos';
             document.getElementById('photoPreviewsContainer').innerHTML = '';
             document.getElementById('addMorePhotosBtn').style.display = 'none';
             document.getElementById('processingIndicator').classList.remove('show');
@@ -1629,7 +1666,7 @@
             } else {
                 document.getElementById('photoUploadArea').classList.remove('has-image');
                 document.getElementById('photoUploadIcon').style.display = 'block';
-                document.getElementById('photoUploadText').textContent = 'Click to select photos';
+                document.getElementById('photoUploadText').textContent = 'Tap to select photos';
                 document.getElementById('addMorePhotosBtn').style.display = 'none';
                 document.getElementById('processPhotoBtn').style.display = 'none';
             }
