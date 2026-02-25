@@ -1,145 +1,208 @@
-# MyList
+<!-- MYLIST README -->
 
-A minimalist task management app that converts handwritten notes to digital tasks using AI.
-
-![Pure black, monochromatic design](https://img.shields.io/badge/design-monochromatic-black)
-![Single HTML file](https://img.shields.io/badge/file-single%20HTML-blue)
-![No dependencies](https://img.shields.io/badge/dependencies-none-green)
-
----
-
-## What It Does
-
-MyList helps you organize tasks across categories with a clean, distraction-free interface. The standout feature is **photo import** — snap a picture of your handwritten to-do list and let AI convert it to organized digital tasks.
-
----
-
-## Features
-
-**Task Management**
-- Swipe carousel navigation between categories
-- Add, edit, and complete tasks inline
-- Swipe left to delete completed tasks
-- Priority levels (Urgent, High, Medium)
-- Break tasks into steps/subtasks
-- Create subgroups within categories
-
-**Smart Organization**
-- "Urgent" category automatically collects all urgent tasks from other categories
-- Editable category names directly in the UI
-- Add/remove categories as needed
-
-**Photo Import**
-- Upload photos of handwritten lists
-- AI reads and extracts tasks automatically
-- Review and edit before importing
-- Assigns tasks to existing or new categories
-
-**Data Portability**
-- Export to JSON (full backup)
-- Export to plain text (readable)
-- Export to .ics (Apple/Google Calendar)
-- Import from JSON backup
-
----
-
-## Getting Started
-
-### Option 1: Just Open It
-Download `mylist-v21.html` and open it in any modern browser. That's it.
-
-### Option 2: Use Templates
-When you first open the app, choose "Use Templates" to start with sample categories and tasks to see how everything works.
-
-### Option 3: Photo Import
-1. Get a Claude API key from [console.anthropic.com](https://console.anthropic.com)
-2. Click the "CAM" button in the top right
-3. Paste your API key (stored locally, never sent anywhere except Anthropic)
-4. Upload a photo of your handwritten list
-5. Review the extracted tasks and import
-
----
-
-## How Data Is Stored
-
-All data stays **local** on your device:
-
-| Item | Storage | Purpose |
-|------|---------|---------|
-| Tasks & Categories | localStorage | Your task data |
-| API Key | localStorage | Claude API key for photo import |
-
-Nothing is sent to any server (except the Claude API when you use photo import).
-
-To clear your data:
-1. Open DevTools (F12)
-2. Go to Application → Local Storage
-3. Delete the entries for this file
-
----
-
-## Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| ← → | Navigate between categories |
-| Esc | Close any open modal |
-| Enter | Submit when typing in modals |
-
----
-
-## Design Philosophy
-
-- **Pure black** (#000) background
-- **Monochromatic** — no colors, just white on black
-- **No emoji icons** — text labels only
-- **Bebas Neue** typography for bold, readable titles
-- **No borders** — clean, minimal aesthetic
-- **Mobile-first** with touch gestures
-
----
-
-## Technical Details
-
-- **Single HTML file** — no build process, no npm, no frameworks
-- **~1,800 lines** of vanilla HTML, CSS, and JavaScript
-- **Zero dependencies** (except Google Fonts)
-- Works offline after first load
-- Tested on Chrome, Safari, Firefox
-
----
-
-## File Structure
+<div align="center">
 
 ```
-mylist-v21.html    ← The entire app
-README.md          ← You're reading it
+╔╦╗╦ ╦╦  ╦╔═╗╔╦╗
+║║║╚╦╝║  ║╚═╗ ║ 
+╩ ╩ ╩ ╩═╝╩╚═╝ ╩ 
 ```
 
-Yes, really. It's all in one file.
+**A brutally simple, obsessively minimal task manager.**  
+*No accounts. No cloud. No nonsense. Just your list.*
+
+[![Made with HTML](https://img.shields.io/badge/made%20with-HTML-000000?style=flat-square&logo=html5&logoColor=white)](.)
+[![No Dependencies](https://img.shields.io/badge/dependencies-zero-000000?style=flat-square)](.)
+[![License MIT](https://img.shields.io/badge/license-MIT-000000?style=flat-square)](.)
+
+<br>
+
+### → [**OPEN THE APP**](https://YOUR-USERNAME.github.io/mylist/mylist.html) ←
+
+*Runs in your browser. Nothing to install.*
 
 ---
 
-## Roadmap
+</div>
 
-Future versions may include:
-- Cloud sync across devices
-- User accounts
-- Sharing lists
-- Native mobile apps
+## WHAT IS THIS
 
----
+MyList is a single-file HTML task manager that lives in your browser.  
+No install. No login. No subscription. Open the file, use the app.
 
-## License
-
-MIT — do whatever you want with it.
+It looks like a poster. It works like a machine.
 
 ---
 
-## Author
+## FEATURES
 
-Built by [Your Name]
+```
+✦  Carousel categories     — swipe between your worlds
+✦  Swipe-to-delete         — satisfying, fast, irreversible (undo coming)
+✦  Priority system         — URGENT / HIGH / MEDIUM / none
+✦  Steps / subtasks        — break things down without drowning
+✦  Groups within lists     — organize the organized
+✦  Photo import via AI     — snap a handwritten list, watch it digitize
+✦  Export to JSON / TXT    — your data stays yours
+✦  Calendar export         — .ics for Apple & Google Calendar
+✦  Zero dependencies       — one .html file, that's it
+✦  Works offline           — always
+```
 
 ---
 
-*If you find this useful, consider starring the repo.*
+## QUICK START
+
+```bash
+# Option A — just open it
+open mylist.html
+
+# Option B — serve it locally
+npx serve .
+# → http://localhost:3000/mylist.html
+
+# Option C — host it anywhere
+# Drop the file on Netlify, GitHub Pages, Vercel. Done.
+```
+
+No `npm install`. No `package.json`. No build step. No crying.
+
+---
+
+## THE PHOTO IMPORT THING
+
+This is the party trick.
+
+Take a photo of any handwritten list — grocery list on a napkin, whiteboard at the office, sticky notes on your monitor — and MyList will read it and import everything automatically.
+
+**How it works:**
+1. Tap **SCAN** in the top right
+2. Enter your [Claude API key](https://console.anthropic.com/) *(stored locally, never sent anywhere else)*
+3. Upload a photo
+4. Watch it parse your chaos into organized tasks
+5. Edit anything before importing
+
+> The API call goes directly from your browser to Anthropic. This app never sees your key.
+
+---
+
+## HOW TO USE IT
+
+### Navigation
+| Action | How |
+|--------|-----|
+| Switch categories | Swipe left/right **or** arrow keys |
+| Add a task | Tap **+** (bottom right) |
+| Check off a task | Tap the checkbox |
+| Delete a task | Swipe left on it |
+| Edit task text | Tap it and type |
+| Rename a category | Tap the big title and type |
+
+### Categories
+The **URGENT** category is special — it automatically pulls in every task across all your lists that's marked urgent. Think of it as your daily hit list.
+
+Everything else is yours to name. Work. Home. Side project. Guilt. Whatever you need.
+
+### Priority System
+```
+URGENT   →  Shows up in the URGENT view. Fix this today.
+HIGH     →  Important. Don't forget it.
+MEDIUM   →  Noted. Eventually.
+(none)   →  It's on the list, relax.
+```
+
+### Steps / Subtasks
+Long-press the `+ STEPS` button on any task to break it into numbered steps. Great for multi-part tasks you always forget half of.
+
+---
+
+## DATA & STORAGE
+
+Everything lives in `localStorage` — your browser's built-in storage.
+
+**Your data never leaves your device** unless you explicitly export it.
+
+```
+Export options:
+  → JSON    (full backup, re-importable)
+  → TXT     (human-readable)
+  → .ICS    (calendar, works with Apple/Google)
+  → Copy    (paste anywhere)
+
+Import options:
+  → From file   (.json backups)
+  → Paste JSON  (from clipboard)
+  → Photo scan  (AI-powered, requires API key)
+```
+
+---
+
+## TECH STACK
+
+```
+HTML        ████████████████  100%
+CSS         ████████████████  100%
+JavaScript  ████████████████  100%
+Frameworks  ░░░░░░░░░░░░░░░░    0%
+```
+
+Fonts from Google Fonts: **Bebas Neue** + **Inter**  
+AI: Anthropic's Claude API *(optional, only for photo import)*
+
+---
+
+## FILE STRUCTURE
+
+```
+mylist.html        ← the entire app
+README.md          ← you are here
+```
+
+That's it. That's the repo.
+
+---
+
+## ROADMAP
+
+```diff
++ Drag to reorder tasks
++ Long-press context menu (change priority, move category)
++ Empty state improvements
++ Undo delete (brief toast window)
+? Recurring tasks
+? Multiple lists / profiles
+? PWA / installable app
+```
+
+PRs welcome. Keep it simple. One file preferred.
+
+---
+
+## CONTRIBUTING
+
+1. Fork it
+2. Break it
+3. Fix it better
+4. Open a PR with a clear description of what changed and why
+
+The aesthetic is intentional. Black backgrounds, Bebas Neue headings, no gradients, no rounded corners. If you're adding UI, make it match.
+
+---
+
+## PHILOSOPHY
+
+Most task apps try to be platforms. They want your email, your subscription, your attention, your data.
+
+MyList wants nothing. It's a file. You own it. You host it if you want. You delete it if you don't. It doesn't have opinions about your productivity system.
+
+**Get the thing done. Close the tab. Live your life.**
+
+---
+
+<div align="center">
+
+*Built with obsessive attention to simplicity.*
+
+**[⬇ Download](./mylist.html)** · **[🐛 Issues](../../issues)** · **[⭐ Star if you use it](../../stargazers)**
+
+</div>
