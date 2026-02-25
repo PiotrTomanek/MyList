@@ -17,7 +17,7 @@
 
 <br>
 
-### → [**OPEN THE APP**](https://piotrtomanek.github.io/mylist) ←
+### → [**OPEN THE APP**](https://piotrtomanek.github.io/mylist/) ←
 
 *Runs in your browser. Nothing to install.*
 
