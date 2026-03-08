@@ -293,31 +293,6 @@
         .subtask-text:hover { background: rgba(255, 255, 255, 0.05); }
         .subtask-text:focus { background: rgba(255, 255, 255, 0.1); }
 
-        .subcategory {
-            margin-left: 30px; margin-top: 40px; padding: 25px; padding-left: 25px;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            transition: border-color 0.3s ease;
-        }
-        .subcategory:hover { border-left-color: rgba(255,255,255,0.25); }
-        .subcategory::before {
-            content: '';
-            position: absolute; top: 0; left: -1px; width: 1px; height: 0;
-            background: rgba(255,255,255,0.5);
-            transition: height 0.4s ease;
-        }
-        .subcategory:hover::before { height: 30px; }
-        .subcategory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .subcategory-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: rgba(255, 255, 255, 0.7); cursor: text; padding: 4px 8px; outline: none; letter-spacing: 0.05em; text-transform: uppercase; }
-        .subcategory-title:hover { background: rgba(255, 255, 255, 0.05); }
-        .subcategory-title:focus { background: rgba(255, 255, 255, 0.1); }
-
-        .add-subtask-btn { width: 32px; height: 32px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; background: transparent; color: rgba(255, 255, 255, 0.3); font-size: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .add-subtask-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); transform: rotate(90deg); background: rgba(255,255,255,0.05); }
-
-        .delete-group-btn { width: 32px; height: 32px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: rgba(255, 255, 255, 0.2); font-size: 1rem; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px; opacity: 0; }
-        .subcategory:hover .delete-group-btn { opacity: 1; }
-        .delete-group-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
 
         .carousel-indicator { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; padding: 8px 14px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px); }
         .carousel-dot {
@@ -562,8 +537,6 @@
         .welcome-option-arrow { color: rgba(255, 255, 255, 0.3); font-size: 1.2rem; transition: transform 0.2s ease; }
         .welcome-option:hover .welcome-option-arrow { transform: translateX(5px); color: #fff; }
 
-        .add-group-btn { margin-top: 20px; padding: 10px 16px; background: transparent; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
-        .add-group-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
 
         .add-steps-btn { margin-top: 8px; padding: 6px 14px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; color: rgba(255, 255, 255, 0.3); font-size: 0.7rem; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.08em; font-weight: 500; }
         .task-item:hover .add-steps-btn { opacity: 1; }
@@ -756,8 +729,6 @@
             .category-header { gap: 12px; margin-bottom: 30px; }
             .category-title { font-size: 3.5rem; }
             .task-text { font-size: 1.5rem; }
-            .subcategory { margin-left: 15px; padding: 15px; padding-left: 20px; }
-            .subcategory-title { font-size: 1.6rem; }
             .modal { padding: 30px 25px; width: 95%; border-radius: 18px; }
             .modal h2 { font-size: 2rem; }
             .modal-close-x { width: 40px; height: 40px; top: 14px; right: 14px; font-size: 1.4rem; border-radius: 10px; }
@@ -844,17 +815,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="addGroupModal">
-        <div class="modal">
-            <button class="modal-close-x" onclick="closeGroupModal()" title="Close">×</button>
-            <h2>New Group</h2>
-            <input type="text" class="modal-input" id="newGroupName" placeholder="Group name">
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeGroupModal()">Cancel</button>
-                <button class="modal-btn primary" onclick="addNewGroup()">Add</button>
-            </div>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="addStepsModal">
         <div class="modal modal-steps">
@@ -1007,37 +967,32 @@
         const defaultData = {
             categories: {
                 'urgent': { id: 'urgent', name: 'Urgent', tasks: [], isVirtual: true },
-                'personal': { 
-                    id: 'personal', 
-                    name: 'Personal', 
+                'personal': {
+                    id: 'personal',
+                    name: 'Personal',
                     tasks: [
                         { id: 'p1', text: 'Morning routine', completed: false, priority: null, steps: [
                             { text: 'Stretch for 10 minutes', completed: false },
                             { text: 'Review daily goals', completed: false }
                         ]},
                         { id: 'p2', text: 'Call mom', completed: false, priority: 'high', steps: [] },
-                        { id: 'p3', text: 'Schedule dentist appointment', completed: false, priority: null, steps: [] }
-                    ], 
-                    groups: [
-                        { id: 'pg1', name: 'Health', tasks: [
-                            { id: 'ph1', text: 'Gym session', completed: false, priority: null, steps: [] },
-                            { id: 'ph2', text: 'Meal prep for the week', completed: false, priority: null, steps: [] }
-                        ]}
-                    ] 
+                        { id: 'p3', text: 'Schedule dentist appointment', completed: false, priority: null, steps: [] },
+                        { id: 'ph1', text: 'Gym session', completed: false, priority: null, steps: [] },
+                        { id: 'ph2', text: 'Meal prep for the week', completed: false, priority: null, steps: [] }
+                    ]
                 },
-                'work': { 
-                    id: 'work', 
-                    name: 'Work', 
+                'work': {
+                    id: 'work',
+                    name: 'Work',
                     tasks: [
                         { id: 'w1', text: 'Review project timeline', completed: false, priority: 'urgent', steps: [] },
                         { id: 'w2', text: 'Send weekly report', completed: false, priority: 'high', steps: [] },
                         { id: 'w3', text: 'Update documentation', completed: false, priority: 'medium', steps: [] }
-                    ], 
-                    groups: [] 
+                    ]
                 },
-                'shopping': { 
-                    id: 'shopping', 
-                    name: 'Shopping', 
+                'shopping': {
+                    id: 'shopping',
+                    name: 'Shopping',
                     tasks: [
                         { id: 's1', text: 'Groceries', completed: false, priority: null, steps: [
                             { text: 'Milk', completed: false },
@@ -1046,8 +1001,7 @@
                             { text: 'Vegetables', completed: false }
                         ]},
                         { id: 's2', text: 'New running shoes', completed: false, priority: null, steps: [] }
-                    ], 
-                    groups: [] 
+                    ]
                 }
             },
             categoryOrder: ['urgent', 'personal', 'work', 'shopping']
@@ -1072,7 +1026,18 @@
                 if (!categoryOrder.includes('urgent')) {
                     categoryOrder.unshift('urgent');
                 }
-                
+
+                // Migrate: flatten any existing groups into main task list
+                Object.values(categories).forEach(cat => {
+                    if (cat.groups && cat.groups.length > 0) {
+                        cat.groups.forEach(group => {
+                            cat.tasks.push(...group.tasks);
+                        });
+                    }
+                    delete cat.groups;
+                });
+                saveToStorage();
+
                 return true;
             }
             return false;
@@ -1088,22 +1053,12 @@
                 if (catId === 'urgent') return;
                 const cat = categories[catId];
                 if (!cat) return;
-                
+
                 cat.tasks.forEach(task => {
                     if (task.priority === 'urgent' && !task.completed) {
                         urgentTasks.push({ ...task, sourceCategory: catId, sourceCategoryName: cat.name });
                     }
                 });
-                
-                if (cat.groups) {
-                    cat.groups.forEach(group => {
-                        group.tasks.forEach(task => {
-                            if (task.priority === 'urgent' && !task.completed) {
-                                urgentTasks.push({ ...task, sourceCategory: catId, sourceCategoryName: cat.name, sourceGroup: group.id });
-                            }
-                        });
-                    });
-                }
             });
             return urgentTasks;
         }
@@ -1167,16 +1122,16 @@
         function renderUrgentTaskItem(task) {
             const priorityBadge = '<span class="priority-badge priority-urgent">URGENT</span>';
             const sourceBadge = `<span class="priority-badge priority-medium">${task.sourceCategoryName}</span>`;
-            
+
             return `
-                <li class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" data-source-category="${task.sourceCategory}" data-source-group="${task.sourceGroup || ''}">
+                <li class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" data-source-category="${task.sourceCategory}">
                     <div class="task-swipe-container">
                         <div class="task-delete-bg"><span>DELETE</span></div>
                         <div class="task-swipe-content">
                             <div class="task-main">
-                                <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleUrgentTask('${task.id}', '${task.sourceCategory}', '${task.sourceGroup || ''}')"></div>
+                                <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleUrgentTask('${task.id}', '${task.sourceCategory}')"></div>
                                 <div class="task-content">
-                                    <div class="task-text" contenteditable="true" onblur="updateUrgentTaskText(this, '${task.id}', '${task.sourceCategory}', '${task.sourceGroup || ''}')">${task.text}</div>
+                                    <div class="task-text" contenteditable="true" onblur="updateUrgentTaskText(this, '${task.id}', '${task.sourceCategory}')">${task.text}</div>
                                     <div class="task-meta">${priorityBadge}${sourceBadge}</div>
                                 </div>
                             </div>
@@ -1188,33 +1143,13 @@
         }
 
         function renderCategoryCard(cat) {
-            const taskCount = cat.tasks.filter(t => !t.completed).length + 
-                (cat.groups || []).reduce((sum, g) => sum + g.tasks.filter(t => !t.completed).length, 0);
+            const taskCount = cat.tasks.filter(t => !t.completed).length;
 
             let tasksHtml = '<ul class="task-list">';
             cat.tasks.forEach(task => {
                 tasksHtml += renderTaskItem(task, cat.id);
             });
             tasksHtml += '</ul>';
-
-            if (cat.groups && cat.groups.length > 0) {
-                cat.groups.forEach(group => {
-                    tasksHtml += `
-                        <div class="subcategory" data-group-id="${group.id}">
-                            <div class="subcategory-header">
-                                <span class="subcategory-title" contenteditable="true" onblur="updateGroupName(this, '${cat.id}', '${group.id}')">${group.name}</span>
-                                <button class="add-subtask-btn" onclick="openAddTaskModal('${cat.id}', '${group.id}')" title="Add Task">+</button>
-                                <button class="delete-group-btn" onclick="confirmDeleteGroup('${cat.id}', '${group.id}')" title="Delete Group">×</button>
-                            </div>
-                            <ul class="task-list">
-                                ${group.tasks.map(task => renderTaskItem(task, cat.id, group.id)).join('')}
-                            </ul>
-                        </div>
-                    `;
-                });
-            }
-
-            tasksHtml += `<button class="add-group-btn" onclick="openGroupModal('${cat.id}')">+ ADD GROUP</button>`;
 
             return `
                 <div class="category-header">
@@ -1226,7 +1161,7 @@
             `;
         }
 
-        function renderTaskItem(task, categoryId, groupId = null) {
+        function renderTaskItem(task, categoryId) {
             let priorityBadge = '';
             if (task.priority === 'urgent') {
                 priorityBadge = '<span class="priority-badge priority-urgent">URGENT</span>';
@@ -1247,29 +1182,27 @@
                         ${task.steps.map((step, idx) => `
                             <div class="subtask-item">
                                 <span class="subtask-number">${idx + 1}</span>
-                                <span class="subtask-text" contenteditable="true" onblur="updateStepText(this, '${categoryId}', '${groupId || ''}', '${task.id}', ${idx})">${step.text}</span>
-                                <button class="remove-step-btn" onclick="removeStep('${categoryId}', '${groupId || ''}', '${task.id}', ${idx})">×</button>
+                                <span class="subtask-text" contenteditable="true" onblur="updateStepText(this, '${categoryId}', '${task.id}', ${idx})">${step.text}</span>
+                                <button class="remove-step-btn" onclick="removeStep('${categoryId}', '${task.id}', ${idx})">×</button>
                             </div>
                         `).join('')}
-                        <button class="edit-steps-btn" onclick="openStepsModal('${categoryId}', '${groupId || ''}', '${task.id}')">EDIT</button>
+                        <button class="edit-steps-btn" onclick="openStepsModal('${categoryId}', '${task.id}')">EDIT</button>
                     </div>
                 `;
             }
 
-            const groupAttr = groupId ? `data-group-id="${groupId}"` : '';
-
             return `
-                <li class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" data-category-id="${categoryId}" ${groupAttr}>
+                <li class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" data-category-id="${categoryId}">
                     <div class="task-swipe-container">
                         <div class="task-delete-bg"><span>DELETE</span></div>
                         <div class="task-swipe-content">
                             <div class="task-main">
-                                <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask('${categoryId}', '${groupId || ''}', '${task.id}')"></div>
+                                <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask('${categoryId}', '${task.id}')"></div>
                                 <div class="task-content">
-                                    <div class="task-text" contenteditable="true" onblur="updateTaskText(this, '${categoryId}', '${groupId || ''}', '${task.id}')">${task.text}</div>
+                                    <div class="task-text" contenteditable="true" onblur="updateTaskText(this, '${categoryId}', '${task.id}')">${task.text}</div>
                                     <div class="task-meta">${priorityBadge}</div>
                                     ${stepsHtml}
-                                    <button class="add-steps-btn" onclick="openStepsModal('${categoryId}', '${groupId || ''}', '${task.id}')">${task.steps && task.steps.length > 0 ? 'EDIT STEPS' : '+ STEPS'}</button>
+                                    <button class="add-steps-btn" onclick="openStepsModal('${categoryId}', '${task.id}')">${task.steps && task.steps.length > 0 ? 'EDIT STEPS' : '+ STEPS'}</button>
                                 </div>
                             </div>
                             ${task.completed ? '<div class="swipe-hint">← Swipe to delete</div>' : ''}
@@ -1434,10 +1367,9 @@
                             const taskItem = container.closest('.task-item');
                             const taskId = taskItem.dataset.taskId;
                             const categoryId = taskItem.dataset.categoryId || taskItem.dataset.sourceCategory;
-                            const groupId = taskItem.dataset.groupId || taskItem.dataset.sourceGroup || '';
-                            
+
                             taskItem.classList.add('poofing');
-                            setTimeout(() => deleteTask(categoryId, groupId, taskId), 300);
+                            setTimeout(() => deleteTask(categoryId, taskId), 300);
                         } else {
                             content.style.transform = '';
                             deleteBg.classList.remove('visible', 'ready');
@@ -1452,18 +1384,11 @@
             });
         }
 
-        function toggleTask(categoryId, groupId, taskId) {
+        function toggleTask(categoryId, taskId) {
             const cat = categories[categoryId];
             if (!cat) return;
 
-            let task;
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) task = group.tasks.find(t => t.id === taskId);
-            } else {
-                task = cat.tasks.find(t => t.id === taskId);
-            }
-
+            const task = cat.tasks.find(t => t.id === taskId);
             if (task) {
                 task.completed = !task.completed;
                 saveToStorage();
@@ -1471,43 +1396,30 @@
             }
         }
 
-        function toggleUrgentTask(taskId, sourceCategoryId, sourceGroupId) {
-            toggleTask(sourceCategoryId, sourceGroupId, taskId);
+        function toggleUrgentTask(taskId, sourceCategoryId) {
+            toggleTask(sourceCategoryId, taskId);
         }
 
-        function updateTaskText(el, categoryId, groupId, taskId) {
+        function updateTaskText(el, categoryId, taskId) {
             const cat = categories[categoryId];
             if (!cat) return;
 
-            let task;
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) task = group.tasks.find(t => t.id === taskId);
-            } else {
-                task = cat.tasks.find(t => t.id === taskId);
-            }
-
+            const task = cat.tasks.find(t => t.id === taskId);
             if (task) {
                 task.text = el.textContent.trim() || task.text;
                 saveToStorage();
             }
         }
 
-        function updateUrgentTaskText(el, taskId, sourceCategoryId, sourceGroupId) {
-            updateTaskText(el, sourceCategoryId, sourceGroupId, taskId);
+        function updateUrgentTaskText(el, taskId, sourceCategoryId) {
+            updateTaskText(el, sourceCategoryId, taskId);
         }
 
-        function deleteTask(categoryId, groupId, taskId) {
+        function deleteTask(categoryId, taskId) {
             const cat = categories[categoryId];
             if (!cat) return;
 
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) group.tasks = group.tasks.filter(t => t.id !== taskId);
-            } else {
-                cat.tasks = cat.tasks.filter(t => t.id !== taskId);
-            }
-
+            cat.tasks = cat.tasks.filter(t => t.id !== taskId);
             saveToStorage();
             renderCarousel();
         }
@@ -1520,47 +1432,22 @@
             }
         }
 
-        function updateGroupName(el, categoryId, groupId) {
-            const cat = categories[categoryId];
-            if (cat && cat.groups) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) {
-                    group.name = el.textContent.trim() || group.name;
-                    saveToStorage();
-                }
-            }
-        }
-
-        function updateStepText(el, categoryId, groupId, taskId, stepIndex) {
+        function updateStepText(el, categoryId, taskId, stepIndex) {
             const cat = categories[categoryId];
             if (!cat) return;
 
-            let task;
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) task = group.tasks.find(t => t.id === taskId);
-            } else {
-                task = cat.tasks.find(t => t.id === taskId);
-            }
-
+            const task = cat.tasks.find(t => t.id === taskId);
             if (task && task.steps && task.steps[stepIndex]) {
                 task.steps[stepIndex].text = el.textContent.trim();
                 saveToStorage();
             }
         }
 
-        function removeStep(categoryId, groupId, taskId, stepIndex) {
+        function removeStep(categoryId, taskId, stepIndex) {
             const cat = categories[categoryId];
             if (!cat) return;
 
-            let task;
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) task = group.tasks.find(t => t.id === taskId);
-            } else {
-                task = cat.tasks.find(t => t.id === taskId);
-            }
-
+            const task = cat.tasks.find(t => t.id === taskId);
             if (task && task.steps) {
                 task.steps.splice(stepIndex, 1);
                 saveToStorage();
@@ -1569,9 +1456,8 @@
         }
 
         // Modal functions
-        function openAddTaskModal(categoryId, groupId = null) {
+        function openAddTaskModal(categoryId) {
             currentEditingCategoryId = categoryId;
-            currentEditingTaskId = groupId;
             document.getElementById('newTaskText').value = '';
             document.getElementById('newTaskPriority').value = '';
             document.getElementById('addTaskModal').classList.add('show');
@@ -1602,74 +1488,24 @@
             if (!cat) return;
 
             const newTask = { id: generateId(), text, completed: false, priority: priority || null, steps: [] };
-
-            if (currentEditingTaskId) {
-                const group = cat.groups.find(g => g.id === currentEditingTaskId);
-                if (group) group.tasks.push(newTask);
-            } else {
-                cat.tasks.push(newTask);
-            }
+            cat.tasks.push(newTask);
 
             saveToStorage();
             renderCarousel();
             closeAddModal();
         }
 
-        function openGroupModal(categoryId) {
-            currentEditingCategoryId = categoryId;
-            document.getElementById('newGroupName').value = '';
-            document.getElementById('addGroupModal').classList.add('show');
-            setTimeout(() => document.getElementById('newGroupName').focus(), 100);
-        }
-
-        function closeGroupModal() {
-            document.getElementById('addGroupModal').classList.remove('show');
-            currentEditingCategoryId = null;
-        }
-
-        function addNewGroup() {
-            const name = document.getElementById('newGroupName').value.trim();
-            if (!name || !currentEditingCategoryId) return;
-
-            const cat = categories[currentEditingCategoryId];
-            if (!cat) return;
-            if (!cat.groups) cat.groups = [];
-
-            cat.groups.push({ id: generateId(), name, tasks: [] });
-            saveToStorage();
-            renderCarousel();
-            closeGroupModal();
-        }
-
-        function confirmDeleteGroup(categoryId, groupId) {
-            showConfirmModal('Delete Group?', 'This will delete the group and all its tasks.', () => {
-                const cat = categories[categoryId];
-                if (cat && cat.groups) {
-                    cat.groups = cat.groups.filter(g => g.id !== groupId);
-                    saveToStorage();
-                    renderCarousel();
-                }
-            });
-        }
-
-        function openStepsModal(categoryId, groupId, taskId) {
+        function openStepsModal(categoryId, taskId) {
             currentEditingCategoryId = categoryId;
             currentEditingTaskId = taskId;
-            
+
             const cat = categories[categoryId];
-            let task;
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) task = group.tasks.find(t => t.id === taskId);
-            } else {
-                task = cat.tasks.find(t => t.id === taskId);
-            }
+            const task = cat.tasks.find(t => t.id === taskId);
 
             if (!task) return;
 
             const container = document.getElementById('stepsListContainer');
             container.innerHTML = '';
-            container.dataset.groupId = groupId || '';
 
             if (task.steps && task.steps.length > 0) {
                 task.steps.forEach((step, idx) => addStepInputRow(idx + 1, step.text));
@@ -1718,7 +1554,6 @@
 
         function saveStepsFromModal() {
             const container = document.getElementById('stepsListContainer');
-            const groupId = container.dataset.groupId;
             const steps = [];
 
             container.querySelectorAll('.step-input').forEach(input => {
@@ -1727,13 +1562,7 @@
             });
 
             const cat = categories[currentEditingCategoryId];
-            let task;
-            if (groupId) {
-                const group = cat.groups.find(g => g.id === groupId);
-                if (group) task = group.tasks.find(t => t.id === currentEditingTaskId);
-            } else {
-                task = cat.tasks.find(t => t.id === currentEditingTaskId);
-            }
+            const task = cat.tasks.find(t => t.id === currentEditingTaskId);
 
             if (task) {
                 task.steps = steps;
@@ -1799,7 +1628,7 @@
             if (!name) return;
 
             const id = generateId();
-            categories[id] = { id, name, tasks: [], groups: [] };
+            categories[id] = { id, name, tasks: [] };
             categoryOrder.push(id);
 
             saveToStorage();
@@ -1896,10 +1725,6 @@
                     text += `  ${task.completed ? '✓' : '○'} ${task.text}${task.priority ? ` [${task.priority}]` : ''}\n`;
                     if (task.steps) task.steps.forEach((s, i) => text += `      ${i+1}. ${s.text}\n`);
                 });
-                if (cat.groups) cat.groups.forEach(g => {
-                    text += `\n  ${g.name}\n`;
-                    g.tasks.forEach(t => text += `    ${t.completed ? '✓' : '○'} ${t.text}\n`);
-                });
                 text += '\n';
             });
             const a = document.createElement('a');
@@ -1916,7 +1741,7 @@
                 if (catId === 'urgent') return;
                 const cat = categories[catId];
                 if (!cat) return;
-                const allTasks = [...cat.tasks, ...(cat.groups || []).flatMap(g => g.tasks)];
+                const allTasks = cat.tasks;
                 allTasks.filter(t => !t.completed).forEach(task => {
                     ics += `BEGIN:VTODO\nUID:${generateId()}@mylist\nDTSTAMP:${dateStr}\nSUMMARY:${task.text}\nCATEGORIES:${cat.name}\n`;
                     if (task.priority === 'urgent') ics += 'PRIORITY:1\n';
@@ -2224,8 +2049,7 @@
                     categories[newId] = {
                         id: newId,
                         name: importCat.name,
-                        tasks: importCat.tasks.map(t => ({ id: generateId(), text: t.text, completed: false, priority: t.priority || null, steps: [] })),
-                        groups: []
+                        tasks: importCat.tasks.map(t => ({ id: generateId(), text: t.text, completed: false, priority: t.priority || null, steps: [] }))
                     };
                     categoryOrder.push(newId);
                 }
@@ -2248,7 +2072,6 @@
                 else if (document.getElementById('addCategoryModal').classList.contains('show')) closeAddCategoryModal();
                 else if (document.getElementById('manageCategoriesModal').classList.contains('show')) closeManageCategoriesModal();
                 else if (document.getElementById('addTaskModal').classList.contains('show')) closeAddModal();
-                else if (document.getElementById('addGroupModal').classList.contains('show')) closeGroupModal();
                 else if (document.getElementById('addStepsModal').classList.contains('show')) closeStepsModal();
                 else if (document.getElementById('photoImportModal').classList.contains('show')) closePhotoImportModal();
                 else if (document.getElementById('exportModal').classList.contains('show')) closeExportModal();
@@ -2256,11 +2079,9 @@
         });
 
         document.getElementById('newTaskText').addEventListener('keydown', (e) => { if (e.key === 'Enter') addNewTask(); });
-        document.getElementById('newGroupName').addEventListener('keydown', (e) => { if (e.key === 'Enter') addNewGroup(); });
         document.getElementById('newCategoryName').addEventListener('keydown', (e) => { if (e.key === 'Enter') addNewCategory(); });
 
         document.getElementById('addTaskModal').addEventListener('click', (e) => { if (e.target.id === 'addTaskModal') closeAddModal(); });
-        document.getElementById('addGroupModal').addEventListener('click', (e) => { if (e.target.id === 'addGroupModal') closeGroupModal(); });
         document.getElementById('addStepsModal').addEventListener('click', (e) => { if (e.target.id === 'addStepsModal') closeStepsModal(); });
         document.getElementById('photoImportModal').addEventListener('click', (e) => { if (e.target.id === 'photoImportModal') closePhotoImportModal(); });
         document.getElementById('exportModal').addEventListener('click', (e) => { if (e.target.id === 'exportModal') closeExportModal(); });
