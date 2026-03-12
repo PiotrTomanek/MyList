@@ -740,6 +740,64 @@
             .task-text { font-size: 1.3rem; }
             .category-count { display: none; }
         }
+
+        /* ── Auth Modal ── */
+        .modal-auth { max-width: 400px; }
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .auth-tab {
+            flex: 1; padding: 12px; background: transparent; border: none;
+            color: rgba(255,255,255,0.35);
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem;
+            font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.25s ease;
+            border-bottom: 2px solid transparent; margin-bottom: -1px;
+        }
+        .auth-tab.active { color: #fff; border-bottom-color: #fff; }
+        .auth-tab:hover:not(.active) { color: rgba(255,255,255,0.6); }
+        .auth-error {
+            color: #fff; background: rgba(255,255,255,0.07);
+            border-left: 2px solid rgba(255,255,255,0.4);
+            padding: 12px 14px; font-size: 0.85rem;
+            margin-bottom: 16px; display: none;
+        }
+        .auth-error.show { display: block; }
+        .auth-success {
+            color: rgba(255,255,255,0.7); font-size: 0.85rem;
+            text-align: center; padding: 10px; display: none;
+        }
+        .auth-success.show { display: block; }
+
+        /* ── Credits badge in header ── */
+        .credits-badge {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.10em; color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .credits-badge:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
+        .credits-badge.logged-out { display: none; }
+        .credits-count { color: #fff; }
+
+        /* ── Paywall modal ── */
+        .modal-paywall { max-width: 380px; text-align: center; }
+        .paywall-icon { font-size: 3rem; margin-bottom: 8px; }
+        .paywall-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.05em; margin-bottom: 10px; }
+        .paywall-desc { color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.6; margin-bottom: 28px; }
+        .paywall-price {
+            display: inline-block; padding: 20px 32px;
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+            margin-bottom: 28px;
+            background: rgba(255,255,255,0.02);
+        }
+        .paywall-price-amount { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: #fff; letter-spacing: 0.05em; }
+        .paywall-price-desc { color: rgba(255,255,255,0.4); font-size: 0.8rem; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.08em; margin-top: 4px; }
+        .paywall-note { color: rgba(255,255,255,0.25); font-size: 0.75rem; margin-top: 16px; }
     </style>
 </head>
 <body>
@@ -766,6 +824,12 @@
             <span class="btn-label">Import / Export</span>
         </button>
     </header>
+    <!-- Credits badge (only visible when logged in) -->
+    <button class="credits-badge logged-out" id="creditsBadge" onclick="openAccountModal()" title="Credits">
+        <span id="creditsCount" class="credits-count">0</span>
+        <span>CREDITS</span>
+    </button>
+
     <div class="carousel-container"><div class="carousel-track" id="carouselTrack"></div></div>
     <div class="carousel-indicator" id="carouselIndicator"></div>
     <div class="manage-btn-container">
@@ -950,7 +1014,275 @@
         </div>
     </div>
 
+    <!-- ── Auth Modal ── -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal modal-auth">
+            <button class="modal-close-x" onclick="closeAuthModal()" title="Close">×</button>
+            <h2 id="authModalTitle">Sign In</h2>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+                <button class="auth-tab" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
+            </div>
+            <div class="auth-error" id="authError"></div>
+            <div class="auth-success" id="authSuccess"></div>
+            <input type="email" class="modal-input" id="authEmail" placeholder="Email address" autocomplete="email">
+            <input type="password" class="modal-input" id="authPassword" placeholder="Password (min 6 characters)" autocomplete="current-password">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeAuthModal()">Cancel</button>
+                <button class="modal-btn primary" id="authSubmitBtn" onclick="handleAuthSubmit()">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Paywall Modal ── -->
+    <div class="modal-overlay" id="paywallModal">
+        <div class="modal modal-paywall">
+            <button class="modal-close-x" onclick="closePaywallModal()" title="Close">×</button>
+            <div class="paywall-icon">📷</div>
+            <div class="paywall-title">Out of Credits</div>
+            <div class="paywall-desc">You've used all your photo imports.<br>Top up to keep scanning notes.</div>
+            <div class="paywall-price">
+                <div class="paywall-price-amount">$2.99</div>
+                <div class="paywall-price-desc">50 PHOTO IMPORTS</div>
+            </div>
+            <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
+                <button class="modal-btn primary" onclick="handlePurchase()">Buy 50 Imports</button>
+                <button class="modal-btn secondary" onclick="closePaywallModal()">Not Now</button>
+            </div>
+            <div class="paywall-note">Payment via App Store. Existing credits never expire.</div>
+        </div>
+    </div>
+
+    <!-- ── Account Modal ── -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal modal-auth">
+            <button class="modal-close-x" onclick="closeAccountModal()" title="Close">×</button>
+            <h2>Account</h2>
+            <p class="modal-subtitle" id="accountEmail" style="color: rgba(255,255,255,0.4); font-size: 0.85rem; margin-bottom: 25px;"></p>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; margin-bottom: 25px;">
+                <div>
+                    <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.08em; color: rgba(255,255,255,0.5);">PHOTO IMPORTS</div>
+                    <div style="font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: #fff;" id="accountCredits">0</div>
+                </div>
+                <div style="color: rgba(255,255,255,0.25); font-size: 0.75rem; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.08em;">REMAINING</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn danger" onclick="handleSignOut()">Sign Out</button>
+                <button class="modal-btn primary" onclick="closeAccountModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ============================================================
+        // SUPABASE — Phase 1 Foundation
+        // ============================================================
+        const SUPABASE_URL = 'https://tvdmuyrsvvamqptgvzci.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_NDqtcz-YdHt47AWUKGIBnQ_QZB5lQx3';
+        let supabase = null;
+
+        let currentUser = null;
+
+        // ── Auth init ──
+        async function initAuth() {
+            // Dynamically load Supabase so it never blocks the app from rendering
+            if (!window.supabase) {
+                await new Promise((resolve) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = resolve; // resolve even on failure — app still works
+                    document.head.appendChild(script);
+                });
+            }
+
+            if (!window.supabase) {
+                console.warn('Supabase SDK failed to load — auth disabled');
+                return;
+            }
+
+            if (!supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
+            currentUser = session?.user ?? null;
+            updateAuthUI();
+
+            supabase.auth.onAuthStateChange((_event, session) => {
+                currentUser = session?.user ?? null;
+                updateAuthUI();
+            });
+        }
+
+        async function updateAuthUI() {
+            const badge = document.getElementById('creditsBadge');
+            if (currentUser) {
+                badge.classList.remove('logged-out');
+                const balance = await getCredits();
+                document.getElementById('creditsCount').textContent = balance ?? 0;
+                document.getElementById('accountEmail').textContent = currentUser.email;
+                document.getElementById('accountCredits').textContent = balance ?? 0;
+            } else {
+                badge.classList.add('logged-out');
+            }
+        }
+
+        // ── Credits ──
+        async function getCredits() {
+            if (!currentUser || !supabase) return null;
+            const { data, error } = await supabase
+                .from('credits')
+                .select('credit_balance')
+                .eq('user_id', currentUser.id)
+                .single();
+            if (error) { console.error('Credits fetch error:', error); return null; }
+            return data.credit_balance;
+        }
+
+        async function deductCredit() {
+            if (!currentUser || !supabase) return false;
+            const balance = await getCredits();
+            if (balance === null || balance < 1) return false;
+            const { error } = await supabase
+                .from('credits')
+                .update({ credit_balance: balance - 1 })
+                .eq('user_id', currentUser.id);
+            if (error) { console.error('Deduct error:', error); return false; }
+            updateAuthUI();
+            return true;
+        }
+
+        async function addCredits(amount) {
+            if (!currentUser || !supabase) return false;
+            const balance = await getCredits();
+            if (balance === null) return false;
+            const { error } = await supabase
+                .from('credits')
+                .update({ credit_balance: balance + amount })
+                .eq('user_id', currentUser.id);
+            if (!error) updateAuthUI();
+            return !error;
+        }
+
+        // ── Auth actions ──
+        async function signUp(email, password) {
+            if (!supabase) return { success: false, message: 'Service unavailable' };
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) return { success: false, message: error.message };
+            return { success: true, user: data.user };
+        }
+
+        async function signIn(email, password) {
+            if (!supabase) return { success: false, message: 'Service unavailable' };
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) return { success: false, message: error.message };
+            return { success: true, user: data.user };
+        }
+
+        async function signOut() {
+            if (supabase) await supabase.auth.signOut();
+            currentUser = null;
+            updateAuthUI();
+        }
+
+        // ── Auth modal UI ──
+        let authMode = 'signin';
+
+        function openAuthModal() {
+            switchAuthTab('signin');
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authError').classList.remove('show');
+            document.getElementById('authSuccess').classList.remove('show');
+            document.getElementById('authModal').classList.add('show');
+            setTimeout(() => document.getElementById('authEmail').focus(), 100);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('show');
+        }
+
+        function switchAuthTab(mode) {
+            authMode = mode;
+            document.getElementById('tabSignIn').classList.toggle('active', mode === 'signin');
+            document.getElementById('tabSignUp').classList.toggle('active', mode === 'signup');
+            document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
+            document.getElementById('authSubmitBtn').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
+            document.getElementById('authError').classList.remove('show');
+            document.getElementById('authSuccess').classList.remove('show');
+        }
+
+        async function handleAuthSubmit() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const errEl = document.getElementById('authError');
+            const sucEl = document.getElementById('authSuccess');
+            const btn = document.getElementById('authSubmitBtn');
+
+            if (!email || !password) {
+                errEl.textContent = 'Please enter email and password.';
+                errEl.classList.add('show');
+                return;
+            }
+
+            btn.textContent = '...';
+            btn.disabled = true;
+            errEl.classList.remove('show');
+
+            const result = authMode === 'signin'
+                ? await signIn(email, password)
+                : await signUp(email, password);
+
+            btn.disabled = false;
+            btn.textContent = authMode === 'signin' ? 'Sign In' : 'Create Account';
+
+            if (result.success) {
+                if (authMode === 'signup') {
+                    sucEl.textContent = 'Account created! You have 3 free imports to start.';
+                    sucEl.classList.add('show');
+                    setTimeout(() => closeAuthModal(), 2000);
+                } else {
+                    closeAuthModal();
+                }
+            } else {
+                errEl.textContent = result.message;
+                errEl.classList.add('show');
+            }
+        }
+
+        // ── Paywall modal ──
+        function openPaywallModal() {
+            document.getElementById('paywallModal').classList.add('show');
+        }
+
+        function closePaywallModal() {
+            document.getElementById('paywallModal').classList.remove('show');
+        }
+
+        function handlePurchase() {
+            // Phase 3: wire up Apple IAP here
+            alert('In-app purchase coming soon!');
+        }
+
+        // ── Account modal ──
+        function openAccountModal() {
+            updateAuthUI();
+            document.getElementById('accountModal').classList.add('show');
+        }
+
+        function closeAccountModal() {
+            document.getElementById('accountModal').classList.remove('show');
+        }
+
+        async function handleSignOut() {
+            await signOut();
+            closeAccountModal();
+        }
+
+        // ============================================================
+        // END SUPABASE
+        // ============================================================
         // Data structure
         let categories = {};
         let categoryOrder = [];
@@ -1830,7 +2162,20 @@
         }
 
         // Photo import
-        function openPhotoImportModal() {
+        async function openPhotoImportModal() {
+            // Gate 1: must be logged in
+            if (!currentUser) {
+                openAuthModal();
+                return;
+            }
+
+            // Gate 2: must have credits
+            const balance = await getCredits();
+            if (balance === null || balance < 1) {
+                openPaywallModal();
+                return;
+            }
+
             const savedKey = localStorage.getItem('claude-api-key');
             if (savedKey) {
                 document.getElementById('claudeApiKey').value = savedKey;
@@ -1957,6 +2302,8 @@
                 if (!jsonMatch) throw new Error('Parse error');
 
                 parsedImportData = JSON.parse(jsonMatch[0]);
+                // Deduct 1 credit on successful processing
+                await deductCredit();
                 document.getElementById('processingIndicator').classList.remove('show');
                 document.getElementById('importModeSection').style.display = 'none';
                 renderImportPreview();
@@ -2075,6 +2422,9 @@
                 else if (document.getElementById('addStepsModal').classList.contains('show')) closeStepsModal();
                 else if (document.getElementById('photoImportModal').classList.contains('show')) closePhotoImportModal();
                 else if (document.getElementById('exportModal').classList.contains('show')) closeExportModal();
+                else if (document.getElementById('authModal').classList.contains('show')) closeAuthModal();
+                else if (document.getElementById('paywallModal').classList.contains('show')) closePaywallModal();
+                else if (document.getElementById('accountModal').classList.contains('show')) closeAccountModal();
             }
         });
 
@@ -2090,16 +2440,28 @@
         document.getElementById('confirmModal').addEventListener('click', (e) => { if (e.target.id === 'confirmModal') closeConfirmModal(false); });
         document.getElementById('welcomeModal').addEventListener('click', (e) => { if (e.target.id === 'welcomeModal' && !isFirstTimeUser) closeWelcomeModal(); });
 
+        document.getElementById('authModal').addEventListener('click', (e) => { if (e.target.id === 'authModal') closeAuthModal(); });
+        document.getElementById('paywallModal').addEventListener('click', (e) => { if (e.target.id === 'paywallModal') closePaywallModal(); });
+        document.getElementById('accountModal').addEventListener('click', (e) => { if (e.target.id === 'accountModal') closeAccountModal(); });
+        document.getElementById('authEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('authPassword').focus(); });
+        document.getElementById('authPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuthSubmit(); });
+
         // Initialize
         function init() {
-            const hasData = loadFromStorage();
-            if (!hasData) {
-                isFirstTimeUser = true;
-                showWelcomeModal();
-                categories = JSON.parse(JSON.stringify(defaultData.categories));
-                categoryOrder = [...defaultData.categoryOrder];
+            try {
+                const hasData = loadFromStorage();
+                if (!hasData) {
+                    isFirstTimeUser = true;
+                    showWelcomeModal();
+                    categories = JSON.parse(JSON.stringify(defaultData.categories));
+                    categoryOrder = [...defaultData.categoryOrder];
+                }
+                renderCarousel();
+            } catch(e) {
+                console.error('Init error:', e);
             }
-            renderCarousel();
+            // Auth loads async — app is already visible by this point
+            initAuth().catch(e => console.warn('Auth init failed:', e));
         }
 
         init();
