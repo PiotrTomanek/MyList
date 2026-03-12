@@ -1,6 +1,4 @@
-<!-- MYLIST README -->
-
-<div align="center">
+# MYLIST
 
 ```
 ╔╦╗╦ ╦╦  ╦╔═╗╔╦╗
@@ -9,10 +7,9 @@
 ```
 
 **A brutally simple, obsessively minimal task manager.**  
-*No accounts. No cloud. No nonsense. Just your list.*
+*Peaceful. Focused. Yours.*
 
 [![Made with HTML](https://img.shields.io/badge/made%20with-HTML-000000?style=flat-square&logo=html5&logoColor=white)](.)
-[![No Dependencies](https://img.shields.io/badge/dependencies-zero-000000?style=flat-square)](.)
 [![License MIT](https://img.shields.io/badge/license-MIT-000000?style=flat-square)](.)
 
 <br>
@@ -23,14 +20,11 @@
 
 ---
 
-</div>
-
 ## WHAT IS THIS
 
-MyList is a single-file HTML task manager that lives in your browser.  
-No install. No login. No subscription. Open the file, use the app.
+MyList is a single-file HTML task manager built for calm, focused productivity.
 
-It looks like a poster. It works like a machine.
+It looks like a poster. It works like a machine. Core task management is free, works offline, and requires no account. The **Photo Import** feature — which reads your handwritten notes and turns them into organised tasks — uses AI credits.
 
 ---
 
@@ -38,15 +32,13 @@ It looks like a poster. It works like a machine.
 
 ```
 ✦  Carousel categories     — swipe between your worlds
-✦  Swipe-to-delete         — satisfying, fast, irreversible (undo coming)
+✦  Swipe-to-delete         — satisfying, fast, clean
 ✦  Priority system         — URGENT / HIGH / MEDIUM / none
 ✦  Steps / subtasks        — break things down without drowning
-✦  Groups within lists     — organize the organized
 ✦  Photo import via AI     — snap a handwritten list, watch it digitize
 ✦  Export to JSON / TXT    — your data stays yours
 ✦  Calendar export         — .ics for Apple & Google Calendar
-✦  Zero dependencies       — one .html file, that's it
-✦  Works offline           — always
+✦  Works offline           — always (except photo import)
 ```
 
 ---
@@ -65,7 +57,7 @@ npx serve .
 # Drop the file on Netlify, GitHub Pages, Vercel. Done.
 ```
 
-No `npm install`. No `package.json`. No build step. No crying.
+No `npm install`. No `package.json`. No build step.
 
 ---
 
@@ -73,16 +65,19 @@ No `npm install`. No `package.json`. No build step. No crying.
 
 This is the party trick.
 
-Take a photo of any handwritten list — grocery list on a napkin, whiteboard at the office, sticky notes on your monitor — and MyList will read it and import everything automatically.
+Take a photo of any handwritten list — grocery list on a napkin, whiteboard notes, sticky notes on your monitor — and MyList reads it and imports everything automatically, organised into categories.
 
 **How it works:**
 1. Tap **SCAN** in the top right
-2. Enter your [Claude API key](https://console.anthropic.com/) *(stored locally, never sent anywhere else)*
-3. Upload a photo
-4. Watch it parse your chaos into organized tasks
+2. Sign in or create a free account *(you get 3 free imports to start)*
+3. Upload a photo or multiple photos
+4. Watch it parse your chaos into organised tasks
 5. Edit anything before importing
+6. Confirm — tasks land exactly where they belong
 
-> The API call goes directly from your browser to Anthropic. This app never sees your key.
+> Photo processing uses Anthropic's Claude AI. Each import uses 1 credit.  
+> New accounts start with **3 free credits**.  
+> Top up with **50 imports for $2.99** via in-app purchase.
 
 ---
 
@@ -101,7 +96,7 @@ Take a photo of any handwritten list — grocery list on a napkin, whiteboard at
 ### Categories
 The **URGENT** category is special — it automatically pulls in every task across all your lists that's marked urgent. Think of it as your daily hit list.
 
-Everything else is yours to name. Work. Home. Side project. Guilt. Whatever you need.
+Everything else is yours to name. Work. Home. Side project. Whatever you need.
 
 ### Priority System
 ```
@@ -112,15 +107,17 @@ MEDIUM   →  Noted. Eventually.
 ```
 
 ### Steps / Subtasks
-Long-press the `+ STEPS` button on any task to break it into numbered steps. Great for multi-part tasks you always forget half of.
+Tap `+ STEPS` on any task to break it into numbered steps. Great for multi-part tasks you always forget half of.
 
 ---
 
 ## DATA & STORAGE
 
-Everything lives in `localStorage` — your browser's built-in storage.
+Your tasks live in `localStorage` — your browser's built-in storage.
 
-**Your data never leaves your device** unless you explicitly export it.
+**Task data never leaves your device** unless you explicitly export it.
+
+Account data (email, credit balance) is stored securely via Supabase.
 
 ```
 Export options:
@@ -130,9 +127,9 @@ Export options:
   → Copy    (paste anywhere)
 
 Import options:
-  → From file   (.json backups)
-  → Paste JSON  (from clipboard)
-  → Photo scan  (AI-powered, requires API key)
+  → From file      (.json backups)
+  → Paste JSON     (from clipboard)
+  → Photo scan     (AI-powered, uses 1 credit per import)
 ```
 
 ---
@@ -146,8 +143,9 @@ JavaScript  ████████████████  100%
 Frameworks  ░░░░░░░░░░░░░░░░    0%
 ```
 
-Fonts from Google Fonts: **Bebas Neue** + **Inter**  
-AI: Anthropic's Claude API *(optional, only for photo import)*
+Fonts: **Bebas Neue** + **Inter** via Google Fonts  
+AI: Anthropic's Claude API *(photo import only)*  
+Auth & credits: Supabase *(account required for photo import)*
 
 ---
 
@@ -158,23 +156,20 @@ mylist.html        ← the entire app
 README.md          ← you are here
 ```
 
-That's it. That's the repo.
-
 ---
 
 ## ROADMAP
 
 ```diff
-+ Drag to reorder tasks
-+ Long-press context menu (change priority, move category)
-+ Empty state improvements
-+ Undo delete (brief toast window)
-? Recurring tasks
-? Multiple lists / profiles
++ Supabase auth & credit system
++ Photo import paywall (3 free, $2.99 / 50)
+- Drag to reorder tasks
+- Long-press context menu (change priority, move category)
+- Undo delete (brief toast)
+? Apple Sign In
 ? PWA / installable app
+? Recurring tasks
 ```
-
-PRs welcome. Keep it simple. One file preferred.
 
 ---
 
@@ -185,7 +180,7 @@ PRs welcome. Keep it simple. One file preferred.
 3. Fix it better
 4. Open a PR with a clear description of what changed and why
 
-The aesthetic is intentional. Black backgrounds, Bebas Neue headings, no gradients, no rounded corners. If you're adding UI, make it match.
+The aesthetic is intentional. Black. Minimal. Bebas Neue. If you're adding UI, make it match.
 
 ---
 
@@ -193,16 +188,12 @@ The aesthetic is intentional. Black backgrounds, Bebas Neue headings, no gradien
 
 Most task apps try to be platforms. They want your email, your subscription, your attention, your data.
 
-MyList wants nothing. It's a file. You own it. You host it if you want. You delete it if you don't. It doesn't have opinions about your productivity system.
+MyList wants almost nothing. The core is still just a file. Your tasks stay on your device. The only thing that touches a server is photo import — and only when you choose to use it.
 
 **Get the thing done. Close the tab. Live your life.**
 
 ---
 
-<div align="center">
-
 *Built with obsessive attention to simplicity.*
 
 **[⬇ Download](./mylist.html)** · **[🐛 Issues](../../issues)** · **[⭐ Star if you use it](../../stargazers)**
-
-</div>
