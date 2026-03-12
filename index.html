@@ -1090,7 +1090,10 @@
                 await new Promise((resolve) => {
                     const script = document.createElement('script');
                     script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-                    script.onload = resolve;
+                    script.onload = () => {
+                        // Small delay to ensure the script has fully initialised
+                        setTimeout(resolve, 100);
+                    };
                     script.onerror = resolve; // resolve even on failure — app still works
                     document.head.appendChild(script);
                 });
