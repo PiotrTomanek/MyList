@@ -1602,14 +1602,15 @@
         function updateCarouselPositions() {
             const cards = document.querySelectorAll('.category-card');
             const dots = document.querySelectorAll('.carousel-dot');
+            const total = cards.length;
 
             cards.forEach((card, index) => {
                 card.classList.remove('active', 'prev', 'next', 'hidden');
                 if (index === currentCategoryIndex) {
                     card.classList.add('active');
-                } else if (index === currentCategoryIndex - 1) {
+                } else if (index === (currentCategoryIndex - 1 + total) % total) {
                     card.classList.add('prev');
-                } else if (index === currentCategoryIndex + 1) {
+                } else if (index === (currentCategoryIndex + 1) % total) {
                     card.classList.add('next');
                 } else {
                     card.classList.add('hidden');
@@ -1622,11 +1623,9 @@
         }
 
         function navigateCarousel(direction) {
-            const newIndex = currentCategoryIndex + direction;
-            if (newIndex >= 0 && newIndex < categoryOrder.length) {
-                currentCategoryIndex = newIndex;
-                updateCarouselPositions();
-            }
+            const total = categoryOrder.length;
+            currentCategoryIndex = (currentCategoryIndex + direction + total) % total;
+            updateCarouselPositions();
         }
 
         function goToSlide(index) {
