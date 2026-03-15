@@ -898,14 +898,9 @@
         <div class="modal modal-photo">
             <button class="modal-close-x" onclick="closePhotoImportModal()" title="Close">×</button>
             <h2>Photo Import</h2>
-            <div class="api-key-section">
-                <label>Claude API Key (stored locally)</label>
-                <div class="api-key-row">
-                    <input type="password" class="api-key-input" id="claudeApiKey" placeholder="sk-ant-api03-...">
-                    <button type="button" class="api-key-reveal" id="apiKeyRevealBtn" onclick="toggleApiKeyVisibility()">SHOW</button>
-                </div>
-                <div class="api-key-saved" id="apiKeySaved" style="display: none;">KEY SAVED</div>
-            </div>
+            <!-- API key is now stored securely server-side -->
+            <div id="apiKeySaved" style="display: none;"></div>
+            <input type="hidden" id="claudeApiKey" value="server-side">
             <div class="import-mode-section" id="importModeSection">
                 <label class="import-mode-label">What should happen to existing tasks?</label>
                 <div class="import-mode-options">
@@ -1078,7 +1073,7 @@
         // SUPABASE — Phase 1 Foundation
         // ============================================================
         const SUPABASE_URL = 'https://tvdmuyrsvvamqptgvzci.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_NDqtcz-YdHt47AWUKGIBnQ_QZB5lQx3';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZG11eXJzdnZhbXFwdGd2emNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNzY4MzQsImV4cCI6MjA4ODg1MjgzNH0.4QVbV4WRHeVmmoXBtmwVHBeaOPv6p7kH3xxp9mGiKt0';
         let supabase = null;
 
         let currentUser = null;
@@ -1089,7 +1084,7 @@
             if (!window.supabase) {
                 await new Promise((resolve) => {
                     const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js';
                     script.onload = () => {
                         // Small delay to ensure the script has fully initialised
                         setTimeout(resolve, 100);
@@ -1263,9 +1258,59 @@
             document.getElementById('paywallModal').classList.remove('show');
         }
 
+        // ── Stripe Configuration ──
+        // TODO: Replace with your real Stripe price link once your Stripe account is set up
+        // 1. Create a Stripe account at https://stripe.com
+        // 2. Create a Product: "50 Photo Imports" at $2.99
+        // 3. Create a Payment Link for that product
+        // 4. Paste the link URL below
+        // 5. Set up a webhook (stripe → supabase edge function) to add 50 credits on payment success
+        const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_7sYaEZ5Rq1upa7ng0U7Vm00';
+
         function handlePurchase() {
-            // Phase 3: wire up Apple IAP here
-            alert('In-app purchase coming soon!');
+            if (!currentUser) {
+                closePaywallModal();
+                openAuthModal();
+                return;
+            }
+
+            if (!STRIPE_PAYMENT_LINK) {
+                // Stripe not yet configured — show helpful message
+                alert('Payment setup in progress! Contact support for early access credits.');
+                return;
+            }
+
+            // Open Stripe Checkout with user email pre-filled
+            // The ?client_reference_id lets your webhook know which Supabase user paid
+            const checkoutUrl = `${STRIPE_PAYMENT_LINK}?client_reference_id=${currentUser.id}&prefilled_email=${encodeURIComponent(currentUser.email)}`;
+            window.open(checkoutUrl, '_blank');
+
+            // Show a "checking for payment" state
+            closePaywallModal();
+            pollForCreditUpdate();
+        }
+
+        // After Stripe redirect, poll for credit update (webhook adds credits server-side)
+        async function pollForCreditUpdate() {
+            const startBalance = await getCredits() || 0;
+            let attempts = 0;
+            const maxAttempts = 30; // 30 × 3s = 90 seconds max
+
+            const poller = setInterval(async () => {
+                attempts++;
+                const newBalance = await getCredits();
+                if (newBalance !== null && newBalance > startBalance) {
+                    clearInterval(poller);
+                    updateAuthUI();
+                    // Show success feedback
+                    const badge = document.getElementById('creditsBadge');
+                    badge.style.animation = 'checkPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    setTimeout(() => badge.style.animation = '', 500);
+                }
+                if (attempts >= maxAttempts) {
+                    clearInterval(poller);
+                }
+            }, 3000);
         }
 
         // ── Account modal ──
@@ -2179,11 +2224,6 @@
                 return;
             }
 
-            const savedKey = localStorage.getItem('claude-api-key');
-            if (savedKey) {
-                document.getElementById('claudeApiKey').value = savedKey;
-                document.getElementById('apiKeySaved').style.display = 'block';
-            }
             resetPhotoImportModal();
             document.getElementById('photoImportModal').classList.add('show');
         }
@@ -2260,53 +2300,64 @@
         }
 
         async function processPhoto() {
-            const apiKey = document.getElementById('claudeApiKey').value.trim();
-            if (!apiKey) { showImportError('Enter API key'); return; }
             if (selectedPhotos.length === 0) { showImportError('Select photos'); return; }
 
-            localStorage.setItem('claude-api-key', apiKey);
-            document.getElementById('apiKeySaved').style.display = 'block';
+            // ── Auth & Credit Gate ──
+            if (!currentUser) {
+                closePhotoImportModal();
+                openAuthModal();
+                return;
+            }
+            const creditBalance = await getCredits();
+            if (creditBalance === null || creditBalance < 1) {
+                openPaywallModal();
+                return;
+            }
+
             document.getElementById('processingIndicator').classList.add('show');
             document.getElementById('processPhotoBtn').style.display = 'none';
             document.getElementById('importError').classList.remove('show');
 
             try {
-                const imageContents = selectedPhotos.map(p => ({
-                    type: 'image',
-                    source: { type: 'base64', media_type: p.file.type, data: p.dataUrl.split(',')[1] }
+                // Prepare images as base64 for the secure Edge Function
+                const images = selectedPhotos.map(p => ({
+                    mediaType: p.file.type,
+                    base64: p.dataUrl.split(',')[1]
                 }));
 
                 const existingCategories = categoryOrder.filter(id => id !== 'urgent').map(id => categories[id]?.name).filter(Boolean);
 
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                // Get the user's auth token
+                const { data: { session } } = await supabase.auth.getSession();
+
+                // Call OUR secure Edge Function (not Claude directly)
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/process-photo`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'apikey': SUPABASE_ANON_KEY
                     },
                     body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 4096,
-                        messages: [{
-                            role: 'user',
-                            content: [...imageContents, {
-                                type: 'text',
-                                text: `Extract tasks from this image. Existing categories: ${existingCategories.join(', ') || 'None'}. Return ONLY JSON: {"categories":[{"name":"Name","isExisting":true/false,"tasks":[{"text":"Task","priority":"urgent/high/medium/null"}]}]}`
-                            }]
-                        }]
+                        images,
+                        existingCategories: existingCategories.join(', ') || 'None'
                     })
                 });
 
-                if (!response.ok) throw new Error('API error');
-                const data = await response.json();
-                const jsonMatch = data.content[0].text.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) throw new Error('Parse error');
+                const result = await response.json();
 
-                parsedImportData = JSON.parse(jsonMatch[0]);
-                // Deduct 1 credit on successful processing
-                await deductCredit();
+                if (!response.ok) {
+                    if (response.status === 402) {
+                        document.getElementById('processingIndicator').classList.remove('show');
+                        openPaywallModal();
+                        return;
+                    }
+                    throw new Error(result.error || 'Processing failed');
+                }
+
+                parsedImportData = result.data;
+                // Credit already deducted server-side
+                updateAuthUI();
                 document.getElementById('processingIndicator').classList.remove('show');
                 document.getElementById('importModeSection').style.display = 'none';
                 renderImportPreview();
