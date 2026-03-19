@@ -1787,13 +1787,19 @@
                     if (!isDragging) return;
                     isDragging = false;
 
+                    // Don't navigate if a task delete swipe was active
+                    if (activeTaskSwipe) {
+                        gestureDecided = false;
+                        isCarouselSwipe = false;
+                        return;
+                    }
+
                     if (isCarouselSwipe && !navigationLocked) {
                         const endX = e.changedTouches[0].clientX;
                         const diff = startX - endX;
                         if (Math.abs(diff) > 50) {
                             navigationLocked = true;
                             navigateCarousel(diff > 0 ? 1 : -1);
-                            // Lock navigation during transition to prevent double-fires
                             setTimeout(() => { navigationLocked = false; }, 400);
                         }
                     }
@@ -1812,6 +1818,12 @@
             document.querySelectorAll('.task-swipe-container').forEach(container => {
                 const content = container.querySelector('.task-swipe-content');
                 const deleteBg = container.querySelector('.task-delete-bg');
+                const taskItem = container.closest('.task-item');
+                const isCompleted = taskItem.classList.contains('completed');
+
+                // Only allow swipe-to-delete on completed tasks
+                if (!isCompleted) return;
+
                 let startX = 0;
                 let startY = 0;
                 let currentX = 0;
@@ -1834,19 +1846,16 @@
                     const currentY = e.touches[0].clientY;
                     const diffX = startX - currentX;
                     const diffY = Math.abs(currentY - startY);
-                    
-                    // Decide gesture type
+
                     if (!gestureDecided && (Math.abs(diffX) > 15 || diffY > 15)) {
                         gestureDecided = true;
-                        // Only a LEFT swipe with horizontal dominance is a delete swipe
                         isDeleteSwipe = diffX > 0 && Math.abs(diffX) > diffY * 2;
                         if (isDeleteSwipe) {
                             content.classList.add('swiping');
                             activeTaskSwipe = container;
                         }
                     }
-                    
-                    // Only handle delete swipe movement
+
                     if (isDeleteSwipe && diffX > 0) {
                         const translateX = Math.min(diffX, 150);
                         content.style.transform = `translateX(-${translateX}px)`;
@@ -1861,15 +1870,12 @@
                     content.classList.remove('swiping');
                     content.classList.add('snapping');
                     activeTaskSwipe = null;
-                    
-                    // Only handle delete if it was determined to be a delete swipe
+
                     if (isDeleteSwipe) {
                         const diff = startX - currentX;
                         if (diff > 100) {
-                            const taskItem = container.closest('.task-item');
                             const taskId = taskItem.dataset.taskId;
                             const categoryId = taskItem.dataset.categoryId || taskItem.dataset.sourceCategory;
-
                             taskItem.classList.add('poofing');
                             setTimeout(() => deleteTask(categoryId, taskId), 300);
                         } else {
