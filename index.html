@@ -835,6 +835,14 @@
             </svg>
             <span class="btn-label">Import / Export</span>
         </button>
+        <button class="header-action-btn" id="undoBtn" onclick="performUndo()" title="Undo" style="opacity: 0.3; pointer-events: none;">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 10h10a5 5 0 0 1 0 10H9" />
+                <path d="M3 10l4-4" />
+                <path d="M3 10l4 4" />
+            </svg>
+            <span class="btn-label">Undo</span>
+        </button>
     </header>
     <!-- Credits badge (only visible when logged in) -->
     <button class="credits-badge logged-out" id="creditsBadge" onclick="openAccountModal()" title="Credits">
@@ -1092,11 +1100,13 @@
         function pushUndo(action) {
             undoStack.push(action);
             if (undoStack.length > MAX_UNDO) undoStack.shift();
+            updateUndoBtn();
         }
 
         function performUndo() {
             if (undoStack.length === 0) return;
             const action = undoStack.pop();
+            updateUndoBtn();
 
             if (action.type === 'toggle') {
                 const cat = categories[action.categoryId];
@@ -1117,6 +1127,15 @@
                     renderCarousel();
                     showUndoToast('Task restored');
                 }
+            }
+        }
+
+        function updateUndoBtn() {
+            const btn = document.getElementById('undoBtn');
+            if (btn) {
+                const hasUndo = undoStack.length > 0;
+                btn.style.opacity = hasUndo ? '1' : '0.3';
+                btn.style.pointerEvents = hasUndo ? 'auto' : 'none';
             }
         }
 
@@ -1869,7 +1888,8 @@
                     isDragging = false;
                     content.classList.remove('swiping');
                     content.classList.add('snapping');
-                    activeTaskSwipe = null;
+                    // Delay clearing so carousel touchend still sees it
+                    setTimeout(() => { activeTaskSwipe = null; }, 50);
 
                     if (isDeleteSwipe) {
                         const diff = startX - currentX;
