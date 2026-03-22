@@ -1088,6 +1088,45 @@
         </div>
     </div>
 
+    <!-- ── Share Modal ── -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal modal-auth">
+            <button class="modal-close-x" onclick="closeShareModal()" title="Close">×</button>
+            <h2 id="shareModalTitle">Share List</h2>
+            <div id="shareContent">
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 20px;">Create a shareable link. Anyone with the link and an account can join and edit this list in real-time.</p>
+                <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
+                    <button class="modal-btn primary" id="shareCreateBtn" onclick="createShareLink()">Create Share Link</button>
+                </div>
+            </div>
+            <div id="shareLinkSection" style="display: none;">
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 15px;">Share this link with others:</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" class="modal-input" id="shareLinkInput" readonly style="margin-bottom: 0; font-size: 14px;">
+                    <button class="modal-btn primary" onclick="copyShareLink()" style="flex-shrink: 0; padding: 14px;">COPY</button>
+                </div>
+                <div id="shareMembers" style="margin-bottom: 20px;"></div>
+                <div class="modal-buttons">
+                    <button class="modal-btn danger" onclick="stopSharing()">Stop Sharing</button>
+                    <button class="modal-btn primary" onclick="closeShareModal()">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Join Share Modal ── -->
+    <div class="modal-overlay" id="joinShareModal">
+        <div class="modal modal-auth">
+            <button class="modal-close-x" onclick="closeJoinShareModal()" title="Close">×</button>
+            <h2>Join Shared List</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 20px;" id="joinShareInfo"></p>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeJoinShareModal()">Cancel</button>
+                <button class="modal-btn primary" id="joinShareBtn" onclick="confirmJoinShare()">Join List</button>
+            </div>
+        </div>
+    </div>
+
     <div class="undo-toast" id="undoToast"><span class="undo-icon">↩</span><span id="undoToastText">Action undone</span></div>
 
     <script>
@@ -1459,6 +1498,364 @@
         }
 
         // ============================================================
+        // SHARING — Real-time collaborative lists
+        // ============================================================
+        let currentShareCategoryId = null;
+        let pendingShareCode = null;
+        let realtimeSubscriptions = {};
+
+        // ── Share a list ──
+        async function shareList(categoryId) {
+            if (!currentUser) {
+                openAuthModal();
+                return;
+            }
+            currentShareCategoryId = categoryId;
+            const cat = categories[categoryId];
+            document.getElementById('shareModalTitle').textContent = `Share "${cat.name}"`;
+
+            // Check if already shared
+            if (cat.shareId) {
+                await showExistingShare(cat.shareId, cat.shareCode);
+            } else {
+                document.getElementById('shareContent').style.display = 'block';
+                document.getElementById('shareLinkSection').style.display = 'none';
+            }
+            document.getElementById('shareModal').classList.add('show');
+        }
+
+        async function createShareLink() {
+            if (!supabase || !currentUser) return;
+            const cat = categories[currentShareCategoryId];
+            const btn = document.getElementById('shareCreateBtn');
+            btn.textContent = '...';
+            btn.disabled = true;
+
+            try {
+                // Create shared list
+                const { data: sharedList, error: listError } = await supabase
+                    .from('shared_lists')
+                    .insert({ name: cat.name, owner_id: currentUser.id })
+                    .select()
+                    .single();
+
+                if (listError) throw listError;
+
+                // Add owner as member
+                await supabase.from('shared_list_members').insert({
+                    shared_list_id: sharedList.id,
+                    user_id: currentUser.id,
+                    role: 'owner'
+                });
+
+                // Upload all tasks
+                const tasks = cat.tasks.map((task, i) => ({
+                    shared_list_id: sharedList.id,
+                    text: task.text,
+                    completed: task.completed,
+                    priority: task.priority || null,
+                    sort_order: i,
+                    steps: JSON.stringify(task.steps || []),
+                    created_by: currentUser.id,
+                    updated_by: currentUser.id
+                }));
+
+                if (tasks.length > 0) {
+                    const { error: taskError } = await supabase
+                        .from('shared_tasks')
+                        .insert(tasks);
+                    if (taskError) throw taskError;
+                }
+
+                // Store share info locally
+                cat.shareId = sharedList.id;
+                cat.shareCode = sharedList.share_code;
+                saveToStorage();
+
+                // Subscribe to realtime
+                subscribeToSharedList(sharedList.id, currentShareCategoryId);
+
+                await showExistingShare(sharedList.id, sharedList.share_code);
+            } catch (err) {
+                console.error('Share error:', err);
+                alert('Failed to share: ' + err.message);
+            }
+
+            btn.textContent = 'Create Share Link';
+            btn.disabled = false;
+        }
+
+        async function showExistingShare(shareId, shareCode) {
+            const appUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${appUrl}?join=${shareCode}`;
+            document.getElementById('shareLinkInput').value = shareUrl;
+            document.getElementById('shareContent').style.display = 'none';
+            document.getElementById('shareLinkSection').style.display = 'block';
+
+            // Show members
+            if (supabase) {
+                const { data: members } = await supabase
+                    .from('shared_list_members')
+                    .select('user_id, role')
+                    .eq('shared_list_id', shareId);
+
+                const membersHtml = (members || []).map(m =>
+                    `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.85rem;">
+                        <span>${m.user_id === currentUser?.id ? 'You' : m.user_id.slice(0, 8) + '...'}</span>
+                        <span style="text-transform:uppercase;letter-spacing:0.1em;font-family:'Space Grotesk',sans-serif;font-size:0.7rem;">${m.role}</span>
+                    </div>`
+                ).join('');
+                document.getElementById('shareMembers').innerHTML =
+                    `<div style="color:rgba(255,255,255,0.3);font-size:0.7rem;font-family:'Space Grotesk',sans-serif;letter-spacing:0.1em;margin-bottom:8px;">MEMBERS</div>${membersHtml}`;
+            }
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareLinkInput');
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = input.nextElementSibling;
+                btn.textContent = 'COPIED';
+                setTimeout(() => btn.textContent = 'COPY', 2000);
+            });
+        }
+
+        async function stopSharing() {
+            if (!supabase || !currentShareCategoryId) return;
+            const cat = categories[currentShareCategoryId];
+            if (!cat.shareId) return;
+
+            const { error } = await supabase
+                .from('shared_lists')
+                .delete()
+                .eq('id', cat.shareId);
+
+            if (!error) {
+                unsubscribeFromSharedList(cat.shareId);
+                delete cat.shareId;
+                delete cat.shareCode;
+                saveToStorage();
+                closeShareModal();
+            }
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('show');
+            currentShareCategoryId = null;
+        }
+
+        // ── Join a shared list ──
+        async function checkForShareJoin() {
+            const params = new URLSearchParams(window.location.search);
+            const joinCode = params.get('join');
+            if (!joinCode) return;
+
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+            pendingShareCode = joinCode;
+
+            if (!currentUser) {
+                // Need to sign in first
+                openAuthModal();
+                return;
+            }
+
+            await processJoinCode(joinCode);
+        }
+
+        async function processJoinCode(code) {
+            if (!supabase) return;
+
+            const { data: lists } = await supabase.rpc('get_shared_list_by_code', { code });
+            if (!lists || lists.length === 0) {
+                alert('Share link is invalid or expired.');
+                return;
+            }
+
+            const list = lists[0];
+            if (list.owner_id === currentUser.id) {
+                alert('This is your own shared list!');
+                return;
+            }
+
+            document.getElementById('joinShareInfo').textContent =
+                `You've been invited to join "${list.name}". You'll be able to view and edit tasks in real-time.`;
+            document.getElementById('joinShareModal').classList.add('show');
+        }
+
+        async function confirmJoinShare() {
+            if (!supabase || !pendingShareCode) return;
+            const btn = document.getElementById('joinShareBtn');
+            btn.textContent = '...';
+            btn.disabled = true;
+
+            try {
+                const { data: lists } = await supabase.rpc('get_shared_list_by_code', { code: pendingShareCode });
+                if (!lists || lists.length === 0) throw new Error('Invalid code');
+                const list = lists[0];
+
+                // Join as editor
+                await supabase.from('shared_list_members').insert({
+                    shared_list_id: list.id,
+                    user_id: currentUser.id,
+                    role: 'editor'
+                });
+
+                // Fetch tasks
+                const { data: tasks } = await supabase
+                    .from('shared_tasks')
+                    .select('*')
+                    .eq('shared_list_id', list.id)
+                    .order('sort_order');
+
+                // Create local category
+                const catId = 'shared_' + list.id.slice(0, 8);
+                categories[catId] = {
+                    id: catId,
+                    name: list.name,
+                    shareId: list.id,
+                    shareCode: pendingShareCode,
+                    tasks: (tasks || []).map(t => ({
+                        id: t.id,
+                        text: t.text,
+                        completed: t.completed,
+                        priority: t.priority,
+                        steps: typeof t.steps === 'string' ? JSON.parse(t.steps) : (t.steps || [])
+                    }))
+                };
+                categoryOrder.push(catId);
+                saveToStorage();
+                renderCarousel();
+
+                // Subscribe to realtime
+                subscribeToSharedList(list.id, catId);
+
+                closeJoinShareModal();
+                // Navigate to the new list
+                currentCategoryIndex = categoryOrder.length - 1;
+                updateCarouselPositions();
+            } catch (err) {
+                console.error('Join error:', err);
+                alert('Failed to join: ' + err.message);
+            }
+
+            btn.textContent = 'Join List';
+            btn.disabled = false;
+            pendingShareCode = null;
+        }
+
+        function closeJoinShareModal() {
+            document.getElementById('joinShareModal').classList.remove('show');
+        }
+
+        // ── Realtime subscriptions ──
+        function subscribeToSharedList(shareId, categoryId) {
+            if (!supabase || realtimeSubscriptions[shareId]) return;
+
+            const channel = supabase
+                .channel('shared-tasks-' + shareId)
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'shared_tasks', filter: `shared_list_id=eq.${shareId}` },
+                    (payload) => {
+                        handleRealtimeChange(payload, categoryId);
+                    }
+                )
+                .subscribe();
+
+            realtimeSubscriptions[shareId] = channel;
+        }
+
+        function unsubscribeFromSharedList(shareId) {
+            if (realtimeSubscriptions[shareId]) {
+                supabase.removeChannel(realtimeSubscriptions[shareId]);
+                delete realtimeSubscriptions[shareId];
+            }
+        }
+
+        function handleRealtimeChange(payload, categoryId) {
+            const cat = categories[categoryId];
+            if (!cat) return;
+
+            if (payload.eventType === 'INSERT') {
+                const t = payload.new;
+                if (!cat.tasks.find(task => task.id === t.id)) {
+                    cat.tasks.push({
+                        id: t.id, text: t.text, completed: t.completed,
+                        priority: t.priority,
+                        steps: typeof t.steps === 'string' ? JSON.parse(t.steps) : (t.steps || [])
+                    });
+                }
+            } else if (payload.eventType === 'UPDATE') {
+                const t = payload.new;
+                const task = cat.tasks.find(task => task.id === t.id);
+                if (task) {
+                    task.text = t.text;
+                    task.completed = t.completed;
+                    task.priority = t.priority;
+                    task.steps = typeof t.steps === 'string' ? JSON.parse(t.steps) : (t.steps || []);
+                }
+            } else if (payload.eventType === 'DELETE') {
+                cat.tasks = cat.tasks.filter(task => task.id !== payload.old.id);
+            }
+
+            saveToStorage();
+            renderCarousel();
+        }
+
+        // ── Sync local changes to Supabase for shared lists ──
+        async function syncTaskToCloud(categoryId, taskId, updates) {
+            const cat = categories[categoryId];
+            if (!cat?.shareId || !supabase) return;
+
+            await supabase.from('shared_tasks')
+                .update({ ...updates, updated_by: currentUser?.id, updated_at: new Date().toISOString() })
+                .eq('id', taskId);
+        }
+
+        async function syncNewTaskToCloud(categoryId, task) {
+            const cat = categories[categoryId];
+            if (!cat?.shareId || !supabase) return;
+
+            const { data } = await supabase.from('shared_tasks')
+                .insert({
+                    id: task.id,
+                    shared_list_id: cat.shareId,
+                    text: task.text,
+                    completed: task.completed,
+                    priority: task.priority || null,
+                    sort_order: cat.tasks.length,
+                    steps: JSON.stringify(task.steps || []),
+                    created_by: currentUser?.id,
+                    updated_by: currentUser?.id
+                })
+                .select()
+                .single();
+
+            // Use the server-generated ID if we didn't provide one
+            if (data && data.id !== task.id) {
+                task.id = data.id;
+                saveToStorage();
+            }
+        }
+
+        async function syncDeleteTaskToCloud(categoryId, taskId) {
+            const cat = categories[categoryId];
+            if (!cat?.shareId || !supabase) return;
+
+            await supabase.from('shared_tasks')
+                .delete()
+                .eq('id', taskId);
+        }
+
+        // Re-subscribe to all shared lists on load
+        function resubscribeSharedLists() {
+            Object.entries(categories).forEach(([catId, cat]) => {
+                if (cat.shareId) {
+                    subscribeToSharedList(cat.shareId, catId);
+                }
+            });
+        }
+
+        // ============================================================
         // END SUPABASE
         // ============================================================
         // Data structure
@@ -1669,6 +2066,7 @@
                 <div class="category-header">
                     <span class="category-title" contenteditable="true" onblur="updateCategoryName(this, '${cat.id}')">${cat.name}</span>
                     <span class="category-count">${taskCount}</span>
+                    <button class="add-task-btn" onclick="shareList('${cat.id}')" title="Share List" style="font-size: 1rem;">⤴</button>
                     <button class="add-task-btn" onclick="openAddTaskModal('${cat.id}')" title="Add Task">+</button>
                 </div>
                 ${tasksHtml}
@@ -1922,6 +2320,7 @@
                 task.completed = !task.completed;
                 saveToStorage();
                 renderCarousel();
+                syncTaskToCloud(categoryId, taskId, { completed: task.completed });
             }
         }
 
@@ -1937,6 +2336,7 @@
             if (task) {
                 task.text = el.textContent.trim() || task.text;
                 saveToStorage();
+                syncTaskToCloud(categoryId, taskId, { text: task.text });
             }
         }
 
@@ -1956,6 +2356,7 @@
             cat.tasks.splice(taskIndex, 1);
             saveToStorage();
             renderCarousel();
+            syncDeleteTaskToCloud(categoryId, taskId);
         }
 
         function updateCategoryName(el, categoryId) {
@@ -2027,6 +2428,7 @@
             saveToStorage();
             renderCarousel();
             closeAddModal();
+            syncNewTaskToCloud(currentEditingCategoryId, newTask);
         }
 
         function openStepsModal(categoryId, taskId) {
@@ -2652,6 +3054,8 @@
         document.getElementById('authModal').addEventListener('click', (e) => { if (e.target.id === 'authModal') closeAuthModal(); });
         document.getElementById('paywallModal').addEventListener('click', (e) => { if (e.target.id === 'paywallModal') closePaywallModal(); });
         document.getElementById('accountModal').addEventListener('click', (e) => { if (e.target.id === 'accountModal') closeAccountModal(); });
+        document.getElementById('shareModal').addEventListener('click', (e) => { if (e.target.id === 'shareModal') closeShareModal(); });
+        document.getElementById('joinShareModal').addEventListener('click', (e) => { if (e.target.id === 'joinShareModal') closeJoinShareModal(); });
         document.getElementById('authEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('authPassword').focus(); });
         document.getElementById('authPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuthSubmit(); });
 
@@ -2670,7 +3074,14 @@
                 console.error('Init error:', e);
             }
             // Auth loads async — app is already visible by this point
-            initAuth().catch(e => console.warn('Auth init failed:', e));
+            initAuth().then(() => {
+                resubscribeSharedLists();
+                checkForShareJoin();
+                // If user just signed in and had a pending share join
+                if (pendingShareCode && currentUser) {
+                    processJoinCode(pendingShareCode);
+                }
+            }).catch(e => console.warn('Auth init failed:', e));
             initShakeDetection();
         }
 
