@@ -1428,13 +1428,9 @@
         }
 
         // ── Stripe Configuration ──
-        // TODO: Replace with your real Stripe price link once your Stripe account is set up
-        // 1. Create a Stripe account at https://stripe.com
-        // 2. Create a Product: "50 Photo Imports" at $2.99
-        // 3. Create a Payment Link for that product
-        // 4. Paste the link URL below
-        // 5. Set up a webhook (stripe → supabase edge function) to add 50 credits on payment success
-        const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_7sYaEZ5Rq1upa7ng0U7Vm00';
+        // Payment link for "50 Photo Imports" ($2.99 CAD) — test mode
+        // Webhook endpoint: https://tvdmuyrsvvamqptgvzci.supabase.co/functions/v1/stripe-webhook
+        const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/7sYaEZ5Rq1upa7ngOU7Vm00';
 
         function handlePurchase() {
             if (!currentUser) {
@@ -1451,7 +1447,7 @@
 
             // Open Stripe Checkout with user email pre-filled
             // The ?client_reference_id lets your webhook know which Supabase user paid
-            const checkoutUrl = `${STRIPE_PAYMENT_LINK}?client_reference_id=${currentUser.id}&prefilled_email=${encodeURIComponent(currentUser.email)}`;
+            const checkoutUrl = `${STRIPE_PAYMENT_LINK}?client_reference_id=${currentUser.id}`;
             window.open(checkoutUrl, '_blank');
 
             // Show a "checking for payment" state
