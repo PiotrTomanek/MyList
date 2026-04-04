@@ -797,6 +797,63 @@
         .credits-badge.logged-out { display: none; }
         .credits-count { color: #fff; }
 
+        /* ── Settings dropdown ── */
+        .settings-wrapper { position: relative; }
+        .settings-dropdown {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            width: 220px;
+            background: rgba(18, 18, 18, 0.98);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 8px 0;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-8px) scale(0.97);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        }
+        .settings-dropdown.open {
+            opacity: 1; visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+        .settings-dropdown-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 18px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.82rem; font-weight: 500;
+            letter-spacing: 0.04em;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none; background: none; width: 100%; text-align: left;
+        }
+        .settings-dropdown-item:hover {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .settings-dropdown-item svg {
+            width: 18px; height: 18px; flex-shrink: 0;
+            stroke: currentColor; fill: none;
+            stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+        }
+        .settings-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+            margin: 6px 0;
+        }
+        .settings-credits-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 18px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.35);
+        }
+        .settings-credits-row .credits-val {
+            color: #fff; font-size: 0.85rem;
+        }
+
         /* ── Paywall modal ── */
         .modal-paywall { max-width: 380px; text-align: center; }
         .paywall-icon { font-size: 3rem; margin-bottom: 8px; }
@@ -826,16 +883,6 @@
             </svg>
             <span class="btn-label">Scan</span>
         </button>
-        <button class="header-action-btn" onclick="openExportModal()" title="Export/Import Data">
-            <svg viewBox="0 0 24 24">
-                <path d="M12 3v10M12 3l-3 3M12 3l3 3" />
-                <path d="M12 21V11M12 21l-3-3M12 21l3-3" opacity="0.5" />
-                <path d="M4 12h4M16 12h4" />
-                <rect x="1" y="8" width="6" height="8" rx="1" opacity="0.3" />
-                <rect x="17" y="8" width="6" height="8" rx="1" opacity="0.3" />
-            </svg>
-            <span class="btn-label">Import / Export</span>
-        </button>
         <button class="header-action-btn" id="undoBtn" onclick="performUndo()" title="Undo" style="opacity: 0.3; pointer-events: none;">
             <svg viewBox="0 0 24 24">
                 <path d="M3 10h10a5 5 0 0 1 0 10H9" />
@@ -844,9 +891,47 @@
             </svg>
             <span class="btn-label">Undo</span>
         </button>
+        <div class="settings-wrapper">
+            <button class="header-action-btn" onclick="toggleSettingsMenu()" title="Settings" id="settingsBtn">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span class="btn-label">Settings</span>
+            </button>
+            <div class="settings-dropdown" id="settingsDropdown">
+                <div class="settings-credits-row" id="settingsCreditsRow" style="display:none;">
+                    <span>PHOTO IMPORTS</span>
+                    <span class="credits-val" id="settingsCreditsCount">0</span>
+                </div>
+                <div class="settings-divider" id="settingsCreditsDivider" style="display:none;"></div>
+                <button class="settings-dropdown-item" id="settingsAccountBtn" onclick="settingsAction('account')">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    Account
+                </button>
+                <button class="settings-dropdown-item" id="settingsBuyBtn" onclick="settingsAction('buy')" style="display:none;">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                    Buy Credits
+                </button>
+                <div class="settings-divider"></div>
+                <button class="settings-dropdown-item" onclick="settingsAction('export')">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10M12 3l-3 3M12 3l3 3" /><path d="M12 21V11M12 21l-3-3M12 21l3-3" opacity="0.5" /></svg>
+                    Export / Import
+                </button>
+                <button class="settings-dropdown-item" onclick="settingsAction('categories')">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" /><circle cx="6" cy="6" r="1" fill="currentColor" stroke="none" /><circle cx="6" cy="12" r="1" fill="currentColor" stroke="none" /><circle cx="6" cy="18" r="1" fill="currentColor" stroke="none" /></svg>
+                    Manage Categories
+                </button>
+                <div class="settings-divider"></div>
+                <button class="settings-dropdown-item" id="settingsSignInOut" onclick="settingsAction('auth')">
+                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                    <span id="settingsAuthLabel">Sign In</span>
+                </button>
+            </div>
+        </div>
     </header>
-    <!-- Credits badge (only visible when logged in) -->
-    <button class="credits-badge logged-out" id="creditsBadge" onclick="openAccountModal()" title="Credits">
+    <!-- Credits badge (hidden — now in settings menu) -->
+    <button class="credits-badge logged-out" id="creditsBadge" style="display:none;">
         <span id="creditsCount" class="credits-count">0</span>
         <span>CREDITS</span>
     </button>
@@ -1479,6 +1564,64 @@
             }, 3000);
         }
 
+        // ── Settings menu ──
+        function toggleSettingsMenu() {
+            const dropdown = document.getElementById('settingsDropdown');
+            const isOpen = dropdown.classList.contains('open');
+            if (isOpen) {
+                dropdown.classList.remove('open');
+            } else {
+                updateSettingsMenu();
+                dropdown.classList.add('open');
+            }
+        }
+
+        async function updateSettingsMenu() {
+            const creditsRow = document.getElementById('settingsCreditsRow');
+            const creditsDivider = document.getElementById('settingsCreditsDivider');
+            const buyBtn = document.getElementById('settingsBuyBtn');
+            const accountBtn = document.getElementById('settingsAccountBtn');
+            const authLabel = document.getElementById('settingsAuthLabel');
+
+            if (currentUser) {
+                const balance = await getCredits();
+                document.getElementById('settingsCreditsCount').textContent = balance ?? 0;
+                creditsRow.style.display = 'flex';
+                creditsDivider.style.display = 'block';
+                buyBtn.style.display = 'flex';
+                accountBtn.style.display = 'flex';
+                authLabel.textContent = 'Sign Out';
+            } else {
+                creditsRow.style.display = 'none';
+                creditsDivider.style.display = 'none';
+                buyBtn.style.display = 'none';
+                accountBtn.style.display = 'none';
+                authLabel.textContent = 'Sign In';
+            }
+        }
+
+        function settingsAction(action) {
+            document.getElementById('settingsDropdown').classList.remove('open');
+            switch (action) {
+                case 'account': openAccountModal(); break;
+                case 'buy': handlePurchase(); break;
+                case 'export': openExportModal(); break;
+                case 'categories': openManageCategoriesModal(); break;
+                case 'auth':
+                    if (currentUser) { handleSignOut(); }
+                    else { openAuthModal(); }
+                    break;
+            }
+        }
+
+        // Close settings menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.settings-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('settingsDropdown').classList.remove('open');
+            }
+        });
+
         // ── Account modal ──
         function openAccountModal() {
             updateAuthUI();
@@ -1492,6 +1635,7 @@
         async function handleSignOut() {
             await signOut();
             closeAccountModal();
+            updateSettingsMenu();
         }
 
         // ============================================================
