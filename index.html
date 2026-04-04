@@ -112,9 +112,9 @@
 
         .category-card {
             position: absolute; width: 85%; max-width: 900px; height: 85%;
-            background: transparent; padding: 40px 48px;
+            background: transparent; padding: 40px;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-y: auto; overflow-x: visible;
+            overflow-y: auto; overflow-x: hidden;
         }
         .category-card::-webkit-scrollbar { width: 3px; }
         .category-card::-webkit-scrollbar-track { background: transparent; }
@@ -181,9 +181,9 @@
 
         .task-list { list-style: none; margin-bottom: 30px; }
         .task-item {
-            padding: 18px 8px;
+            padding: 18px 0; padding-left: 8px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; overflow: visible;
+            position: relative; overflow: hidden;
             border-bottom: 1px solid rgba(255,255,255,0.03);
         }
         .task-item:last-child { border-bottom: none; }
@@ -2315,7 +2315,47 @@
                 pushUndo({ type: 'toggle', categoryId, taskId, previousState: task.completed });
                 task.completed = !task.completed;
                 saveToStorage();
-                renderCarousel();
+
+                // Update DOM in-place to preserve scroll position
+                const taskEl = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+                if (taskEl) {
+                    const checkbox = taskEl.querySelector('.task-checkbox');
+                    if (task.completed) {
+                        taskEl.classList.add('completed');
+                        checkbox.classList.add('checked');
+                        // Add swipe hint if not present
+                        const swipeContent = taskEl.querySelector('.task-swipe-content');
+                        if (swipeContent && !swipeContent.querySelector('.swipe-hint')) {
+                            const hint = document.createElement('div');
+                            hint.className = 'swipe-hint';
+                            hint.textContent = '← Swipe to delete';
+                            swipeContent.appendChild(hint);
+                        }
+                    } else {
+                        taskEl.classList.remove('completed');
+                        checkbox.classList.remove('checked');
+                        const hint = taskEl.querySelector('.swipe-hint');
+                        if (hint) hint.remove();
+                    }
+                    // Update category count(s)
+                    const activeCard = document.querySelector('.category-card.active');
+                    if (activeCard) {
+                        const countEl = activeCard.querySelector('.category-count');
+                        if (countEl) {
+                            // Check if this is the urgent (virtual) card
+                            const urgentCatId = categoryOrder.find(id => categories[id] && categories[id].isVirtual);
+                            if (urgentCatId && activeCard.dataset.index == categoryOrder.indexOf(urgentCatId)) {
+                                const urgentTasks = getUrgentTasks();
+                                countEl.textContent = urgentTasks.filter(t => !t.completed).length;
+                            } else {
+                                countEl.textContent = cat.tasks.filter(t => !t.completed).length;
+                            }
+                        }
+                    }
+                } else {
+                    renderCarousel();
+                }
+
                 syncTaskToCloud(categoryId, taskId, { completed: task.completed });
             }
         }
