@@ -183,7 +183,7 @@
         .task-item {
             padding: 18px 0; padding-left: 8px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; overflow: hidden;
+            position: relative; overflow: visible;
             border-bottom: 1px solid rgba(255,255,255,0.03);
         }
         .task-item:last-child { border-bottom: none; }
@@ -211,19 +211,20 @@
         .task-item.poofing { animation: poof 0.3s ease-out forwards; pointer-events: none; }
 
         .swipe-hint { font-size: 0.65rem; color: rgba(255, 255, 255, 0.25); margin-top: 6px; font-style: normal; opacity: 0; transition: opacity 0.3s ease; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Space Grotesk', sans-serif; font-weight: 500; }
-        .task-item.completed:hover .swipe-hint { opacity: 1; }
-        @media (max-width: 768px) { .task-item.completed .swipe-hint { opacity: 0.7; } }
+        .task-item:hover .swipe-hint { opacity: 1; }
+        @media (max-width: 768px) { .task-item .swipe-hint { opacity: 0.7; } }
 
         .task-main { display: flex; align-items: flex-start; gap: 15px; }
         .task-checkbox {
-            width: 24px; height: 24px; min-width: 24px;
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            width: 28px; height: 28px; min-width: 28px;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
             border-radius: 6px;
             cursor: pointer; flex-shrink: 0;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-top: 6px; display: flex; align-items: center; justify-content: center;
-            background: transparent;
+            margin-top: 4px; display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
             position: relative;
+            z-index: 2;
         }
         .task-checkbox:hover {
             border-color: rgba(255,255,255,0.6);
@@ -2042,7 +2043,7 @@
                                     <div class="task-meta">${priorityBadge}${sourceBadge}</div>
                                 </div>
                             </div>
-                            ${task.completed ? '<div class="swipe-hint">← Swipe to delete</div>' : ''}
+                            <div class="swipe-hint">← Swipe to delete</div>
                         </div>
                     </div>
                 </li>
@@ -2113,7 +2114,7 @@
                                     <button class="add-steps-btn" onclick="openStepsModal('${categoryId}', '${task.id}')">${task.steps && task.steps.length > 0 ? 'EDIT STEPS' : '+ STEPS'}</button>
                                 </div>
                             </div>
-                            ${task.completed ? '<div class="swipe-hint">← Swipe to delete</div>' : ''}
+                            <div class="swipe-hint">← Swipe to delete</div>
                         </div>
                     </div>
                 </li>
@@ -2232,10 +2233,7 @@
                 const content = container.querySelector('.task-swipe-content');
                 const deleteBg = container.querySelector('.task-delete-bg');
                 const taskItem = container.closest('.task-item');
-                const isCompleted = taskItem.classList.contains('completed');
-
-                // Only allow swipe-to-delete on completed tasks
-                if (!isCompleted) return;
+                // Allow swipe-to-delete on all tasks
 
                 let startX = 0;
                 let startY = 0;
@@ -2323,19 +2321,9 @@
                     if (task.completed) {
                         taskEl.classList.add('completed');
                         checkbox.classList.add('checked');
-                        // Add swipe hint if not present
-                        const swipeContent = taskEl.querySelector('.task-swipe-content');
-                        if (swipeContent && !swipeContent.querySelector('.swipe-hint')) {
-                            const hint = document.createElement('div');
-                            hint.className = 'swipe-hint';
-                            hint.textContent = '← Swipe to delete';
-                            swipeContent.appendChild(hint);
-                        }
                     } else {
                         taskEl.classList.remove('completed');
                         checkbox.classList.remove('checked');
-                        const hint = taskEl.querySelector('.swipe-hint');
-                        if (hint) hint.remove();
                     }
                     // Update category count(s)
                     const activeCard = document.querySelector('.category-card.active');
