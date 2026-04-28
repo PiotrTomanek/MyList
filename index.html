@@ -3463,6 +3463,50 @@
             updatePhotoPreview();
         }
 
+        // Compress + resize an image File before sending to the Edge Function.
+        // Reduces a 5–10MB iPhone photo to ~150–300KB without hurting OCR quality.
+        async function compressImage(file, maxDim = 1024, quality = 0.7) {
+            // createImageBitmap respects EXIF orientation so portraits don't come out sideways
+            const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+
+            // Scale down so the longest side is at most maxDim, preserving aspect ratio
+            let { width, height } = bitmap;
+            if (width > maxDim || height > maxDim) {
+                if (width > height) {
+                    height = Math.round((height / width) * maxDim);
+                    width = maxDim;
+                } else {
+                    width = Math.round((width / height) * maxDim);
+                    height = maxDim;
+                }
+            }
+
+            // Draw the resized image onto a canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0, width, height);
+            bitmap.close();
+
+            // Export as JPEG at the chosen quality, return as base64
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (!blob) { reject(new Error('Compression failed')); return; }
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const dataUrl = reader.result;
+                        resolve({
+                            mediaType: 'image/jpeg',
+                            base64: dataUrl.split(',')[1]
+                        });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                }, 'image/jpeg', quality);
+            });
+        }
+
         async function processPhoto() {
             if (selectedPhotos.length === 0) { showImportError('Select photos'); return; }
 
@@ -3483,11 +3527,11 @@
             document.getElementById('importError').classList.remove('show');
 
             try {
-                // Prepare images as base64 for the secure Edge Function
-                const images = selectedPhotos.map(p => ({
-                    mediaType: p.file.type,
-                    base64: p.dataUrl.split(',')[1]
-                }));
+                // Compress + resize each photo client-side before upload.
+                // This keeps payloads small, scans fast, and Claude bills tiny.
+                const images = await Promise.all(
+                    selectedPhotos.map(p => compressImage(p.file))
+                );
 
                 const existingCategories = categoryOrder.filter(id => id !== 'urgent').map(id => categories[id]?.name).filter(Boolean);
 
