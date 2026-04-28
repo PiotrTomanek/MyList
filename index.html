@@ -204,10 +204,10 @@
             overflow-y: auto; overflow-x: hidden;
             box-sizing: border-box;
         }
-        .category-card::-webkit-scrollbar { width: 3px; }
-        .category-card::-webkit-scrollbar-track { background: transparent; }
-        .category-card::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
-        .category-card::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+        /* Hide the scrollbar on category cards entirely for a clean iOS feel.
+           Content still scrolls — just no visible bar to distract during swipes. */
+        .category-card { scrollbar-width: none; -ms-overflow-style: none; }
+        .category-card::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
         .category-card.active { z-index: 10; opacity: 1; transform: translateX(0) translateZ(0) scale(1) rotateY(0deg); pointer-events: auto; filter: blur(0); }
         .category-card.prev { z-index: 5; opacity: 0.15; transform: translateX(-45%) translateZ(-400px) scale(0.7) rotateY(15deg); pointer-events: auto; filter: blur(3px); cursor: pointer; }
@@ -2963,7 +2963,30 @@
 
             cat.tasks.splice(taskIndex, 1);
             saveToStorage();
-            renderCarousel();
+
+            // Remove the task element(s) in-place so the list doesn't jump back to the top.
+            // Same id can appear on both the source card and the Urgent card — drop both.
+            const taskEls = document.querySelectorAll(`.task-item[data-task-id="${taskId}"]`);
+            if (taskEls.length === 0) {
+                renderCarousel();
+            } else {
+                taskEls.forEach(el => el.remove());
+                // Refresh count badges on every rendered card so totals stay in sync.
+                document.querySelectorAll('.category-card').forEach(card => {
+                    const cardCatId = categoryOrder[parseInt(card.dataset.index)];
+                    const cardCat = categories[cardCatId];
+                    if (!cardCat) return;
+                    const countEl = card.querySelector('.category-count');
+                    if (!countEl) return;
+                    if (cardCat.isVirtual) {
+                        const urgentTasks = getUrgentTasks();
+                        countEl.textContent = urgentTasks.filter(t => !t.completed).length;
+                    } else {
+                        countEl.textContent = cardCat.tasks.filter(t => !t.completed).length;
+                    }
+                });
+            }
+
             syncDeleteTaskToCloud(categoryId, taskId);
         }
 
