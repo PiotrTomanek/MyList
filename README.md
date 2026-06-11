@@ -14,9 +14,11 @@
 
 <br>
 
-### → [**OPEN THE APP**](https://piotrtomanek.github.io/MyList/app.html) ←
+### → [**DOWNLOAD ON THE APP STORE**](https://apps.apple.com/ca/app/mylist-task-list/id6765983895) ←
 
-*Runs in your browser. Nothing to install.*
+### → [**OPEN THE WEB APP**](https://piotrtomanek.github.io/MyList/app.html) ←
+
+*Native on iOS, or runs in your browser. Nothing to install.*
 
 ---
 
