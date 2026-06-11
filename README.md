@@ -22,6 +22,14 @@
 
 ---
 
+## SCREENSHOTS
+
+| Urgent view | Your worlds | Handwriting → tasks | Light mode | One menu |
+|:---:|:---:|:---:|:---:|:---:|
+| ![The Urgent view aggregates urgent tasks across every category](screenshots/urgent-view.png) | ![Work category with priorities and completed tasks](screenshots/work-list.png) | ![Photo Import turns a handwritten note into organised tasks](screenshots/photo-import.png) | ![Shopping list in light mode](screenshots/shopping-light.png) | ![Settings menu — export, categories, theme](screenshots/settings-menu.png) |
+
+---
+
 ## WHAT IS THIS
 
 MyList is a single-file HTML task manager built for calm, focused productivity.
