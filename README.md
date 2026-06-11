@@ -14,7 +14,7 @@
 
 <br>
 
-### → [**OPEN THE APP**](https://piotrtomanek.github.io/MyList/) ←
+### → [**OPEN THE APP**](https://piotrtomanek.github.io/MyList/app.html) ←
 
 *Runs in your browser. Nothing to install.*
 
@@ -196,4 +196,4 @@ MyList wants almost nothing. The core is still just a file. Your tasks stay on y
 
 *Built with obsessive attention to simplicity.*
 
-**[⬇ Download](./mylist.html)** · **[🐛 Issues](../../issues)** · **[⭐ Star if you use it](../../stargazers)**
+**[⬇ Open the App](./app.html)** · **[🐛 Issues](../../issues)** · **[⭐ Star if you use it](../../stargazers)**
